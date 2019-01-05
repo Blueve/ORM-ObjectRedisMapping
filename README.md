@@ -1,15 +1,15 @@
 # ORM - Object Redis Mapping (Developing)
----
+
 A tool to map and associate objects(entities) with Key-Value based database Redis.
 
-With this tool, you will no longer have to worry about hot to design Redis schema and data acuisition and writing complexity.
+You will no longer have to worry about how to design Redis schema and needn't to deal with data acuisition and writing too with this tool.
 
-This is a toy project developed out of personal interest. I will try to use this project to experiment with some problemes in my work. Although I have no way to apply the technology used in this project in my work, I beliveve that the experience I gained in developing this project will be of great benefit to me.
+This is a toy project developed out of personal interest. I will try to use this project to experiment with some problemes in my work. Although I have no way to apply the technology used in this project in my work, I believe that the experience I gained in developing this project will be of great benefit to me.
 
-If you are interested in this project too, you are welcome to put forward your suggestions in [Issue] and you are also welcome to contribute this project with me.
+If you are interested in this project too, you are welcome to put forward your suggestions in [Issues](https://github.com/Blueve/ORM-ObjectRedisMapping/issues) and you are also welcome to contribute this project with me.
 
 ---
-SINCE THIS PROJECT IS UNDER DEVELOPING, THE SHOW CASE BELOW IS JUST FOR PREVIEW THE API AND USAGE.
+SINCE THIS PROJECT IS UNDER DEVELOPING, THE SHOW CASE BELOW IS JUST FOR PREVIEW THE API AND THE USAGE.
 
 ## Show Case
 
@@ -53,6 +53,12 @@ person.Age = 18;
 // Redis
 // Person00000005JerryAge -> 18
 ```
+
+---
+
+## Contribution Guide
+
+// TODO
 
 ---
 
