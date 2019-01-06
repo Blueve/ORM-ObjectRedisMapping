@@ -1,5 +1,7 @@
 # ORM - Object Redis Mapping (Developing)
 
+[![Build Status](https://dev.azure.com/blueveyoud/ORM-ObjectRedisMapping/_apis/build/status/Blueve.ORM-ObjectRedisMapping?branchName=master)](https://dev.azure.com/blueveyoud/ORM-ObjectRedisMapping/_build/latest?definitionId=1?branchName=master)
+
 A tool to map and associate objects(entities) with Key-Value based database Redis.
 
 You will no longer have to worry about how to design Redis schema and needn't to deal with data acuisition and writing too with this tool.
