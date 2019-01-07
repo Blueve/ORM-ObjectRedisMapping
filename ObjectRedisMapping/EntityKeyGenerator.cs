@@ -1,8 +1,6 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
 
     /// <summary>
     /// The entity database key generator.
@@ -26,39 +24,50 @@
         /// <summary>
         /// Gets the database key of an entity.
         /// </summary>
-        /// <param name="typeMetdata">The type metadata of entity.</param>
-        /// <param name="entityKeyValue">The value of entity key.</param>
+        /// <param name="typeMetadata">The type metadata of entity.</param>
+        /// <param name="entityKey">The entity key.</param>
         /// <returns>The databse key.</returns>
-        public string GetDbKey(TypeMetadata typeMetdata, string entityKeyValue)
+        public string GetDbKey(TypeMetadata typeMetadata, string entityKey)
         {
-            return $"{typeMetdata.Name}{this.entityKeyValueFormatter.Format(entityKeyValue)}";
+            return $"{typeMetadata.Name}{this.entityKeyValueFormatter.Format(entityKey)}";
         }
 
         /// <summary>
         /// Gets the database key of an entity.
         /// </summary>
-        /// <param name="typeMetdata">The type metadata of entity.</param>
+        /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entity">The value of entity.</param>
         /// <returns>The databse key.</returns>
-        public string GetDbKey(TypeMetadata typeMetdata, object entity)
+        public string GetDbKey(TypeMetadata typeMetadata, object entity)
         {
-            var key = typeMetdata.KeyProperty.GetValue(entity);
+            return this.GetDbKey(typeMetadata, this.GetEntityKey(typeMetadata, entity));
+        }
 
-            if (typeMetdata.KeyAttribute.UseInterface)
+        /// <summary>
+        /// Gets the entity key.
+        /// </summary>
+        /// <param name="typeMetadata">The type metadata of entity.</param>
+        /// <param name="entity">The value of entity.</param>
+        /// <returns>The entity key.</returns>
+        public string GetEntityKey(TypeMetadata typeMetadata, object entity)
+        {
+            var key = typeMetadata.KeyProperty.GetValue(entity);
+
+            if (typeMetadata.KeyAttribute.UseInterface)
             {
                 // Use GetKey() to generate the key of entity if user indicate that property implemented IEntityKey.
                 if (key is IEntityKey entityKey)
                 {
-                    return this.GetDbKey(typeMetdata, entityKey.GetKey());
+                    return entityKey.GetKey();
                 }
 
                 throw new InvalidOperationException(
-                    $"Type {typeMetdata.Name} dosen't implement interface IEntityKey.");
+                    $"Type {typeMetadata.Name} dosen't implement interface IEntityKey.");
             }
             else
             {
                 // Use ToString() to generate the key of entity by default.
-                return this.GetDbKey(typeMetdata, key.ToString());
+                return key.ToString();
             }
         }
     }

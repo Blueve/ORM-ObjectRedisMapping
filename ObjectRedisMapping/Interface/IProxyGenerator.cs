@@ -9,8 +9,8 @@
         /// Generate a proxy for the given type.
         /// </summary>
         /// <typeparam name="T">The type.</typeparam>
-        /// <param name="dbKey">The database key.</param>
+        /// <param name="entityKey">The entity key.</param>
         /// <returns>The proxy.</returns>
-        T Generate<T>(string dbKey) where T : class;
+        T Generate<T>(string entityKey) where T : class;
     }
 }

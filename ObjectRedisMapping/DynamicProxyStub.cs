@@ -128,7 +128,7 @@
             where T : class
         {
             var entityKey = this.dbAccessor.Get(dbKey);
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, dbKey);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.entityKeyGenerator, dbKey);
             return proxyGenerator.Generate<T>(entityKey);
         }
 
@@ -143,7 +143,7 @@
         {
             // TODO: If value is not a proxy, then commit value as an entity and then update the DB reference.
             var typeMetadata = this.typeRepo.GetOrAdd(typeof(T));
-            var entityKey = this.entityKeyGenerator.GetDbKey(typeMetadata, value);
+            var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
             this.dbAccessor.Set(dbKey, entityKey);
         }
     }
