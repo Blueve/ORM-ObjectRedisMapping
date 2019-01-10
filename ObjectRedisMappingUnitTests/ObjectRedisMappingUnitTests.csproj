@@ -8,6 +8,8 @@
     <AssemblyName>Blueve.ObjectRedisMapping.UnitTests</AssemblyName>
 
     <RootNamespace>Blueve.ObjectRedisMapping.UnitTests</RootNamespace>
+
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

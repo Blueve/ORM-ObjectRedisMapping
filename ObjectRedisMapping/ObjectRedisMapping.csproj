@@ -9,6 +9,7 @@
     <Authors>Blueve</Authors>
     <Description>A tool to map and associate objects(entities) with Key-Value based database Redis.</Description>
     <SignAssembly>false</SignAssembly>
+    <LangVersion>7.2</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

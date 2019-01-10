@@ -5,9 +5,9 @@
     using System.Reflection;
 
     /// <summary>
-    /// The database record builder for entity.
+    /// The database record builder.
     /// </summary>
-    internal class EntityDbRecordBuilder : IEntityDbRecordBuilder
+    internal class DbRecordBuilder : IDbRecordBuilder
     {
         /// <summary>
         /// The type repository.
@@ -20,31 +20,23 @@
         private readonly EntityKeyGenerator entityKeyGenerator;
 
         /// <summary>
-        /// The database key prefix.
-        /// </summary>
-        private readonly string prefix;
-
-        /// <summary>
-        /// Initialize an instance of <see cref="EntityDbRecordBuilder"/>.
+        /// Initialize an instance of <see cref="DbRecordBuilder"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
-        /// <param name="prefix">The prefix, default is an empty string.</param>
-        public EntityDbRecordBuilder(
+        public DbRecordBuilder(
             TypeRepository typeRepo,
-            EntityKeyGenerator entityKeyGenerator,
-            string prefix = "")
+            EntityKeyGenerator entityKeyGenerator)
         {
             this.typeRepo = typeRepo;
-            this.entityKeyGenerator = entityKeyGenerator;
-            this.prefix = prefix;
+            this.entityKeyGenerator = entityKeyGenerator;;
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DbRecord> Generate<T>(T entity)
+        public IEnumerable<DbRecord> Generate<T>(T entity, string prefix = "")
         {
             var type = typeof(T);
-            return this.Generate(type, entity);
+            return this.Generate(type, entity, prefix);
         }
 
         /// <summary>
@@ -52,17 +44,27 @@
         /// </summary>
         /// <param name="type">The object type.</param>
         /// <param name="obj">The object.</param>
+        /// <param name="prefix">The prefix, default is an empty string.</param>
         /// <returns></returns>
-        private IEnumerable<DbRecord> Generate(Type type, object obj)
+        private IEnumerable<DbRecord> Generate(Type type, object obj, string prefix = "")
         {
             // Traverse the property tree by using DFS.
-            var states = new Stack<(PropertyInfo prop, object val, string dbKey)>();
+            var states = new Stack<(PropertyInfo prop, object val, string prefix)>();
 
             // Initialize the searching with the properties of the object.
-            // TODO: If the object is an entity, build the record from entity key.
-            //       If the object is an object, build the record from the builder's prefix.
             var typeMetadata = this.typeRepo.GetOrAdd(type);
-            var entityPrefix = this.entityKeyGenerator.GetDbKey(typeMetadata, obj);
+            string basePrefix;
+            switch (typeMetadata.ValueType)
+            {
+                case ObjectValueType.Entity:
+                    basePrefix = this.entityKeyGenerator.GetDbKey(typeMetadata, obj);
+                    break;
+
+                default:
+                    basePrefix = prefix;
+                    break;
+            }
+
             foreach (var prop in typeMetadata.Properties)
             {
                 var value = prop.GetValue(obj);
@@ -71,7 +73,7 @@
                     continue;
                 }
 
-                states.Push((prop, value, entityPrefix));
+                states.Push((prop, value, basePrefix));
             }
 
             // Searching and build the database record.

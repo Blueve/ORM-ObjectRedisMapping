@@ -16,7 +16,7 @@
         /// <summary>
         /// The database record builder.
         /// </summary>
-        private readonly IEntityDbRecordBuilder dbRecordBuilder;
+        private readonly IDbRecordBuilder dbRecordBuilder;
 
         /// <summary>
         /// Initialize an instance of <see cref="EntityRecorder"/>.
@@ -25,7 +25,7 @@
         /// <param name="dbRecordBuilder">The databse record builder.</param>
         public EntityRecorder(
             IDbAccessor dbAccessor,
-            IEntityDbRecordBuilder dbRecordBuilder)
+            IDbRecordBuilder dbRecordBuilder)
         {
             this.dbAccessor = dbAccessor;
             this.dbRecordBuilder = dbRecordBuilder;

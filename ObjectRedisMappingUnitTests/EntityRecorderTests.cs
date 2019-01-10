@@ -13,14 +13,14 @@
     public class EntityRecorderTests
     {
         private Mock<IDbAccessor> dbAccessor;
-        private Mock<IEntityDbRecordBuilder> dbKeyValueBuilder;
+        private Mock<IDbRecordBuilder> dbKeyValueBuilder;
         private EntityRecorder recorder;
 
         [TestInitialize]
         public void Initialize()
         {
             this.dbAccessor = new Mock<IDbAccessor>();
-            this.dbKeyValueBuilder = new Mock<IEntityDbRecordBuilder>();
+            this.dbKeyValueBuilder = new Mock<IDbRecordBuilder>();
             this.recorder = new EntityRecorder(this.dbAccessor.Object, this.dbKeyValueBuilder.Object);
         }
 
@@ -37,7 +37,7 @@
                 .Setup(accessor => accessor.Set(It.IsAny<string>(), It.IsAny<string>()))
                 .Callback<string, string>((k, v) => stringDict.TryAdd(k, v));
             this.dbKeyValueBuilder
-                .Setup(builder => builder.Generate(entity))
+                .Setup(builder => builder.Generate(entity, string.Empty))
                 .Returns(() => new[]
                 {
                     new DbRecord("PlainEntity000000011UserName", new DbValue { Type = DbValueType.String, Object = "Blueve" })
