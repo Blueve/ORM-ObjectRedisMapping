@@ -8,9 +8,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E568415C-41CA-4E34-B236-FCF47926BA4C}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		.runsettings = .runsettings
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObjectRedisMappingUnitTests", "ObjectRedisMappingUnitTests\ObjectRedisMappingUnitTests.csproj", "{D2CCDE73-19FC-4A64-ADD2-5766669911D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObjectRedisMappingUnitTests", "ObjectRedisMappingUnitTests\ObjectRedisMappingUnitTests.csproj", "{D2CCDE73-19FC-4A64-ADD2-5766669911D4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
