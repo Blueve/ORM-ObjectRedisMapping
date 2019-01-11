@@ -87,38 +87,23 @@
 
                 // Process current property.
                 curPrefix += $"{curProp.Name}";
-                DbValue dbValue;
                 switch (propTypeMetadata.ValueType)
                 {
                     case ObjectValueType.Primitive:
                     case ObjectValueType.String:
-                        dbValue = new DbValue
-                        {
-                            Type = DbValueType.String,
-                            Object = curValue.ToString()
-                        };
-                        yield return new DbRecord(curPrefix, dbValue);
+                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, curValue.ToString()));
                         break;
 
                     case ObjectValueType.Entity:
-                        dbValue = new DbValue
-                        {
-                            Type = DbValueType.String,
-                            Object = this.entityKeyGenerator.GetDbKey(propTypeMetadata, curValue)
-                        };
-                        yield return new DbRecord(curPrefix, dbValue);
+                        var entityKey = this.entityKeyGenerator.GetDbKey(propTypeMetadata, curValue);
+                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, entityKey));
                         break;
 
                     case ObjectValueType.Object:
                         if (visitedObjs.TryGetValue(curValue, out var objDbKey))
                         {
                             // The object has appeared before, record its Guid as the database record.
-                            dbValue = new DbValue
-                            {
-                                Type = DbValueType.String,
-                                Object = objDbKey
-                            };
-                            yield return new DbRecord(curPrefix, dbValue);
+                            yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, objDbKey));
                             break;
                         }
 

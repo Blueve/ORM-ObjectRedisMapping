@@ -3,17 +3,17 @@
     /// <summary>
     /// The databse record.
     /// </summary>
-    internal struct DbRecord
+    internal readonly struct DbRecord
     {
         /// <summary>
         /// The database key.
         /// </summary>
-        public string Key;
+        public readonly string Key;
 
         /// <summary>
         /// The database value.
         /// </summary>
-        public DbValue Value;
+        public readonly DbValue Value;
 
         /// <summary>
         /// Initialize an instance of <see cref="DbRecord"/>.

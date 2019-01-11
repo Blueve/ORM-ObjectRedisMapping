@@ -40,7 +40,7 @@
                 .Setup(builder => builder.Generate(entity, string.Empty))
                 .Returns(() => new[]
                 {
-                    new DbRecord("PlainEntity000000011UserName", new DbValue { Type = DbValueType.String, Object = "Blueve" })
+                    new DbRecord("PlainEntity000000011UserName", new DbValue(DbValueType.String, "Blueve"))
                 });
 
             // Commit the entity.

@@ -6,7 +6,7 @@
     /// The entity key attribute.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    internal class EntityKeyAttribute : Attribute
+    internal sealed class EntityKeyAttribute : Attribute
     {
         /// <summary>
         /// Indicate whether the entity key want to use interface to extract it key.

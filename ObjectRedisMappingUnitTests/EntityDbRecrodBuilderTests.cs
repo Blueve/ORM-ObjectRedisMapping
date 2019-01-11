@@ -30,11 +30,11 @@
             };
             var records = this.builder.Generate(entity).ToArray();
 
-            // TODO: Find a better way to compare unordered result.
-            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity000000011UserId", records[1].Key);
-            Assert.AreEqual("1", records[1].Value.Object);
-            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity000000011UserName", records[0].Key);
-            Assert.AreEqual("Blueve", records[0].Value.Object);
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity000000011UserId", new DbValue(DbValueType.String, "1")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity000000011UserName", new DbValue(DbValueType.String, "Blueve"))
+            }, records);
         }
 
         [TestMethod]
@@ -49,10 +49,12 @@
                 }
             };
             var records = this.builder.Generate(nestedEntity).ToArray();
-            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000011Key", records[1].Key);
-            Assert.AreEqual("1", records[1].Value.Object);
-            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000011LeftChild", records[0].Key);
-            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000012", records[0].Value.Object);
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000011Key", new DbValue(DbValueType.String, "1")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000011LeftChild", new DbValue(DbValueType.String, "Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000012"))
+            }, records);
         }
 
         [TestMethod]
@@ -63,12 +65,13 @@
                 Name = "Age",
                 Value = "26"
             };
-
             var records = this.builder.Generate(obj, "Prefix").ToArray();
-            Assert.AreEqual("PrefixValue", records[0].Key);
-            Assert.AreEqual("26", records[0].Value.Object);
-            Assert.AreEqual("PrefixName", records[1].Key);
-            Assert.AreEqual("Age", records[1].Value.Object);
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbRecord("PrefixName", new DbValue(DbValueType.String, "Age")),
+                new DbRecord("PrefixValue", new DbValue(DbValueType.String, "26"))
+            }, records);
         }
 
         [TestMethod]
@@ -82,12 +85,13 @@
                     Name = "Unknown"
                 }
             };
-
             var records = this.builder.Generate(obj, "Prefix").ToArray();
-            Assert.AreEqual("PrefixChildName", records[0].Key);
-            Assert.AreEqual("Unknown", records[0].Value.Object);
-            Assert.AreEqual("PrefixName", records[1].Key);
-            Assert.AreEqual("Blueve", records[1].Value.Object);
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbRecord("PrefixName", new DbValue(DbValueType.String, "Blueve")),
+                new DbRecord("PrefixChildName", new DbValue(DbValueType.String, "Unknown"))
+            }, records);
         }
     }
 }
