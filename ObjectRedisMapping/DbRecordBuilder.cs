@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
 
     /// <summary>
@@ -29,41 +30,55 @@
             EntityKeyGenerator entityKeyGenerator)
         {
             this.typeRepo = typeRepo;
-            this.entityKeyGenerator = entityKeyGenerator;;
+            this.entityKeyGenerator = entityKeyGenerator;
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DbRecord> Generate<T>(T entity, string prefix = "")
+        public IEnumerable<DbRecord> Generate<T>(T obj, string prefix = "")
         {
             var type = typeof(T);
-            return this.Generate(type, entity, prefix);
+            var typeMetadata = this.typeRepo.GetOrAdd(type);
+
+            switch (typeMetadata.ValueType)
+            {
+                // Deal with all non-reference types here to avoid boxing.
+                // TODO: Refactor primitive and string type to avoid generate an itor for a single record.
+                case ObjectValueType.Primitive:
+                case ObjectValueType.String:
+                    // TODO: We can convert primitive to binary format to avoid information missing.
+                    return Enumerable.Empty<DbRecord>().Append(DbRecord.GenerateStringRecord(prefix, obj.ToString()));
+
+                // Deal with reference types.
+                case ObjectValueType.Entity:
+                case ObjectValueType.Object:
+                    return this.Generate(typeMetadata, obj, prefix);
+
+                case ObjectValueType.Struct:
+                case ObjectValueType.List:
+                case ObjectValueType.Set:
+                    throw new NotImplementedException();
+
+                default:
+                    throw new NotSupportedException();
+            }
         }
 
         /// <summary>
         /// Generate database records for the given object.
         /// </summary>
-        /// <param name="type">The object type.</param>
+        /// <param name="typeMetadata">The type metadata of the object.</param>
         /// <param name="obj">The object.</param>
         /// <param name="prefix">The prefix, default is an empty string.</param>
         /// <returns></returns>
-        private IEnumerable<DbRecord> Generate(Type type, object obj, string prefix = "")
+        private IEnumerable<DbRecord> Generate(TypeMetadata typeMetadata, object obj, string prefix = "")
         {
             // Traverse the property tree by using DFS.
             var states = new Stack<(PropertyInfo prop, object val, string prefix)>();
 
             // Initialize the searching with the properties of the object.
-            var typeMetadata = this.typeRepo.GetOrAdd(type);
-            string basePrefix;
-            switch (typeMetadata.ValueType)
-            {
-                case ObjectValueType.Entity:
-                    basePrefix = this.entityKeyGenerator.GetDbKey(typeMetadata, obj);
-                    break;
-
-                default:
-                    basePrefix = prefix;
-                    break;
-            }
+            var basePrefix = typeMetadata.ValueType == ObjectValueType.Entity
+                ? this.entityKeyGenerator.GetDbKey(typeMetadata, obj)
+                : prefix;
 
             foreach (var prop in typeMetadata.Properties)
             {
@@ -86,12 +101,12 @@
                 var propTypeMetadata = this.typeRepo.GetOrAdd(propType);
 
                 // Process current property.
-                curPrefix += $"{curProp.Name}";
+                curPrefix += curProp.Name;
                 switch (propTypeMetadata.ValueType)
                 {
                     case ObjectValueType.Primitive:
                     case ObjectValueType.String:
-                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, curValue.ToString()));
+                        yield return DbRecord.GenerateStringRecord(curPrefix, curValue.ToString());
                         break;
 
                     case ObjectValueType.Entity:
@@ -120,7 +135,7 @@
                         }
 
                         break;
-
+                    case ObjectValueType.Struct:
                     case ObjectValueType.List:
                     case ObjectValueType.Set:
                     default:

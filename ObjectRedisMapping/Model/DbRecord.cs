@@ -25,5 +25,16 @@
             this.Key = key;
             this.Value = value;
         }
+
+        /// <summary>
+        /// Generate an record which contains a string value.
+        /// </summary>
+        /// <param name="key">The database key.</param>
+        /// <param name="value">The database value.</param>
+        /// <returns></returns>
+        public static DbRecord GenerateStringRecord(string key, string value)
+        {
+            return new DbRecord(key, new DbValue(DbValueType.String, value));
+        }
     }
 }

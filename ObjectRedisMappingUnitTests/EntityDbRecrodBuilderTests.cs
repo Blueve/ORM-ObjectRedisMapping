@@ -93,5 +93,32 @@
                 new DbRecord("PrefixChildName", new DbValue(DbValueType.String, "Unknown"))
             }, records);
         }
+
+        [DataTestMethod]
+        [DataRow("Blueve", "Prefix", "Blueve")]
+        [DataRow("Ada", "Prefix", "Ada")]
+        public void TestGenerate_String(string value, string expectedKey, string expectedValue)
+        {
+            var records = this.builder.Generate(value, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                DbRecord.GenerateStringRecord(expectedKey, expectedValue)
+            }, records);
+        }
+
+        [DataTestMethod]
+        [DataRow(0, "Prefix", "0")]
+        [DataRow(-1, "Prefix", "-1")]
+        [DataRow(128, "Prefix", "128")]
+        public void TestGenerate_Int32(int value, string expectedKey, string expectedValue)
+        {
+            var records = this.builder.Generate(value, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                DbRecord.GenerateStringRecord(expectedKey, expectedValue)
+            }, records);
+        }
     }
 }

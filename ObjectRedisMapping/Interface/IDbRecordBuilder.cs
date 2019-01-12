@@ -8,12 +8,12 @@
     internal interface IDbRecordBuilder
     {
         /// <summary>
-        /// Generate database records from the entity.
+        /// Generate database records from the object.
         /// </summary>
-        /// <typeparam name="T">The type of entity.</typeparam>
-        /// <param name="entity">The entity.</param>
+        /// <typeparam name="T">The type of object.</typeparam>
+        /// <param name="obj">The object.</param>
         /// <param name="prefix">The prefix, default is an empty string.</param>
         /// <returns>The records.</returns>
-        IEnumerable<DbRecord> Generate<T>(T entity, string prefix = "");
+        IEnumerable<DbRecord> Generate<T>(T obj, string prefix = "");
     }
 }
