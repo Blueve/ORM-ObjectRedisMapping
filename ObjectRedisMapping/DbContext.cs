@@ -33,7 +33,7 @@
                 throw new InvalidOperationException($"The type {typeMetadata.Name} is not an entity type.");
             }
 
-            return this.proxyGenerator.Generate<T>(key);
+            return this.proxyGenerator.GenerateForEntity<T>(key);
         }
 
         /// <inheritdoc/>

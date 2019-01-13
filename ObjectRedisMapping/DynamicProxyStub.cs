@@ -18,24 +18,40 @@
         private readonly IDbAccessor dbAccessor;
 
         /// <summary>
+        /// The databse record builder.
+        /// </summary>
+        private readonly IDbRecordBuilder dbRecordBuilder;
+
+        /// <summary>
         /// The entity key generator.
         /// </summary>
         private readonly EntityKeyGenerator entityKeyGenerator;
+
+        /// <summary>
+        /// The database record submitter.
+        /// </summary>
+        private readonly DbRecordSubmitter dbRecorderSubmitter;
 
         /// <summary>
         /// Initialzie an instance of <see cref="DynamicProxyStub"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
         /// <param name="dbAccessor">The databse accessor.</param>
+        /// <param name="dbRecordBuilder">The databse record builder.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         internal DynamicProxyStub(
             ITypeRepository typeRepo,
             IDbAccessor dbAccessor,
+            IDbRecordBuilder dbRecordBuilder,
             EntityKeyGenerator entityKeyGenerator)
         {
             this.typeRepo = typeRepo;
             this.dbAccessor = dbAccessor;
+            this.dbRecordBuilder = dbRecordBuilder;
             this.entityKeyGenerator = entityKeyGenerator;
+
+            // TODO: This submitter can be inject, but I put it here util factory done.
+            this.dbRecorderSubmitter = new DbRecordSubmitter(this.dbAccessor);
         }
 
         /// <summary>
@@ -128,8 +144,8 @@
             where T : class
         {
             var entityKey = this.dbAccessor.Get(dbKey);
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.entityKeyGenerator, dbKey);
-            return proxyGenerator.Generate<T>(entityKey);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, this.entityKeyGenerator, dbKey);
+            return proxyGenerator.GenerateForEntity<T>(entityKey);
         }
 
         /// <summary>
@@ -145,6 +161,31 @@
             var typeMetadata = this.typeRepo.GetOrAdd(typeof(T));
             var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
             this.dbAccessor.Set(dbKey, entityKey);
+        }
+
+        /// <summary>
+        /// The getter for object type.
+        /// </summary>
+        /// <typeparam name="T">The object type.</typeparam>
+        /// <param name="dbKey">The databse key.</param>
+        /// <returns>The proxy of object</returns>
+        public T ObjectGetter<T>(string dbKey)
+            where T : class
+        {
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, this.entityKeyGenerator, dbKey);
+            return proxyGenerator.GenerateForObject<T>(dbKey);
+        }
+
+        /// <summary>
+        /// The settre for object type.
+        /// </summary>
+        /// <typeparam name="T">The object type.</typeparam>
+        /// <param name="dbKey">The databse key.</param>
+        /// <param name="value">The object or proxy of object.</param>
+        public void ObjectSetter<T>(string dbKey, T value)
+        {
+            var records = this.dbRecordBuilder.Generate(value, dbKey);
+            this.dbRecorderSubmitter.Commit(records);
         }
     }
 }

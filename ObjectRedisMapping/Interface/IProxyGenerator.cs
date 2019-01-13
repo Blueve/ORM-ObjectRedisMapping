@@ -6,11 +6,19 @@
     internal interface IProxyGenerator
     {
         /// <summary>
-        /// Generate a proxy for the given type.
+        /// Generate a proxy for the given entity type.
         /// </summary>
-        /// <typeparam name="T">The type.</typeparam>
+        /// <typeparam name="T">The entity type.</typeparam>
         /// <param name="entityKey">The entity key.</param>
         /// <returns>The proxy.</returns>
-        T Generate<T>(string entityKey) where T : class;
+        T GenerateForEntity<T>(string entityKey) where T : class;
+
+        /// <summary>
+        /// Generate a proxy for the given object type.
+        /// </summary>
+        /// <typeparam name="T">The object type.</typeparam>
+        /// <param name="entityKey">The prefix of database key.</param>
+        /// <returns>The proxy.</returns>
+        T GenerateForObject<T>(string dbPrefix) where T : class;
     }
 }

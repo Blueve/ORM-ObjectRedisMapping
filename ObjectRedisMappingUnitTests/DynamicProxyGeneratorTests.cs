@@ -14,6 +14,7 @@
     {
         private Dictionary<string, string> db;
         private Mock<IDbAccessor> dbAccessor;
+        private DbRecordBuilder dbRecordBuilder;
         private EntityKeyGenerator keyGenerator;
         private DynamicProxyGenerator generator;
 
@@ -29,9 +30,11 @@
                 .Setup(accessor => accessor.Get(It.IsAny<string>()))
                 .Returns<string>(k => this.db[k]);
             this.keyGenerator = new EntityKeyGenerator(new EntityKeyValueFormatter());
+            this.dbRecordBuilder = new DbRecordBuilder(TypeRepository.CreateInstance(), this.keyGenerator);
             this.generator = new DynamicProxyGenerator(
                 TypeRepository.CreateInstance(),
                 this.dbAccessor.Object,
+                this.dbRecordBuilder,
                 this.keyGenerator,
                 string.Empty);
         }
@@ -41,7 +44,7 @@
         {
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity00000006BlueveUserId", "Blueve");
 
-            var proxyObj = this.generator.Generate<PlainEntity>("Blueve");
+            var proxyObj = this.generator.GenerateForEntity<PlainEntity>("Blueve");
             Assert.AreEqual("Blueve", proxyObj.UserId);
 
             proxyObj.UserName = "Blueve";
@@ -54,7 +57,7 @@
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity00000006BlueveKey", "Blueve");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity00000004YoudKey", "Youd");
 
-            var proxyObj = this.generator.Generate<NestedEntity>("Blueve");
+            var proxyObj = this.generator.GenerateForEntity<NestedEntity>("Blueve");
             Assert.AreEqual("Blueve", proxyObj.Key);
 
             proxyObj.LeftChild = new NestedEntity
@@ -63,6 +66,37 @@
             };
             Assert.AreEqual("Youd", proxyObj.LeftChild.Key);
             Assert.AreEqual("Youd", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity00000006BlueveLeftChild"]);
+        }
+
+        [TestMethod]
+        public void TestGenerateEntityProxy_PlainObject()
+        {
+            this.db.Add("PrefixName", "Age");
+            this.db.Add("PrefixValue", "18");
+
+            var proxyObj = this.generator.GenerateForObject<PlainObject>("Prefix");
+            Assert.AreEqual("Age", proxyObj.Name);
+            Assert.AreEqual("18", proxyObj.Value);
+
+            proxyObj.Value = "19";
+            Assert.AreEqual("19", this.db["PrefixValue"]);
+        }
+
+        [TestMethod]
+        public void TestGenerateEntityProxy_NestedObject()
+        {
+            this.db.Add("PrefixName", "Blueve");
+            this.db.Add("PrefixChildName", "Youd");
+
+            var proxyObj = this.generator.GenerateForObject<NestedObject>("Prefix");
+            Assert.AreEqual("Blueve", proxyObj.Name);
+            Assert.AreEqual("Youd", proxyObj.Child.Name);
+
+            proxyObj.Child = new NestedObject
+            {
+                Name = "Ada"
+            };
+            Assert.AreEqual("Ada", this.db["PrefixChildName"]);
         }
     }
 }

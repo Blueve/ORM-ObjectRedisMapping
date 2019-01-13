@@ -21,6 +21,11 @@
         private readonly IDbAccessor dbAccessor;
 
         /// <summary>
+        /// The databse record builder.
+        /// </summary>
+        private readonly IDbRecordBuilder dbRecordBuilder;
+
+        /// <summary>
         /// The entity key generator.
         /// </summary>
         private readonly EntityKeyGenerator entityKeyGenerator;
@@ -35,33 +40,45 @@
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
         /// <param name="dbAccessor">The databse accessor.</param>
+        /// <param name="dbRecordBuilder">The databse record builder.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         /// <param name="prefix">The current database key prefix.</param>
         public DynamicProxyGenerator(
             ITypeRepository typeRepo,
             IDbAccessor dbAccessor,
+            IDbRecordBuilder dbRecordBuilder,
             EntityKeyGenerator entityKeyGenerator,
             string prefix = "")
         {
             this.typeRepo = typeRepo;
             this.dbAccessor = dbAccessor;
+            this.dbRecordBuilder = dbRecordBuilder;
             this.entityKeyGenerator = entityKeyGenerator;
             this.prefix = prefix;
         }
 
         /// <inheritdoc/>
-        public EntityT Generate<EntityT>(string entityKey)
-            where EntityT : class
+        public T GenerateForEntity<T>(string entityKey)
+            where T : class
         {
-            var type = typeof(EntityT);
+            var type = typeof(T);
             var typeMetadata = this.typeRepo.GetOrAdd(type);
-
             if (typeMetadata.ValueType != ObjectValueType.Entity)
             {
                 throw new ArgumentException("The given type is not an Entity.");
             }
 
-            // Build the proxy type of EntityT.
+            var dbKey = this.entityKeyGenerator.GetDbKey(typeMetadata, entityKey);
+            return this.GenerateForObject<T>(dbKey);
+        }
+
+        /// <inheritdoc/>
+        public T GenerateForObject<T>(string dbPrefix)
+            where T : class
+        {
+            var type = typeof(T);
+            var typeMetadata = this.typeRepo.GetOrAdd(type);
+
             var domain = AppDomain.CurrentDomain;
             var assembly = new AssemblyName(Guid.NewGuid().ToString());
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assembly, AssemblyBuilderAccess.Run);
@@ -103,8 +120,7 @@
 
                 // Generate IL.
                 // TODO: Generate a special setter for entity key property to avoid change entity key.
-                var dbKey = this.entityKeyGenerator.GetDbKey(typeMetadata, entityKey);
-                var propDbKey = $"{dbKey}{propInfo.Name}";
+                var propDbKey = $"{dbPrefix}{propInfo.Name}";
                 this.GeneratePropertyIL(
                             stubFieldBuilder,
                             propDbKey,
@@ -121,8 +137,8 @@
             var proxyType = proxyTypeInfo.AsType();
 
             // Create an instrance of the proxy, every object.
-            var stub = new DynamicProxyStub(this.typeRepo, this.dbAccessor, new EntityKeyGenerator(new EntityKeyValueFormatter()));
-            return Activator.CreateInstance(proxyType, stub) as EntityT;
+            var stub = new DynamicProxyStub(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, new EntityKeyGenerator(new EntityKeyValueFormatter()));
+            return Activator.CreateInstance(proxyType, stub) as T;
         }
 
         /// <summary>
@@ -195,6 +211,23 @@
                         typeof(DynamicProxyStub)
                             .GetMethods()
                             .First(m => m.Name.Equals("EntitySetter")).MakeGenericMethod(propMetadata.Type));
+                    break;
+
+                case ObjectValueType.Object:
+                    getterILGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    getterILGenerator.Emit(
+                        OpCodes.Call,
+                        typeof(DynamicProxyStub)
+                            .GetMethods()
+                            .First(m => m.Name.Equals("ObjectGetter")).MakeGenericMethod(propMetadata.Type));
+
+                    setterILGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    setterILGenerator.Emit(OpCodes.Ldarg_1);
+                    setterILGenerator.Emit(
+                        OpCodes.Call,
+                        typeof(DynamicProxyStub)
+                            .GetMethods()
+                            .First(m => m.Name.Equals("ObjectSetter")).MakeGenericMethod(propMetadata.Type));
                     break;
 
                 default:
