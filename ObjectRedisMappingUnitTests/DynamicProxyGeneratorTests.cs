@@ -1,5 +1,6 @@
 ﻿namespace Blueve.ObjectRedisMapping.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using Blueve.ObjectRedisMapping;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
@@ -40,7 +41,7 @@
         }
 
         [TestMethod]
-        public void TestGenerateEntityProxy_PlainEntity()
+        public void TestGenerateForEntity_PlainEntity()
         {
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity00000006BlueveUserId", "Blueve");
 
@@ -52,7 +53,7 @@
         }
 
         [TestMethod]
-        public void TestGenerateEntityProxy_NestedEntity()
+        public void TestGenerateForEntity_NestedEntity()
         {
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity00000006BlueveKey", "Blueve");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity00000004YoudKey", "Youd");
@@ -69,7 +70,7 @@
         }
 
         [TestMethod]
-        public void TestGenerateEntityProxy_PlainObject()
+        public void TestGenerateForObject_PlainObject()
         {
             this.db.Add("PrefixName", "Age");
             this.db.Add("PrefixValue", "18");
@@ -83,7 +84,7 @@
         }
 
         [TestMethod]
-        public void TestGenerateEntityProxy_NestedObject()
+        public void TestGenerateForObject_NestedObject()
         {
             this.db.Add("PrefixName", "Blueve");
             this.db.Add("PrefixChildName", "Youd");
@@ -97,6 +98,20 @@
                 Name = "Ada"
             };
             Assert.AreEqual("Ada", this.db["PrefixChildName"]);
+        }
+
+        [TestMethod]
+        public void TestGenerateForEntity_PlainEntity_OverrideKey()
+        {
+            try
+            {
+                var proxyObj = this.generator.GenerateForEntity<PlainEntity>("Blueve");
+                proxyObj.UserId = "2";
+                Assert.Fail();
+            }
+            catch(InvalidOperationException)
+            {
+            }
         }
     }
 }

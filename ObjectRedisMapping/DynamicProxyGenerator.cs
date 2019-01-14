@@ -118,14 +118,19 @@
                     new[] { propInfo.PropertyType });
                 var setterILGenerator = setterBuilder.GetILGenerator();
 
-                // Generate IL.
-                // TODO: Generate a special setter for entity key property to avoid change entity key.
+                // Generate IL for getter.
                 var propDbKey = $"{dbPrefix}{propInfo.Name}";
-                this.GeneratePropertyIL(
-                            stubFieldBuilder,
-                            propDbKey,
-                            propTypeMetadata,
-                            getterILGenerator, setterILGenerator);
+                this.GenerateGetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, getterILGenerator);
+
+                // Generate IL for setter.
+                if (propInfo == typeMetadata.KeyProperty)
+                {
+                    this.GenerateNotAvailableSetterIL(stubFieldBuilder, setterILGenerator);
+                }
+                else
+                {
+                    this.GenerateSetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, setterILGenerator);
+                }
 
                 // Binding to property.
                 propertyBuilder.SetGetMethod(getterBuilder);
@@ -159,54 +164,92 @@
         }
 
         /// <summary>
-        /// Generate IL for the property.
+        /// Generate IL for the getter.
         /// </summary>
         /// <param name="stubField">The proxy stub field.</param>
         /// <param name="dbKey">The databse key of this property.</param>
         /// <param name="propMetadata">The type metadata for this property.</param>
-        /// <param name="getterILGenerator">The getter's IL generator.</param>
-        /// <param name="setterILGenerator">The setter's IL generator.</param>
-        private void GeneratePropertyIL(
+        /// <param name="ilGenerator">The getter's IL generator.</param>
+        private void GenerateGetterIL(
             FieldInfo stubField,
             string dbKey,
             TypeMetadata propMetadata,
-            ILGenerator getterILGenerator,
-            ILGenerator setterILGenerator)
+            ILGenerator ilGenerator)
         {
             // this._stub.
-            getterILGenerator.Emit(OpCodes.Ldarg_0);
-            getterILGenerator.Emit(OpCodes.Ldfld, stubField);
-            setterILGenerator.Emit(OpCodes.Ldarg_0);
-            setterILGenerator.Emit(OpCodes.Ldfld, stubField);
+            ilGenerator.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldfld, stubField);
+
+            // this._stub.?Getter(dbKey).
+            switch (propMetadata.ValueType)
+            {
+                case ObjectValueType.Primitive:
+                case ObjectValueType.String:
+                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    ilGenerator.Emit(
+                        OpCodes.Call,
+                        typeof(DynamicProxyStub).GetMethod(propMetadata.Name + "Getter", new[] { typeof(string) }));
+                    break;
+
+                case ObjectValueType.Entity:
+                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    ilGenerator.Emit(
+                        OpCodes.Call,
+                        typeof(DynamicProxyStub)
+                            .GetMethods()
+                            .First(m => m.Name.Equals("EntityGetter")).MakeGenericMethod(propMetadata.Type));
+                    break;
+
+                case ObjectValueType.Object:
+                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    ilGenerator.Emit(
+                        OpCodes.Call,
+                        typeof(DynamicProxyStub)
+                            .GetMethods()
+                            .First(m => m.Name.Equals("ObjectGetter")).MakeGenericMethod(propMetadata.Type));
+                    break;
+
+                default:
+                    throw new NotSupportedException();
+            }
+
+            // return ?;
+            ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        /// <summary>
+        /// Generate IL for the setter.
+        /// </summary>
+        /// <param name="stubField">The proxy stub field.</param>
+        /// <param name="dbKey">The databse key of this property.</param>
+        /// <param name="propMetadata">The type metadata for this property.</param>
+        /// <param name="ilGenerator">The setter's IL generator.</param>
+        private void GenerateSetterIL(
+            FieldInfo stubField,
+            string dbKey,
+            TypeMetadata propMetadata,
+            ILGenerator ilGenerator)
+        {
+            // this._stub.
+            ilGenerator.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldfld, stubField);
 
             // this._stub.?().
             switch (propMetadata.ValueType)
             {
                 case ObjectValueType.Primitive:
                 case ObjectValueType.String:
-                    getterILGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    getterILGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub).GetMethod(propMetadata.Name + "Getter", new[] { typeof(string) }));
-
-                    setterILGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    setterILGenerator.Emit(OpCodes.Ldarg_1);
-                    setterILGenerator.Emit(
+                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    ilGenerator.Emit(OpCodes.Ldarg_1);
+                    ilGenerator.Emit(
                         OpCodes.Call,
                         typeof(DynamicProxyStub).GetMethod(propMetadata.Name + "Setter", new[] { typeof(string), propMetadata.Type }));
                     break;
 
                 case ObjectValueType.Entity:
-                    getterILGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    getterILGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub)
-                            .GetMethods()
-                            .First(m => m.Name.Equals("EntityGetter")).MakeGenericMethod(propMetadata.Type));
-
-                    setterILGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    setterILGenerator.Emit(OpCodes.Ldarg_1);
-                    setterILGenerator.Emit(
+                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    ilGenerator.Emit(OpCodes.Ldarg_1);
+                    ilGenerator.Emit(
                         OpCodes.Call,
                         typeof(DynamicProxyStub)
                             .GetMethods()
@@ -214,16 +257,9 @@
                     break;
 
                 case ObjectValueType.Object:
-                    getterILGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    getterILGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub)
-                            .GetMethods()
-                            .First(m => m.Name.Equals("ObjectGetter")).MakeGenericMethod(propMetadata.Type));
-
-                    setterILGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    setterILGenerator.Emit(OpCodes.Ldarg_1);
-                    setterILGenerator.Emit(
+                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    ilGenerator.Emit(OpCodes.Ldarg_1);
+                    ilGenerator.Emit(
                         OpCodes.Call,
                         typeof(DynamicProxyStub)
                             .GetMethods()
@@ -235,8 +271,21 @@
             }
 
             // return ?;
-            getterILGenerator.Emit(OpCodes.Ret);
-            setterILGenerator.Emit(OpCodes.Ret);
+            ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        /// <summary>
+        /// Generate IL for the not available setter.
+        /// </summary>
+        /// <param name="stubField">The proxy stub field.</param>
+        /// <param name="ilGenerator">The setter's IL generator.</param>
+        private void GenerateNotAvailableSetterIL(
+            FieldInfo stubField,
+            ILGenerator ilGenerator)
+        {
+            ilGenerator.Emit(OpCodes.Ldstr, "Current property is the entity's key and could not be override.");
+            ilGenerator.Emit(OpCodes.Newobj, typeof(InvalidOperationException).GetConstructor(Type.EmptyTypes));
+            ilGenerator.Emit(OpCodes.Throw);
         }
     }
 }
