@@ -118,8 +118,9 @@
                     new[] { propInfo.PropertyType });
                 var setterILGenerator = setterBuilder.GetILGenerator();
 
-                // Generate IL for getter.
                 var propDbKey = $"{dbPrefix}{propInfo.Name}";
+
+                // Generate IL for getter.
                 this.GenerateGetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, getterILGenerator);
 
                 // Generate IL for setter.

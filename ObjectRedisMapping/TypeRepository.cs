@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
 
     /// <summary>
     /// The type repository.
@@ -73,9 +74,18 @@
             switch (typeMetadata.ValueType)
             {
                 case ObjectValueType.Primitive:
+                case ObjectValueType.String:
                     break;
 
                 case ObjectValueType.Entity:
+                    this.RegisterKeyProperty(typeMetadata.KeyProperty);
+                    foreach (var prop in typeMetadata.Properties)
+                    {
+                        this.Register(prop.PropertyType);
+                    }
+
+                    break;
+
                 case ObjectValueType.Object:
                     foreach (var prop in typeMetadata.Properties)
                     {
@@ -85,10 +95,11 @@
                     break;
 
                 case ObjectValueType.List:
-                    break;
-
                 case ObjectValueType.Set:
-                    break;
+                    throw new NotImplementedException();
+
+                default:
+                    throw new NotSupportedException();
             }
         }
 
@@ -126,6 +137,39 @@
 
             this.Register(type);
             return this.Get(type);
+        }
+
+        /// <summary>
+        /// Register entity key property.
+        /// </summary>
+        /// <param name="keyProp">The key property.</param>
+        /// <exception cref="ArgumentException">The key property type is entity or include entity.</exception>
+        /// <exception cref="NotSupportedException">The key property type is not supported or include not supported type.</exception>
+        private void RegisterKeyProperty(PropertyInfo keyProp)
+        {
+            var keyPropMetadata = this.GetOrAdd(keyProp.PropertyType);
+            
+            switch (keyPropMetadata.ValueType)
+            {
+                case ObjectValueType.Primitive:
+                case ObjectValueType.String:
+                case ObjectValueType.Struct:
+                    break;
+
+                case ObjectValueType.Entity:
+                    throw new ArgumentException("Key property cannot be an entity type or include an entity type.");
+
+                case ObjectValueType.Object:
+                    foreach (var prop in keyPropMetadata.Properties)
+                    {
+                        this.RegisterKeyProperty(prop);
+                    }
+
+                    break;
+
+                default:
+                    throw new NotSupportedException($"Key property cannot be {keyPropMetadata.ValueType}");
+            }
         }
 
         /// <summary>
