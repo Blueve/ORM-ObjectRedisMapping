@@ -36,6 +36,11 @@
         private readonly string prefix;
 
         /// <summary>
+        /// True if the proxy from the getter is readonly.
+        /// </summary>
+        private readonly bool isReadonly;
+
+        /// <summary>
         /// Initialize an instance of <see cref="DynamicProxyGenerator"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
@@ -43,18 +48,21 @@
         /// <param name="dbRecordBuilder">The databse record builder.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         /// <param name="prefix">The current database key prefix.</param>
+        /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
         public DynamicProxyGenerator(
             ITypeRepository typeRepo,
             IDbAccessor dbAccessor,
             IDbRecordBuilder dbRecordBuilder,
             EntityKeyGenerator entityKeyGenerator,
-            string prefix = "")
+            string prefix = "",
+            bool isReadonly = false)
         {
             this.typeRepo = typeRepo;
             this.dbAccessor = dbAccessor;
             this.dbRecordBuilder = dbRecordBuilder;
             this.entityKeyGenerator = entityKeyGenerator;
             this.prefix = prefix;
+            this.isReadonly = isReadonly;
         }
 
         /// <inheritdoc/>
@@ -119,12 +127,13 @@
                 var setterILGenerator = setterBuilder.GetILGenerator();
 
                 var propDbKey = $"{dbPrefix}{propInfo.Name}";
+                var readonlyProp = propInfo == typeMetadata.KeyProperty || this.isReadonly;
 
                 // Generate IL for getter.
-                this.GenerateGetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, getterILGenerator);
+                this.GenerateGetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, getterILGenerator, readonlyProp);
 
                 // Generate IL for setter.
-                if (propInfo == typeMetadata.KeyProperty)
+                if (readonlyProp)
                 {
                     this.GenerateNotAvailableSetterIL(stubFieldBuilder, setterILGenerator);
                 }
@@ -171,11 +180,13 @@
         /// <param name="dbKey">The databse key of this property.</param>
         /// <param name="propMetadata">The type metadata for this property.</param>
         /// <param name="ilGenerator">The getter's IL generator.</param>
+        /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
         private void GenerateGetterIL(
             FieldInfo stubField,
             string dbKey,
             TypeMetadata propMetadata,
-            ILGenerator ilGenerator)
+            ILGenerator ilGenerator,
+            bool isReadonly = false)
         {
             // this._stub.
             ilGenerator.Emit(OpCodes.Ldarg_0);
@@ -201,13 +212,22 @@
                             .First(m => m.Name.Equals("EntityGetter")).MakeGenericMethod(propMetadata.Type));
                     break;
 
-                case ObjectValueType.Object:
+                case ObjectValueType.Object when !isReadonly:
                     ilGenerator.Emit(OpCodes.Ldstr, dbKey);
                     ilGenerator.Emit(
                         OpCodes.Call,
                         typeof(DynamicProxyStub)
                             .GetMethods()
                             .First(m => m.Name.Equals("ObjectGetter")).MakeGenericMethod(propMetadata.Type));
+                    break;
+
+                case ObjectValueType.Object when isReadonly:
+                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+                    ilGenerator.Emit(
+                        OpCodes.Call,
+                        typeof(DynamicProxyStub)
+                            .GetMethods()
+                            .First(m => m.Name.Equals("ReadonlyObjectGetter")).MakeGenericMethod(propMetadata.Type));
                     break;
 
                 default:

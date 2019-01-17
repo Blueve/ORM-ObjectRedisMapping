@@ -168,11 +168,24 @@
         /// </summary>
         /// <typeparam name="T">The object type.</typeparam>
         /// <param name="dbKey">The databse key.</param>
-        /// <returns>The proxy of object</returns>
+        /// <returns>The proxy of object.</returns>
         public T ObjectGetter<T>(string dbKey)
             where T : class
         {
             var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, this.entityKeyGenerator, dbKey);
+            return proxyGenerator.GenerateForObject<T>(dbKey);
+        }
+
+        /// <summary>
+        /// The readonly getter for object type.
+        /// </summary>
+        /// <typeparam name="T">The object type.</typeparam>
+        /// <param name="dbKey">The databse key.</param>
+        /// <returns>The proxy of object which all property are readonly.</returns>
+        public T ReadonlyObjectGetter<T>(string dbKey)
+            where T : class
+        {
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, this.entityKeyGenerator, dbKey, true);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 

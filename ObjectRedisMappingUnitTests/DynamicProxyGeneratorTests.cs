@@ -113,5 +113,30 @@
             {
             }
         }
+
+        [TestMethod]
+        public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_ReadKeyValue()
+        {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_Entity00000009KeyBlueveKeyValue", "Blueve");
+
+            var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
+            Assert.AreEqual("Blueve", proxyObj.Key.Value);
+        }
+
+        [TestMethod]
+        public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_UpdateKeyValue()
+        {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_Entity00000009KeyBlueveKeyValue", "Blueve");
+
+            var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
+            try
+            {
+                proxyObj.Key.Value = "Ada";
+                Assert.Fail();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
     }
 }
