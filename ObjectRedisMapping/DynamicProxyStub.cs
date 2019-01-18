@@ -10,7 +10,7 @@
         /// <summary>
         /// The type repository.
         /// </summary>
-        private readonly ITypeRepository typeRepo;
+        private readonly TypeRepository typeRepo;
 
         /// <summary>
         /// The databse accessor.
@@ -40,18 +40,17 @@
         /// <param name="dbRecordBuilder">The databse record builder.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         internal DynamicProxyStub(
-            ITypeRepository typeRepo,
+            TypeRepository typeRepo,
             IDbAccessor dbAccessor,
             IDbRecordBuilder dbRecordBuilder,
-            EntityKeyGenerator entityKeyGenerator)
+            EntityKeyGenerator entityKeyGenerator,
+            DbRecordSubmitter dbRecordSubmitter)
         {
             this.typeRepo = typeRepo;
             this.dbAccessor = dbAccessor;
             this.dbRecordBuilder = dbRecordBuilder;
             this.entityKeyGenerator = entityKeyGenerator;
-
-            // TODO: This submitter can be inject, but I put it here util factory done.
-            this.dbRecorderSubmitter = new DbRecordSubmitter(this.dbAccessor);
+            this.dbRecorderSubmitter = dbRecordSubmitter;
         }
 
         /// <summary>
@@ -144,7 +143,7 @@
             where T : class
         {
             var entityKey = this.dbAccessor.Get(dbKey);
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, this.entityKeyGenerator, dbKey);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this);
             return proxyGenerator.GenerateForEntity<T>(entityKey);
         }
 
@@ -158,7 +157,7 @@
             where T : class
         {
             // TODO: If value is not a proxy, then commit value as an entity and then update the DB reference.
-            var typeMetadata = this.typeRepo.GetOrAdd(typeof(T));
+            var typeMetadata = this.typeRepo.GetOrRegister(typeof(T));
             var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
             this.dbAccessor.Set(dbKey, entityKey);
         }
@@ -172,7 +171,7 @@
         public T ObjectGetter<T>(string dbKey)
             where T : class
         {
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, this.entityKeyGenerator, dbKey);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 
@@ -185,7 +184,7 @@
         public T ReadonlyObjectGetter<T>(string dbKey)
             where T : class
         {
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, this.entityKeyGenerator, dbKey, true);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, true);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 

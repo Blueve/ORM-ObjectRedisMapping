@@ -17,6 +17,7 @@
         private Mock<IDbAccessor> dbAccessor;
         private DbRecordBuilder dbRecordBuilder;
         private EntityKeyGenerator keyGenerator;
+        private DynamicProxyStub stub;
         private DynamicProxyGenerator generator;
 
         [TestInitialize]
@@ -30,14 +31,14 @@
             this.dbAccessor
                 .Setup(accessor => accessor.Get(It.IsAny<string>()))
                 .Returns<string>(k => this.db[k]);
+
+            var typeRepo = new TypeRepository(new TypeMetadataGenerator());
+            var dbRecordSubmitter = new DbRecordSubmitter(this.dbAccessor.Object);
+
             this.keyGenerator = new EntityKeyGenerator(new EntityKeyValueFormatter());
-            this.dbRecordBuilder = new DbRecordBuilder(TypeRepository.CreateInstance(), this.keyGenerator);
-            this.generator = new DynamicProxyGenerator(
-                TypeRepository.CreateInstance(),
-                this.dbAccessor.Object,
-                this.dbRecordBuilder,
-                this.keyGenerator,
-                string.Empty);
+            this.dbRecordBuilder = new DbRecordBuilder(typeRepo, this.keyGenerator);
+            this.stub = new DynamicProxyStub(typeRepo, this.dbAccessor.Object, this.dbRecordBuilder, this.keyGenerator, dbRecordSubmitter);
+            this.generator = new DynamicProxyGenerator(typeRepo, this.keyGenerator, this.stub);
         }
 
         [TestMethod]

@@ -8,22 +8,12 @@
     /// <summary>
     /// The dynamic proxy generator.
     /// </summary>
-    internal class DynamicProxyGenerator : IProxyGenerator
+    internal class DynamicProxyGenerator
     {
         /// <summary>
         /// The type repository.
         /// </summary>
-        private readonly ITypeRepository typeRepo;
-
-        /// <summary>
-        /// The databse accessor.
-        /// </summary>
-        private readonly IDbAccessor dbAccessor;
-
-        /// <summary>
-        /// The databse record builder.
-        /// </summary>
-        private readonly IDbRecordBuilder dbRecordBuilder;
+        private readonly TypeRepository typeRepo;
 
         /// <summary>
         /// The entity key generator.
@@ -31,9 +21,9 @@
         private readonly EntityKeyGenerator entityKeyGenerator;
 
         /// <summary>
-        /// The current database key prefix.
+        /// The dynamic proxy stub.
         /// </summary>
-        private readonly string prefix;
+        private readonly DynamicProxyStub dynamicProxyStub;
 
         /// <summary>
         /// True if the proxy from the getter is readonly.
@@ -44,33 +34,32 @@
         /// Initialize an instance of <see cref="DynamicProxyGenerator"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
-        /// <param name="dbAccessor">The databse accessor.</param>
-        /// <param name="dbRecordBuilder">The databse record builder.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
-        /// <param name="prefix">The current database key prefix.</param>
+        /// <param name="dynamicProxyStub">The dynamic proxy stub.</param>
         /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
         public DynamicProxyGenerator(
-            ITypeRepository typeRepo,
-            IDbAccessor dbAccessor,
-            IDbRecordBuilder dbRecordBuilder,
+            TypeRepository typeRepo,
             EntityKeyGenerator entityKeyGenerator,
-            string prefix = "",
+            DynamicProxyStub dynamicProxyStub,
             bool isReadonly = false)
         {
             this.typeRepo = typeRepo;
-            this.dbAccessor = dbAccessor;
-            this.dbRecordBuilder = dbRecordBuilder;
             this.entityKeyGenerator = entityKeyGenerator;
-            this.prefix = prefix;
+            this.dynamicProxyStub = dynamicProxyStub;
             this.isReadonly = isReadonly;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Generate a proxy for the given entity type.
+        /// </summary>
+        /// <typeparam name="T">The entity type.</typeparam>
+        /// <param name="entityKey">The entity key.</param>
+        /// <returns>The proxy.</returns>
         public T GenerateForEntity<T>(string entityKey)
             where T : class
         {
             var type = typeof(T);
-            var typeMetadata = this.typeRepo.GetOrAdd(type);
+            var typeMetadata = this.typeRepo.GetOrRegister(type);
             if (typeMetadata.ValueType != ObjectValueType.Entity)
             {
                 throw new ArgumentException("The given type is not an Entity.");
@@ -80,12 +69,17 @@
             return this.GenerateForObject<T>(dbKey);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Generate a proxy for the given object type.
+        /// </summary>
+        /// <typeparam name="T">The object type.</typeparam>
+        /// <param name="entityKey">The prefix of database key.</param>
+        /// <returns>The proxy.</returns>
         public T GenerateForObject<T>(string dbPrefix)
             where T : class
         {
             var type = typeof(T);
-            var typeMetadata = this.typeRepo.GetOrAdd(type);
+            var typeMetadata = this.typeRepo.GetOrRegister(type);
 
             var domain = AppDomain.CurrentDomain;
             var assembly = new AssemblyName(Guid.NewGuid().ToString());
@@ -107,7 +101,7 @@
             // Generate stub for each virtual property.
             foreach (var propInfo in typeMetadata.Properties)
             {
-                var propTypeMetadata = this.typeRepo.GetOrAdd(propInfo.PropertyType);
+                var propTypeMetadata = this.typeRepo.GetOrRegister(propInfo.PropertyType);
                 var propertyBuilder = typeBuilder.DefineProperty(propInfo.Name, PropertyAttributes.None, propInfo.PropertyType, null);
 
                 // Setup getter.
@@ -152,8 +146,7 @@
             var proxyType = proxyTypeInfo.AsType();
 
             // Create an instrance of the proxy, every object.
-            var stub = new DynamicProxyStub(this.typeRepo, this.dbAccessor, this.dbRecordBuilder, new EntityKeyGenerator(new EntityKeyValueFormatter()));
-            return Activator.CreateInstance(proxyType, stub) as T;
+            return Activator.CreateInstance(proxyType, this.dynamicProxyStub) as T;
         }
 
         /// <summary>

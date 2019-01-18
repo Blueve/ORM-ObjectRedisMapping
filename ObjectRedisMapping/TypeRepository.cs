@@ -7,19 +7,8 @@
     /// <summary>
     /// The type repository.
     /// </summary>
-    internal class TypeRepository : ITypeRepository
+    internal class TypeRepository
     {
-        /// <summary>
-        /// The embedded types list.
-        /// The embedded type is the entity or object's container. 
-        /// </summary>
-        private static readonly ISet<Type> EmbeddedTypes = new HashSet<Type>
-        {
-            typeof(List<>),
-            typeof(Dictionary<,>),
-            typeof(HashSet<>)
-        };
-
         /// <summary>
         /// The type metadata dictionary.
         /// </summary>
@@ -39,31 +28,25 @@
             this.typeMetadataGenerator = typeMetadataGenerator;
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Register a type to repository.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
         public void Register<T>()
         {
             var type = typeof(T);
             this.Register(type);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Register a type to repository.
+        /// </summary>
+        /// <param name="type">The type.</param>
         public void Register(Type type)
         {
             if (this.typeMetadataDict.ContainsKey(type))
             {
                 return;
-            }
-
-            if (type.IsArray)
-            {
-                throw new InvalidOperationException(
-                    $"The type [{type.FullName}] is array.");
-            }
-
-            if (type.IsGenericType && EmbeddedTypes.Contains(type.GetGenericTypeDefinition()))
-            {
-                throw new InvalidOperationException(
-                    $"The type [{type.FullName}] is embedded type.");
             }
 
             // Generate the metadata and add it to container.
@@ -103,14 +86,22 @@
             }
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the type metadata of a given type.
+        /// </summary>
+        /// <typeparam name="T">The type.</typeparam>
+        /// <returns>The type's type metadata.</returns>
         public TypeMetadata Get<T>()
         {
             var type = typeof(T);
             return this.Get(type);
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Gets the type metadata of a given type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>The type's type metadata.</returns>
         public TypeMetadata Get(Type type)
         {
             if (this.typeMetadataDict.TryGetValue(type, out var typeMetdata))
@@ -121,14 +112,23 @@
             throw new KeyNotFoundException($"The type {type.FullName} hasn't registered.");
         }
 
-        /// <inheritdoc/>
+        /// <summary>
+        /// Try get the type metadata of a given type.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <param name="typeMetadata">The type's type metadata.</param>
+        /// <returns>True if get the metadata succeed.</returns>
         public bool TryGet(Type type, out TypeMetadata typeMetadata)
         {
             return this.typeMetadataDict.TryGetValue(type, out typeMetadata);
         }
 
-        /// <inheritdoc/>
-        public TypeMetadata GetOrAdd(Type type)
+        /// <summary>
+        /// Gets the type's metadata and create one if the metadata not registered before.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns>The type's type metadata.</returns>
+        public TypeMetadata GetOrRegister(Type type)
         {
             if (this.typeMetadataDict.TryGetValue(type, out var typeMetadata))
             {
@@ -147,7 +147,7 @@
         /// <exception cref="NotSupportedException">The key property type is not supported or include not supported type.</exception>
         private void RegisterKeyProperty(PropertyInfo keyProp)
         {
-            var keyPropMetadata = this.GetOrAdd(keyProp.PropertyType);
+            var keyPropMetadata = this.GetOrRegister(keyProp.PropertyType);
             
             switch (keyPropMetadata.ValueType)
             {

@@ -37,7 +37,7 @@
         public IEnumerable<DbRecord> Generate<T>(T obj, string prefix = "")
         {
             var type = typeof(T);
-            var typeMetadata = this.typeRepo.GetOrAdd(type);
+            var typeMetadata = this.typeRepo.GetOrRegister(type);
 
             switch (typeMetadata.ValueType)
             {
@@ -98,7 +98,7 @@
                 var (curProp, curValue, curPrefix) = states.Pop();
 
                 var propType = curProp.PropertyType;
-                var propTypeMetadata = this.typeRepo.GetOrAdd(propType);
+                var propTypeMetadata = this.typeRepo.GetOrRegister(propType);
 
                 // Process current property.
                 curPrefix += curProp.Name;

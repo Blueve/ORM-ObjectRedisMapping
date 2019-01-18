@@ -9,17 +9,21 @@
     {
         private readonly TypeRepository typeRepository;
 
-        private readonly IEntityRecorder entityRecorder;
+        private readonly DbRecordBuilder dbRecordBuilder;
 
-        private readonly IProxyGenerator proxyGenerator;
+        private readonly DbRecordSubmitter dbRecordSubmitter;
+
+        private readonly DynamicProxyGenerator proxyGenerator;
 
         internal DbContext(
             TypeRepository typeRepository,
-            IEntityRecorder entityRecorder,
-            IProxyGenerator proxyGenerator)
+            DbRecordBuilder dbRecordBuilder,
+            DbRecordSubmitter dbRecordSubmitter,
+            DynamicProxyGenerator proxyGenerator)
         {
             this.typeRepository = typeRepository;
-            this.entityRecorder = entityRecorder;
+            this.dbRecordBuilder = dbRecordBuilder;
+            this.dbRecordSubmitter = dbRecordSubmitter;
             this.proxyGenerator = proxyGenerator;
         }
 
@@ -27,7 +31,7 @@
         public T Find<T>(string key)
             where T : class
         {
-            var typeMetadata = this.typeRepository.GetOrAdd(typeof(T));
+            var typeMetadata = this.typeRepository.GetOrRegister(typeof(T));
             if (typeMetadata.ValueType != ObjectValueType.Entity)
             {
                 throw new InvalidOperationException($"The type {typeMetadata.Name} is not an entity type.");
@@ -40,13 +44,17 @@
         public void Commit<T>(T entity)
             where T : class
         {
-            var typeMetadata = this.typeRepository.GetOrAdd(typeof(T));
+            var typeMetadata = this.typeRepository.GetOrRegister(typeof(T));
             if (typeMetadata.ValueType != ObjectValueType.Entity)
             {
                 throw new InvalidOperationException($"The type {typeMetadata.Name} is not an entity type.");
             }
 
-            this.entityRecorder.Commit(entity);
+            var records = this.dbRecordBuilder.Generate(entity);
+            foreach (var record in records)
+            {
+                this.dbRecordSubmitter.Commit(record);
+            }
         }
 
         /// <inheritdoc/>
