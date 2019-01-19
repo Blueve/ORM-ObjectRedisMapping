@@ -11,6 +11,6 @@
         /// <summary>
         /// Indicate whether the entity key want to use interface to extract it key.
         /// </summary>
-        public bool UseInterface { get; set; } = false;
+        public bool UseInterface { get; set; }
     }
 }

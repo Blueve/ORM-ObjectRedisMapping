@@ -51,10 +51,7 @@
             }
 
             var records = this.dbRecordBuilder.Generate(entity);
-            foreach (var record in records)
-            {
-                this.dbRecordSubmitter.Commit(record);
-            }
+            this.dbRecordSubmitter.Commit(records);
         }
 
         /// <inheritdoc/>

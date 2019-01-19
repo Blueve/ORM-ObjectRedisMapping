@@ -53,7 +53,8 @@
             CollectionAssert.AreEquivalent(new[]
             {
                 new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1Key", new DbValue(DbValueType.String, "1")),
-                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1LeftChild", new DbValue(DbValueType.String, "Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity2"))
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1LeftChild", new DbValue(DbValueType.String, "2")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity2Key", new DbValue(DbValueType.String, "2"))
             }, records);
         }
 

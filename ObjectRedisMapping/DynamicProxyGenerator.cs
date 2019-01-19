@@ -10,6 +10,11 @@
     /// </summary>
     internal class DynamicProxyGenerator
     {
+        private const string GetMethodPrefix = "get_";
+        private const string SetMethodPrefix = "set_";
+        private const string ProxyModuleName = "Proxy";
+        private const string StubFieldName = "_stub";
+
         /// <summary>
         /// The type repository.
         /// </summary>
@@ -84,11 +89,14 @@
             var domain = AppDomain.CurrentDomain;
             var assembly = new AssemblyName(Guid.NewGuid().ToString());
             var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assembly, AssemblyBuilderAccess.Run);
-            var moduleBuilder = assemblyBuilder.DefineDynamicModule("Proxy");
-            var typeBuilder = moduleBuilder.DefineType(type.FullName + "Proxy", TypeAttributes.Public | TypeAttributes.Class, type);
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule(ProxyModuleName);
+            var typeBuilder = moduleBuilder.DefineType(type.FullName + ProxyModuleName, TypeAttributes.Public | TypeAttributes.Class, type);
+
+            // Implement IProxy for all proxy type.
+            typeBuilder.AddInterfaceImplementation(typeof(IProxy));
 
             // Prepare dependency fields.
-            var stubFieldBuilder = typeBuilder.DefineField("_stub", typeof(IDbAccessor), FieldAttributes.Private | FieldAttributes.InitOnly);
+            var stubFieldBuilder = typeBuilder.DefineField(StubFieldName, typeof(IDbAccessor), FieldAttributes.Private | FieldAttributes.InitOnly);
 
             // Build a constructor and inject IDbAccessor.
             var constructorBuilder = typeBuilder.DefineConstructor(
@@ -96,7 +104,7 @@
                 CallingConventions.Standard,
                 new[] { typeof(DynamicProxyStub) });
             var constructorILGenerator = constructorBuilder.GetILGenerator();
-            this.GenerateConstructorIL(stubFieldBuilder, constructorILGenerator);
+            GenerateConstructorIL(stubFieldBuilder, constructorILGenerator);
 
             // Generate stub for each virtual property.
             foreach (var propInfo in typeMetadata.Properties)
@@ -106,7 +114,7 @@
 
                 // Setup getter.
                 var getterBuilder = typeBuilder.DefineMethod(
-                    "get_" + propInfo.Name,
+                    GetMethodPrefix + propInfo.Name,
                     MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual,
                     propInfo.PropertyType,
                     Type.EmptyTypes);
@@ -114,26 +122,26 @@
 
                 // Setup setter.
                 var setterBuilder = typeBuilder.DefineMethod(
-                    "set_" + propInfo.Name,
+                    SetMethodPrefix + propInfo.Name,
                     MethodAttributes.Public | MethodAttributes.SpecialName | MethodAttributes.HideBySig | MethodAttributes.Virtual,
                     null,
                     new[] { propInfo.PropertyType });
                 var setterILGenerator = setterBuilder.GetILGenerator();
 
-                var propDbKey = $"{dbPrefix}{propInfo.Name}";
+                var propDbKey = string.Concat(dbPrefix, propInfo.Name);
                 var readonlyProp = propInfo == typeMetadata.KeyProperty || this.isReadonly;
 
                 // Generate IL for getter.
-                this.GenerateGetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, getterILGenerator, readonlyProp);
+                GenerateGetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, getterILGenerator, readonlyProp);
 
                 // Generate IL for setter.
                 if (readonlyProp)
                 {
-                    this.GenerateNotAvailableSetterIL(stubFieldBuilder, setterILGenerator);
+                    GenerateNotAvailableSetterIL(stubFieldBuilder, setterILGenerator);
                 }
                 else
                 {
-                    this.GenerateSetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, setterILGenerator);
+                    GenerateSetterIL(stubFieldBuilder, propDbKey, propTypeMetadata, setterILGenerator);
                 }
 
                 // Binding to property.
@@ -154,7 +162,7 @@
         /// </summary>
         /// <param name="stubField">The proxy stub field.</param>
         /// <param name="ctorILGenerator">The constructor's IL generator.</param>
-        private void GenerateConstructorIL(
+        private static void GenerateConstructorIL(
             FieldInfo stubField,
             ILGenerator ctorILGenerator)
         {
@@ -174,7 +182,7 @@
         /// <param name="propMetadata">The type metadata for this property.</param>
         /// <param name="ilGenerator">The getter's IL generator.</param>
         /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
-        private void GenerateGetterIL(
+        private static void GenerateGetterIL(
             FieldInfo stubField,
             string dbKey,
             TypeMetadata propMetadata,
@@ -184,43 +192,27 @@
             // this._stub.
             ilGenerator.Emit(OpCodes.Ldarg_0);
             ilGenerator.Emit(OpCodes.Ldfld, stubField);
+            ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+            var stubMethodPrefix = DynamicProxyStub.GetStubMethodPrefix(propMetadata, isReadonly);
+            var stubMethodName = string.Concat(stubMethodPrefix, "Getter");
 
             // this._stub.?Getter(dbKey).
             switch (propMetadata.ValueType)
             {
                 case ObjectValueType.Primitive:
                 case ObjectValueType.String:
-                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
                     ilGenerator.Emit(
                         OpCodes.Call,
-                        typeof(DynamicProxyStub).GetMethod(propMetadata.Name + "Getter", new[] { typeof(string) }));
+                        typeof(DynamicProxyStub).GetMethod(stubMethodName, new[] { typeof(string) }));
                     break;
 
                 case ObjectValueType.Entity:
-                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+                case ObjectValueType.Object:
                     ilGenerator.Emit(
                         OpCodes.Call,
                         typeof(DynamicProxyStub)
                             .GetMethods()
-                            .First(m => m.Name.Equals("EntityGetter")).MakeGenericMethod(propMetadata.Type));
-                    break;
-
-                case ObjectValueType.Object when !isReadonly:
-                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    ilGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub)
-                            .GetMethods()
-                            .First(m => m.Name.Equals("ObjectGetter")).MakeGenericMethod(propMetadata.Type));
-                    break;
-
-                case ObjectValueType.Object when isReadonly:
-                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    ilGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub)
-                            .GetMethods()
-                            .First(m => m.Name.Equals("ReadonlyObjectGetter")).MakeGenericMethod(propMetadata.Type));
+                            .First(m => m.Name.Equals(stubMethodName)).MakeGenericMethod(propMetadata.Type));
                     break;
 
                 default:
@@ -238,7 +230,7 @@
         /// <param name="dbKey">The databse key of this property.</param>
         /// <param name="propMetadata">The type metadata for this property.</param>
         /// <param name="ilGenerator">The setter's IL generator.</param>
-        private void GenerateSetterIL(
+        private static void GenerateSetterIL(
             FieldInfo stubField,
             string dbKey,
             TypeMetadata propMetadata,
@@ -247,37 +239,29 @@
             // this._stub.
             ilGenerator.Emit(OpCodes.Ldarg_0);
             ilGenerator.Emit(OpCodes.Ldfld, stubField);
+            ilGenerator.Emit(OpCodes.Ldstr, dbKey);
+            var stubMethodPrefix = DynamicProxyStub.GetStubMethodPrefix(propMetadata);
+            var stubMethodName = string.Concat(stubMethodPrefix, "Setter");
 
             // this._stub.?().
             switch (propMetadata.ValueType)
             {
                 case ObjectValueType.Primitive:
                 case ObjectValueType.String:
-                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
                     ilGenerator.Emit(OpCodes.Ldarg_1);
                     ilGenerator.Emit(
                         OpCodes.Call,
-                        typeof(DynamicProxyStub).GetMethod(propMetadata.Name + "Setter", new[] { typeof(string), propMetadata.Type }));
+                        typeof(DynamicProxyStub).GetMethod(stubMethodName, new[] { typeof(string), propMetadata.Type }));
                     break;
 
                 case ObjectValueType.Entity:
-                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
-                    ilGenerator.Emit(OpCodes.Ldarg_1);
-                    ilGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub)
-                            .GetMethods()
-                            .First(m => m.Name.Equals("EntitySetter")).MakeGenericMethod(propMetadata.Type));
-                    break;
-
                 case ObjectValueType.Object:
-                    ilGenerator.Emit(OpCodes.Ldstr, dbKey);
                     ilGenerator.Emit(OpCodes.Ldarg_1);
                     ilGenerator.Emit(
                         OpCodes.Call,
                         typeof(DynamicProxyStub)
                             .GetMethods()
-                            .First(m => m.Name.Equals("ObjectSetter")).MakeGenericMethod(propMetadata.Type));
+                            .First(m => m.Name.Equals(stubMethodName)).MakeGenericMethod(propMetadata.Type));
                     break;
 
                 default:
@@ -293,7 +277,7 @@
         /// </summary>
         /// <param name="stubField">The proxy stub field.</param>
         /// <param name="ilGenerator">The setter's IL generator.</param>
-        private void GenerateNotAvailableSetterIL(
+        private static void GenerateNotAvailableSetterIL(
             FieldInfo stubField,
             ILGenerator ilGenerator)
         {

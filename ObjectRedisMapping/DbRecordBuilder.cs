@@ -80,19 +80,11 @@
                 ? this.entityKeyGenerator.GetDbKey(typeMetadata, obj)
                 : prefix;
 
-            foreach (var prop in typeMetadata.Properties)
-            {
-                var value = prop.GetValue(obj);
-                if (value == null)
-                {
-                    continue;
-                }
-
-                states.Push((prop, value, basePrefix));
-            }
+            ExpandProperties(states, basePrefix, obj, typeMetadata.Properties);
 
             // Searching and build the database record.
             var visitedObjs = new Dictionary<object, string>();
+            var visitedEntities = new HashSet<string>();
             while (states.Count != 0)
             {
                 var (curProp, curValue, curPrefix) = states.Pop();
@@ -110,8 +102,18 @@
                         break;
 
                     case ObjectValueType.Entity:
+                        // TODO: If entity is an proxy, stop to generate record for it, just create reference.
                         var entityKey = this.entityKeyGenerator.GetDbKey(propTypeMetadata, curValue);
-                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, entityKey));
+                        var entityKeyValue = this.entityKeyGenerator.GetEntityKey(propTypeMetadata, curValue);
+                        if (!visitedEntities.Contains(entityKey))
+                        {
+                            // For new entity, add it to records.
+                            visitedEntities.Add(entityKey);
+                            ExpandProperties(states, entityKey, curValue, propTypeMetadata.Properties);
+                        }
+
+                        // For added entity, just record the reference.
+                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, entityKeyValue));
                         break;
 
                     case ObjectValueType.Object:
@@ -123,24 +125,40 @@
                         }
 
                         visitedObjs.Add(curValue, curPrefix);
-                        foreach (var prop in propTypeMetadata.Properties)
-                        {
-                            var value = prop.GetValue(curValue);
-                            if (value == null)
-                            {
-                                continue;
-                            }
-
-                            states.Push((prop, value, curPrefix));
-                        }
-
+                        ExpandProperties(states, curPrefix, curValue, propTypeMetadata.Properties);
                         break;
+
                     case ObjectValueType.Struct:
                     case ObjectValueType.List:
                     case ObjectValueType.Set:
                     default:
                         throw new NotSupportedException();
                 }
+            }
+        }
+
+        /// <summary>
+        /// Expand an object's properties to states.
+        /// </summary>
+        /// <param name="states">The states.</param>
+        /// <param name="prefix">The prefix.</param>
+        /// <param name="obj">The object.</param>
+        /// <param name="properties">The object's properties.</param>
+        private static void ExpandProperties(
+            Stack<(PropertyInfo prop, object val, string prefix)> states,
+            string prefix,
+            object obj,
+            PropertyInfo[] properties)
+        {
+            foreach (var prop in properties)
+            {
+                var value = prop.GetValue(obj);
+                if (value == null)
+                {
+                    continue;
+                }
+
+                states.Push((prop, value, prefix));
             }
         }
     }

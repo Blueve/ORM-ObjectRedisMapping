@@ -57,7 +57,6 @@
         public void TestGenerateForEntity_NestedEntity()
         {
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueveKey", "Blueve");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityYoudKey", "Youd");
 
             var proxyObj = this.generator.GenerateForEntity<NestedEntity>("Blueve");
             Assert.AreEqual("Blueve", proxyObj.Key);
@@ -68,6 +67,7 @@
             };
             Assert.AreEqual("Youd", proxyObj.LeftChild.Key);
             Assert.AreEqual("Youd", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueveLeftChild"]);
+            Assert.AreEqual("Youd", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityYoudKey"]);
         }
 
         [TestMethod]
@@ -138,6 +138,37 @@
             catch (InvalidOperationException)
             {
             }
+        }
+
+        [TestMethod]
+        public void TestGenerateForEntity_ListNodeEntity()
+        {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1Id", "1");
+
+            var proxyObj = this.generator.GenerateForEntity<ListNodeEntity>("1");
+            Assert.AreEqual(1, proxyObj.Id);
+
+            proxyObj.Val = 1;
+            Assert.AreEqual(1, proxyObj.Val);
+            Assert.AreEqual("1", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1Val"]);
+
+            var tail = new ListNodeEntity
+            {
+                Id = 2,
+                Val = 2,
+                Next = new ListNodeEntity
+                {
+                    Id = 3,
+                    Val = 3
+                }
+            };
+
+            proxyObj.Next = tail;
+
+            Assert.AreEqual("2", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1Next"]);
+            Assert.AreEqual("2", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity2Val"]);
+            Assert.AreEqual("3", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity2Next"]);
+            Assert.AreEqual("3", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity3Val"]);
         }
     }
 }

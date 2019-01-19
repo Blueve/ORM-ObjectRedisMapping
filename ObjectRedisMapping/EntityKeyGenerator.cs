@@ -15,7 +15,7 @@
         /// <returns>The databse key.</returns>
         public string GetDbKey(TypeMetadata typeMetadata, string entityKey)
         {
-            return $"{typeMetadata.Name}{entityKey}";
+            return string.Concat(typeMetadata.Name, entityKey);
         }
 
         /// <summary>

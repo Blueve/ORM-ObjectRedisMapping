@@ -1,8 +1,6 @@
 ﻿namespace Blueve.ObjectRedisMapping.UnitTests
 {
     using System;
-    using System.Collections.Generic;
-    using System.Text;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 

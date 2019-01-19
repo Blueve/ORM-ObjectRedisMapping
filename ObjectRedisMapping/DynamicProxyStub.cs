@@ -142,6 +142,7 @@
         public T EntityGetter<T>(string dbKey)
             where T : class
         {
+            // TODO: If key not existed, return null.
             var entityKey = this.dbAccessor.Get(dbKey);
             var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this);
             return proxyGenerator.GenerateForEntity<T>(entityKey);
@@ -162,10 +163,7 @@
             {
                 // If value is not a proxy, then commit value as an entity and then update the DB reference.
                 var records = this.dbRecordBuilder.Generate(value);
-                foreach (var record in records)
-                {
-                    this.dbRecorderSubmitter.Commit(record);
-                }
+                this.dbRecorderSubmitter.Commit(records);
             }
 
             var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
@@ -208,6 +206,33 @@
         {
             var records = this.dbRecordBuilder.Generate(value, dbKey);
             this.dbRecorderSubmitter.Commit(records);
+        }
+
+        /// <summary>
+        /// Gets the stub method's prefix by a type metadata.
+        /// </summary>
+        /// <param name="typeMetadata">The type metadata.</param>
+        /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
+        /// <returns>The stub method prefix.</returns>
+        internal static string GetStubMethodPrefix(TypeMetadata typeMetadata, bool isReadonly = false)
+        {
+            switch (typeMetadata.ValueType)
+            {
+                case ObjectValueType.Primitive:
+                case ObjectValueType.String:
+                    return typeMetadata.Name;
+
+                case ObjectValueType.Entity:
+                case ObjectValueType.Struct:
+                case ObjectValueType.Object when !isReadonly:
+                    return typeMetadata.ValueType.ToString();
+
+                case ObjectValueType.Object when isReadonly:
+                    return string.Concat("Readonly", nameof(ObjectValueType.Object));
+
+                default:
+                    throw new NotImplementedException();
+            }
         }
     }
 }

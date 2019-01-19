@@ -3,7 +3,7 @@
     /// <summary>
     /// The interface of proxy.
     /// </summary>
-    internal interface IProxy
+    public interface IProxy
     {
     }
 }

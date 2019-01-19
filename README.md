@@ -34,7 +34,6 @@ person1.Partner = person2;
 person2.Partner = person1;
 
 dbContext.Commit(person1);
-dbContext.Commit(person2);
 
 // Redis
 // PersonTomName -> Tom
@@ -61,6 +60,30 @@ person.Age = 18;
 
 // Redis
 // PersonJerryAge -> 18
+```
+
+Store a linked-list
+```csharp
+var head = new ListNode
+{
+    Val = 1,
+    Next = new ListNode
+    {
+        Val = 2,
+        Next = new ListNode
+        {
+            Val = 3
+        }
+    }
+};
+dbContext.Commit(head);
+
+// Redis
+// ListNode1Val -> 1
+// ListNode1Next -> 2
+// ListNode2Val -> 2
+// ListNode2Next -> 3
+// ListNode3Val -> 3
 ```
 ---
 
