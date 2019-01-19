@@ -16,14 +16,14 @@
         /// <summary>
         /// Initialize an instance of <see cref="DbRecordSubmitter"/>.
         /// </summary>
-        /// <param name="dbAccessor">The databse accessor.</param>
+        /// <param name="dbAccessor">The database accessor.</param>
         public DbRecordSubmitter(IDbAccessor dbAccessor)
         {
             this.dbAccessor = dbAccessor;
         }
 
         /// <summary>
-        /// Commit a databse record to database.
+        /// Commit a database record to database.
         /// </summary>
         /// <param name="record">The database record.</param>
         public void Commit(DbRecord record)

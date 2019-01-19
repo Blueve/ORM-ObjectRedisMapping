@@ -13,12 +13,12 @@
         private readonly TypeRepository typeRepo;
 
         /// <summary>
-        /// The databse accessor.
+        /// The database accessor.
         /// </summary>
         private readonly IDbAccessor dbAccessor;
 
         /// <summary>
-        /// The databse record builder.
+        /// The database record builder.
         /// </summary>
         private readonly IDbRecordBuilder dbRecordBuilder;
 
@@ -36,8 +36,8 @@
         /// Initialzie an instance of <see cref="DynamicProxyStub"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
-        /// <param name="dbAccessor">The databse accessor.</param>
-        /// <param name="dbRecordBuilder">The databse record builder.</param>
+        /// <param name="dbAccessor">The database accessor.</param>
+        /// <param name="dbRecordBuilder">The database record builder.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         internal DynamicProxyStub(
             TypeRepository typeRepo,
@@ -56,7 +56,7 @@
         /// <summary>
         /// The getter for <see cref="string"/> type.
         /// </summary>
-        /// <param name="dbKey">The databse key.</param>
+        /// <param name="dbKey">The database key.</param>
         /// <returns>The value.</returns>
         public string StringGetter(string dbKey)
         {
@@ -66,7 +66,7 @@
         /// <summary>
         /// The setter for <see cref="string"/> type.
         /// </summary>
-        /// <param name="dbKey">The databse key.</param>
+        /// <param name="dbKey">The database key.</param>
         /// <param name="value">The value.</param>
         public void StringSetter(string dbKey, string value)
         {
@@ -116,7 +116,7 @@
         /// <summary>
         /// The getter for <see cref="long"/> type.
         /// </summary>
-        /// <param name="dbKey">The databse key.</param>
+        /// <param name="dbKey">The database key.</param>
         /// <returns>The value.</returns>
         public long Int64Getter(string dbKey)
         {
@@ -144,7 +144,7 @@
         {
             // TODO: If key not existed, return null.
             var entityKey = this.dbAccessor.Get(dbKey);
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor);
             return proxyGenerator.GenerateForEntity<T>(entityKey);
         }
 
@@ -174,12 +174,12 @@
         /// The getter for object type.
         /// </summary>
         /// <typeparam name="T">The object type.</typeparam>
-        /// <param name="dbKey">The databse key.</param>
+        /// <param name="dbKey">The database key.</param>
         /// <returns>The proxy of object.</returns>
         public T ObjectGetter<T>(string dbKey)
             where T : class
         {
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 
@@ -187,12 +187,12 @@
         /// The readonly getter for object type.
         /// </summary>
         /// <typeparam name="T">The object type.</typeparam>
-        /// <param name="dbKey">The databse key.</param>
+        /// <param name="dbKey">The database key.</param>
         /// <returns>The proxy of object which all property are readonly.</returns>
         public T ReadonlyObjectGetter<T>(string dbKey)
             where T : class
         {
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, true);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor, true);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 
@@ -200,7 +200,7 @@
         /// The settre for object type.
         /// </summary>
         /// <typeparam name="T">The object type.</typeparam>
-        /// <param name="dbKey">The databse key.</param>
+        /// <param name="dbKey">The database key.</param>
         /// <param name="value">The object or proxy of object.</param>
         public void ObjectSetter<T>(string dbKey, T value)
         {

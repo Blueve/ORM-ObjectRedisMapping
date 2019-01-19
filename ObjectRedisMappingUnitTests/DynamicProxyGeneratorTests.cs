@@ -31,6 +31,9 @@
             this.dbAccessor
                 .Setup(accessor => accessor.Get(It.IsAny<string>()))
                 .Returns<string>(k => this.db[k]);
+            this.dbAccessor
+                .Setup(accessor => accessor.KeyExists(It.IsAny<string>()))
+                .Returns<string>(k => this.db.ContainsKey(k));
 
             var typeRepo = new TypeRepository(new TypeMetadataGenerator());
             var dbRecordSubmitter = new DbRecordSubmitter(this.dbAccessor.Object);
@@ -38,12 +41,13 @@
             this.keyGenerator = new EntityKeyGenerator();
             this.dbRecordBuilder = new DbRecordBuilder(typeRepo, this.keyGenerator);
             this.stub = new DynamicProxyStub(typeRepo, this.dbAccessor.Object, this.dbRecordBuilder, this.keyGenerator, dbRecordSubmitter);
-            this.generator = new DynamicProxyGenerator(typeRepo, this.keyGenerator, this.stub);
+            this.generator = new DynamicProxyGenerator(typeRepo, this.keyGenerator, this.stub, this.dbAccessor.Object);
         }
 
         [TestMethod]
         public void TestGenerateForEntity_PlainEntity()
         {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueve", "True");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueveUserId", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<PlainEntity>("Blueve");
@@ -56,6 +60,7 @@
         [TestMethod]
         public void TestGenerateForEntity_NestedEntity()
         {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueve", "True");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueveKey", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<NestedEntity>("Blueve");
@@ -104,6 +109,9 @@
         [TestMethod]
         public void TestGenerateForEntity_PlainEntity_OverrideKey()
         {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueve", "True");
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueveUserId", "1");
+
             try
             {
                 var proxyObj = this.generator.GenerateForEntity<PlainEntity>("Blueve");
@@ -118,6 +126,7 @@
         [TestMethod]
         public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_ReadKeyValue()
         {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueve", "True");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
@@ -127,6 +136,7 @@
         [TestMethod]
         public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_UpdateKeyValue()
         {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueve", "True");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
@@ -143,6 +153,7 @@
         [TestMethod]
         public void TestGenerateForEntity_ListNodeEntity()
         {
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1", "True");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1Id", "1");
 
             var proxyObj = this.generator.GenerateForEntity<ListNodeEntity>("1");

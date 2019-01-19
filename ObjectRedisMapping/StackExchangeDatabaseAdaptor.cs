@@ -30,6 +30,12 @@
         }
 
         /// <inheritdoc/>
+        public bool KeyExists(string key)
+        {
+            return this.database.KeyExists(key);
+        }
+
+        /// <inheritdoc/>
         public string Get(string key)
         {
             return this.database.StringGet(key);

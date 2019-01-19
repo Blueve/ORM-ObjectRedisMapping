@@ -7,14 +7,33 @@
     /// </summary>
     public class DbContext : IDbContext
     {
+        /// <summary>
+        /// The type repository.
+        /// </summary>
         private readonly TypeRepository typeRepository;
 
+        /// <summary>
+        /// The database record builder.
+        /// </summary>
         private readonly DbRecordBuilder dbRecordBuilder;
 
+        /// <summary>
+        /// The database record submitter.
+        /// </summary>
         private readonly DbRecordSubmitter dbRecordSubmitter;
 
+        /// <summary>
+        /// The proxy generator.
+        /// </summary>
         private readonly DynamicProxyGenerator proxyGenerator;
 
+        /// <summary>
+        /// Initialize an instance of <see cref="DbContext"/>.
+        /// </summary>
+        /// <param name="typeRepository">The type repository.</param>
+        /// <param name="dbRecordBuilder">The database record builder.</param>
+        /// <param name="dbRecordSubmitter">The database record submitter.</param>
+        /// <param name="proxyGenerator">The proxy generator.</param>
         internal DbContext(
             TypeRepository typeRepository,
             DbRecordBuilder dbRecordBuilder,

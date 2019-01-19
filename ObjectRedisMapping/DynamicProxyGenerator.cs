@@ -31,6 +31,11 @@
         private readonly DynamicProxyStub dynamicProxyStub;
 
         /// <summary>
+        /// The database accessor.
+        /// </summary>
+        private readonly IDbAccessor dbAccessor;
+
+        /// <summary>
         /// True if the proxy from the getter is readonly.
         /// </summary>
         private readonly bool isReadonly;
@@ -41,16 +46,19 @@
         /// <param name="typeRepo">The type repository.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         /// <param name="dynamicProxyStub">The dynamic proxy stub.</param>
+        /// <param name="dbAccessor">The database accessor.</param>
         /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
         public DynamicProxyGenerator(
             TypeRepository typeRepo,
             EntityKeyGenerator entityKeyGenerator,
             DynamicProxyStub dynamicProxyStub,
+            IDbAccessor dbAccessor,
             bool isReadonly = false)
         {
             this.typeRepo = typeRepo;
             this.entityKeyGenerator = entityKeyGenerator;
             this.dynamicProxyStub = dynamicProxyStub;
+            this.dbAccessor = dbAccessor;
             this.isReadonly = isReadonly;
         }
 
@@ -70,7 +78,13 @@
                 throw new ArgumentException("The given type is not an Entity.");
             }
 
+            // Return null if the target entity not exists.
             var dbKey = this.entityKeyGenerator.GetDbKey(typeMetadata, entityKey);
+            if (!this.dbAccessor.KeyExists(dbKey))
+            {
+                return null;
+            }
+
             return this.GenerateForObject<T>(dbKey);
         }
 
@@ -178,7 +192,7 @@
         /// Generate IL for the getter.
         /// </summary>
         /// <param name="stubField">The proxy stub field.</param>
-        /// <param name="dbKey">The databse key of this property.</param>
+        /// <param name="dbKey">The database key of this property.</param>
         /// <param name="propMetadata">The type metadata for this property.</param>
         /// <param name="ilGenerator">The getter's IL generator.</param>
         /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
@@ -227,7 +241,7 @@
         /// Generate IL for the setter.
         /// </summary>
         /// <param name="stubField">The proxy stub field.</param>
-        /// <param name="dbKey">The databse key of this property.</param>
+        /// <param name="dbKey">The database key of this property.</param>
         /// <param name="propMetadata">The type metadata for this property.</param>
         /// <param name="ilGenerator">The setter's IL generator.</param>
         private static void GenerateSetterIL(

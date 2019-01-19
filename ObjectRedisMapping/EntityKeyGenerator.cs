@@ -12,7 +12,7 @@
         /// </summary>
         /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entityKey">The entity key.</param>
-        /// <returns>The databse key.</returns>
+        /// <returns>The database key.</returns>
         public string GetDbKey(TypeMetadata typeMetadata, string entityKey)
         {
             return string.Concat(typeMetadata.Name, entityKey);
@@ -23,7 +23,7 @@
         /// </summary>
         /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entity">The value of entity.</param>
-        /// <returns>The databse key.</returns>
+        /// <returns>The database key.</returns>
         public string GetDbKey(TypeMetadata typeMetadata, object entity)
         {
             return this.GetDbKey(typeMetadata, this.GetEntityKey(typeMetadata, entity));

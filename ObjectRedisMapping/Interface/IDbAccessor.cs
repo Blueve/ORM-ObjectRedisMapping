@@ -7,6 +7,13 @@
     /// </summary>
     internal interface IDbAccessor
     {
+        /// <summary>
+        /// Return if key exists.
+        /// </summary>
+        /// <param name="key">The database key.</param>
+        /// <returns>True if the key is exists.</returns>
+        bool KeyExists(string key);
+
         #region DB String
         /// <summary>
         /// Sets a string to database by a key.
@@ -55,7 +62,7 @@
         /// <summary>
         /// Pop a member from the front of list by a key.
         /// </summary>
-        /// <param name="key">The databse key.</param>
+        /// <param name="key">The database key.</param>
         /// <returns>The member.</returns>
         string PopFront(string key);
         #endregion
@@ -71,7 +78,7 @@
         /// <summary>
         /// Add a member to a set.
         /// </summary>
-        /// <param name="key">The databse key.</param>
+        /// <param name="key">The database key.</param>
         /// <param name="member">The member.</param>
         void Add(string key, string member);
         #endregion
@@ -80,7 +87,7 @@
         /// <summary>
         /// Sets an ordered set to database by a key.
         /// </summary>
-        /// <param name="key">The databse key.</param>
+        /// <param name="key">The database key.</param>
         /// <param name="value">The ordered set.</param>
         void Set(string key, IDictionary<int, string> value);
         #endregion

@@ -36,9 +36,11 @@ person2.Partner = person1;
 dbContext.Commit(person1);
 
 // Redis
+// PersonTom -> True
 // PersonTomName -> Tom
 // PersonTomeAge -> 18
 // PersonTomPartner -> Jerry
+// PersonJerry -> True
 // PersonJerryName -> Jerry
 // PersonJerryAge -> 10
 // PersonJerryPartner -> Tom
@@ -79,10 +81,13 @@ var head = new ListNode
 dbContext.Commit(head);
 
 // Redis
+// ListNode1 -> True
 // ListNode1Val -> 1
 // ListNode1Next -> 2
+// ListNode2 -> True
 // ListNode2Val -> 2
 // ListNode2Next -> 3
+// ListNode3 -> True
 // ListNode3Val -> 3
 ```
 ---

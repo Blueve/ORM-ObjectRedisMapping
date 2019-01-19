@@ -51,7 +51,7 @@
                 // Deal with reference types.
                 case ObjectValueType.Entity:
                 case ObjectValueType.Object:
-                    return this.Generate(typeMetadata, obj, prefix);
+                    return this.Generate(typeMetadata, null, obj, prefix);
 
                 case ObjectValueType.Struct:
                 case ObjectValueType.List:
@@ -67,34 +67,33 @@
         /// Generate database records for the given object.
         /// </summary>
         /// <param name="typeMetadata">The type metadata of the object.</param>
+        /// <param name="name">The name of current object's property, null if the object is not belong to an property.</param>
         /// <param name="obj">The object.</param>
         /// <param name="prefix">The prefix, default is an empty string.</param>
         /// <returns></returns>
-        private IEnumerable<DbRecord> Generate(TypeMetadata typeMetadata, object obj, string prefix = "")
+        private IEnumerable<DbRecord> Generate(TypeMetadata typeMetadata, string name, object obj, string prefix = "")
         {
             // Traverse the property tree by using DFS.
-            var states = new Stack<(PropertyInfo prop, object val, string prefix)>();
+            var states = new Stack<(Type type, string name, object val, string prefix)>();
 
             // Initialize the searching with the properties of the object.
             var basePrefix = typeMetadata.ValueType == ObjectValueType.Entity
                 ? this.entityKeyGenerator.GetDbKey(typeMetadata, obj)
                 : prefix;
 
-            ExpandProperties(states, basePrefix, obj, typeMetadata.Properties);
+            states.Push((typeMetadata.Type, name, obj, prefix));
 
             // Searching and build the database record.
-            var visitedObjs = new Dictionary<object, string>();
+            var visitedObjs = new HashSet<object>();
             var visitedEntities = new HashSet<string>();
             while (states.Count != 0)
             {
-                var (curProp, curValue, curPrefix) = states.Pop();
-
-                var propType = curProp.PropertyType;
-                var propTypeMetadata = this.typeRepo.GetOrRegister(propType);
+                var (curType, curName, curValue, curPrefix) = states.Pop();
+                var curTypeMetadata = this.typeRepo.GetOrRegister(curType);
 
                 // Process current property.
-                curPrefix += curProp.Name;
-                switch (propTypeMetadata.ValueType)
+                curPrefix += curName;
+                switch (curTypeMetadata.ValueType)
                 {
                     case ObjectValueType.Primitive:
                     case ObjectValueType.String:
@@ -103,29 +102,33 @@
 
                     case ObjectValueType.Entity:
                         // TODO: If entity is an proxy, stop to generate record for it, just create reference.
-                        var entityKey = this.entityKeyGenerator.GetDbKey(propTypeMetadata, curValue);
-                        var entityKeyValue = this.entityKeyGenerator.GetEntityKey(propTypeMetadata, curValue);
+                        var entityKey = this.entityKeyGenerator.GetDbKey(curTypeMetadata, curValue);
+                        var entityKeyValue = this.entityKeyGenerator.GetEntityKey(curTypeMetadata, curValue);
                         if (!visitedEntities.Contains(entityKey))
                         {
                             // For new entity, add it to records.
                             visitedEntities.Add(entityKey);
-                            ExpandProperties(states, entityKey, curValue, propTypeMetadata.Properties);
+                            yield return new DbRecord(entityKey, new DbValue(DbValueType.String, true.ToString()));
+                            ExpandProperties(states, entityKey, curValue, curTypeMetadata.Properties);
                         }
 
                         // For added entity, just record the reference.
-                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, entityKeyValue));
+                        if (curName != null)
+                        {
+                            yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, entityKeyValue));
+                        }
+
                         break;
 
                     case ObjectValueType.Object:
-                        if (visitedObjs.TryGetValue(curValue, out var objDbKey))
+                        // TODO: Use path to find circular reference.
+                        if (visitedObjs.Contains(curValue))
                         {
-                            // The object has appeared before, record its Guid as the database record.
-                            yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, objDbKey));
-                            break;
+                            throw new NotSupportedException("Circular reference is not support Object type, consider use Entity instead.");
                         }
 
-                        visitedObjs.Add(curValue, curPrefix);
-                        ExpandProperties(states, curPrefix, curValue, propTypeMetadata.Properties);
+                        visitedObjs.Add(curValue);
+                        ExpandProperties(states, curPrefix, curValue, curTypeMetadata.Properties);
                         break;
 
                     case ObjectValueType.Struct:
@@ -145,7 +148,7 @@
         /// <param name="obj">The object.</param>
         /// <param name="properties">The object's properties.</param>
         private static void ExpandProperties(
-            Stack<(PropertyInfo prop, object val, string prefix)> states,
+            Stack<(Type type, string name, object val, string prefix)> states,
             string prefix,
             object obj,
             PropertyInfo[] properties)
@@ -158,7 +161,7 @@
                     continue;
                 }
 
-                states.Push((prop, value, prefix));
+                states.Push((prop.PropertyType, prop.Name, value, prefix));
             }
         }
     }

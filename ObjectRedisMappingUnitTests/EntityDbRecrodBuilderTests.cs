@@ -32,6 +32,7 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1", new DbValue(DbValueType.String, "True")),
                 new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1UserId", new DbValue(DbValueType.String, "1")),
                 new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1UserName", new DbValue(DbValueType.String, "Blueve"))
             }, records);
@@ -52,8 +53,10 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1", new DbValue(DbValueType.String, "True")),
                 new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1Key", new DbValue(DbValueType.String, "1")),
                 new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1LeftChild", new DbValue(DbValueType.String, "2")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity2", new DbValue(DbValueType.String, "True")),
                 new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity2Key", new DbValue(DbValueType.String, "2"))
             }, records);
         }

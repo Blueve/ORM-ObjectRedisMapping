@@ -1,7 +1,7 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
     /// <summary>
-    /// The databse record.
+    /// The database record.
     /// </summary>
     internal readonly struct DbRecord
     {
