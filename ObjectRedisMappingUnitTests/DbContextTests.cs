@@ -1,5 +1,6 @@
 ﻿namespace Blueve.ObjectRedisMapping.UnitTests
 {
+    using System;
     using System.Collections.Generic;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,6 +49,25 @@
         }
 
         [TestMethod]
+        public void TestCommit_PlainObject()
+        {
+            var entity = new PlainObject
+            {
+                Name = "UserName",
+                Value = "Blueve"
+            };
+
+            try
+            {
+                this.dbContext.Commit(entity);
+                Assert.Fail();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
+
+        [TestMethod]
         public void TestFind_PlainEntity()
         {
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1", "True");
@@ -56,6 +76,26 @@
 
             var entity = this.dbContext.Find<PlainEntity>("1");
             Assert.AreEqual("Blueve", entity.UserName);
+        }
+
+        [TestMethod]
+        public void TestFind_PlainEntity_NotExists()
+        {
+            var entity = this.dbContext.Find<PlainEntity>("1");
+            Assert.IsNull(entity);
+        }
+
+        [TestMethod]
+        public void TestFind_PlainObject()
+        {
+            try
+            {
+                this.dbContext.Find<PlainObject>("1");
+                Assert.Fail();
+            }
+            catch (InvalidOperationException)
+            {
+            }
         }
     }
 }

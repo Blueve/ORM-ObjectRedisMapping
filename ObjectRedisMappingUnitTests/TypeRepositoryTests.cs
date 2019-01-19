@@ -46,6 +46,26 @@
         }
 
         [TestMethod]
+        public void TestRegister_DerivedEntity()
+        {
+            this.repo.Register(typeof(DerivedEntity));
+            var metadata = this.repo.Get(typeof(DerivedEntity));
+
+            Assert.AreEqual(ObjectValueType.Entity, metadata.ValueType);
+            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.DerivedEntity", metadata.Name);
+        }
+
+        [TestMethod]
+        public void TestRegisterGeneric_DerivedEntity()
+        {
+            this.repo.Register<DerivedEntity>();
+            var metadata = this.repo.Get<DerivedEntity>();
+
+            Assert.AreEqual(ObjectValueType.Entity, metadata.ValueType);
+            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.DerivedEntity", metadata.Name);
+        }
+
+        [TestMethod]
         public void TestRegister_PlainObject()
         {
             this.repo.Register(typeof(PlainObject));

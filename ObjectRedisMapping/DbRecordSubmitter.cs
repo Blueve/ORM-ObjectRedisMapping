@@ -34,20 +34,8 @@
                     this.dbAccessor.Set(record.Key, record.Value.Object as string);
                     break;
 
-                case DbValueType.List:
-                    this.dbAccessor.Set(record.Key, record.Value.Object as IList<string>);
-                    break;
-
-                case DbValueType.Set:
-                    this.dbAccessor.Set(record.Key, record.Value.Object as ISet<string>);
-                    break;
-
-                case DbValueType.SortedSet:
-                    this.dbAccessor.Set(record.Key, record.Value.Object as IDictionary<int, string>);
-                    break;
-
                 default:
-                    throw new NotSupportedException();
+                    throw new NotImplementedException();
             }
         }
 

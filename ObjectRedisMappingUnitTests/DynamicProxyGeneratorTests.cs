@@ -58,6 +58,13 @@
         }
 
         [TestMethod]
+        public void TestGenerateForEntity_PlainEntity_NotExists()
+        {
+            var proxyObj = this.generator.GenerateForEntity<PlainEntity>("Blueve");
+            Assert.IsNull(proxyObj);
+        }
+
+        [TestMethod]
         public void TestGenerateForEntity_NestedEntity()
         {
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueve", "True");

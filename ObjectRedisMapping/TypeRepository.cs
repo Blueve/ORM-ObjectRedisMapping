@@ -77,12 +77,8 @@
 
                     break;
 
-                case ObjectValueType.List:
-                case ObjectValueType.Set:
-                    throw new NotImplementedException();
-
                 default:
-                    throw new NotSupportedException();
+                    throw new NotImplementedException();
             }
         }
 

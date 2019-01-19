@@ -2,11 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using StackExchange.Redis;
 
     /// <summary>
     /// The StackExchangeDatabaseAdaptor.
     /// </summary>
+    [ExcludeFromCodeCoverage]
     internal class StackExchangeDatabaseAdaptor : IDbAccessor
     {
         /// <summary>
