@@ -22,11 +22,13 @@ Store to Redis
 ```csharp
 var person1 = new Person
 {
-    Name = "Tom"
+    Name = "Tom",
+    Age = 18
 };
 var person2 = new Person
 {
-    Name = "Jerry"
+    Name = "Jerry",
+    Age = 10
 };
 person1.Partner = person2;
 person2.Partner = person1;
@@ -35,19 +37,21 @@ dbContext.Commit(person1);
 dbContext.Commit(person2);
 
 // Redis
-// Person00000003TomId -> Tom
-// Person00000003TomName -> Tom
-// Person00000003TomPartner -> Person00000005Jerry
-// Person00000005JerryId -> Jerry
-// Person00000005JerryName -> Jerry
-// Person00000005JerryPartner -> Person00000003Tom
+// PersonTomName -> Tom
+// PersonTomeAge -> 18
+// PersonTomPartner -> Jerry
+// PersonJerryName -> Jerry
+// PersonJerryAge -> 10
+// PersonJerryPartner -> Tom
 ```
 
 Fetch from Redis
 ```csharp
 var person = dbContext.Find("Tom");
 Console.WriteLine(person.Partern.Name); // Jerry
+Console.WriteLine(person.Partern.Age); // 10
 Console.WriteLine(person.Partern.Partern.Name); // Tom
+Console.WriteLine(person.Partern.Partern.Name); // 18
 ```
 
 Update in place by a dynmic proxy
@@ -56,9 +60,8 @@ var person = dbContext.Find("Jerry");
 person.Age = 18;
 
 // Redis
-// Person00000005JerryAge -> 18
+// PersonJerryAge -> 18
 ```
-
 ---
 
 ## Contribution Guide

@@ -35,7 +35,7 @@
             var typeRepo = new TypeRepository(new TypeMetadataGenerator());
             var dbRecordSubmitter = new DbRecordSubmitter(this.dbAccessor.Object);
 
-            this.keyGenerator = new EntityKeyGenerator(new EntityKeyValueFormatter());
+            this.keyGenerator = new EntityKeyGenerator();
             this.dbRecordBuilder = new DbRecordBuilder(typeRepo, this.keyGenerator);
             this.stub = new DynamicProxyStub(typeRepo, this.dbAccessor.Object, this.dbRecordBuilder, this.keyGenerator, dbRecordSubmitter);
             this.generator = new DynamicProxyGenerator(typeRepo, this.keyGenerator, this.stub);
@@ -44,20 +44,20 @@
         [TestMethod]
         public void TestGenerateForEntity_PlainEntity()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity00000006BlueveUserId", "Blueve");
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueveUserId", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<PlainEntity>("Blueve");
             Assert.AreEqual("Blueve", proxyObj.UserId);
 
             proxyObj.UserName = "Blueve";
-            Assert.AreEqual("Blueve", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity00000006BlueveUserName"]);
+            Assert.AreEqual("Blueve", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueveUserName"]);
         }
 
         [TestMethod]
         public void TestGenerateForEntity_NestedEntity()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity00000006BlueveKey", "Blueve");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity00000004YoudKey", "Youd");
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueveKey", "Blueve");
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityYoudKey", "Youd");
 
             var proxyObj = this.generator.GenerateForEntity<NestedEntity>("Blueve");
             Assert.AreEqual("Blueve", proxyObj.Key);
@@ -67,7 +67,7 @@
                 Key = "Youd"
             };
             Assert.AreEqual("Youd", proxyObj.LeftChild.Key);
-            Assert.AreEqual("Youd", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity00000006BlueveLeftChild"]);
+            Assert.AreEqual("Youd", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueveLeftChild"]);
         }
 
         [TestMethod]
@@ -118,7 +118,7 @@
         [TestMethod]
         public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_ReadKeyValue()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_Entity00000009KeyBlueveKeyValue", "Blueve");
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
             Assert.AreEqual("Blueve", proxyObj.Key.Value);
@@ -127,7 +127,7 @@
         [TestMethod]
         public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_UpdateKeyValue()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_Entity00000009KeyBlueveKeyValue", "Blueve");
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
             try

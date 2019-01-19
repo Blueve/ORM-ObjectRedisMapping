@@ -8,20 +8,6 @@
     internal class EntityKeyGenerator
     {
         /// <summary>
-        /// The entity value serializer.
-        /// </summary>
-        private readonly EntityKeyValueFormatter entityKeyValueFormatter;
-
-        /// <summary>
-        /// Initialize an instance of <see cref="EntityKeyGenerator"/>.
-        /// </summary>
-        /// <param name="entityKeyValueFormatter"><see cref="EntityKeyValueFormatter"/>.</param>
-        public EntityKeyGenerator(EntityKeyValueFormatter entityKeyValueFormatter)
-        {
-            this.entityKeyValueFormatter = entityKeyValueFormatter;
-        }
-
-        /// <summary>
         /// Gets the database key of an entity.
         /// </summary>
         /// <param name="typeMetadata">The type metadata of entity.</param>
@@ -29,7 +15,7 @@
         /// <returns>The databse key.</returns>
         public string GetDbKey(TypeMetadata typeMetadata, string entityKey)
         {
-            return $"{typeMetadata.Name}{this.entityKeyValueFormatter.Format(entityKey)}";
+            return $"{typeMetadata.Name}{entityKey}";
         }
 
         /// <summary>

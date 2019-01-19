@@ -16,8 +16,8 @@
         [TestInitialize]
         public void Initialize()
         {
-            var typeRepo = TypeRepository.CreateInstance();
-            this.builder = new DbRecordBuilder(typeRepo, new EntityKeyGenerator(new EntityKeyValueFormatter()));
+            var typeRepo = new TypeRepository(new TypeMetadataGenerator());
+            this.builder = new DbRecordBuilder(typeRepo, new EntityKeyGenerator());
         }
 
         [TestMethod]
@@ -32,8 +32,8 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity000000011UserId", new DbValue(DbValueType.String, "1")),
-                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity000000011UserName", new DbValue(DbValueType.String, "Blueve"))
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1UserId", new DbValue(DbValueType.String, "1")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1UserName", new DbValue(DbValueType.String, "Blueve"))
             }, records);
         }
 
@@ -52,8 +52,8 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000011Key", new DbValue(DbValueType.String, "1")),
-                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000011LeftChild", new DbValue(DbValueType.String, "Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity000000012"))
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1Key", new DbValue(DbValueType.String, "1")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1LeftChild", new DbValue(DbValueType.String, "Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity2"))
             }, records);
         }
 

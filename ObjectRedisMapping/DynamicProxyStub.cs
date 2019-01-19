@@ -156,8 +156,18 @@
         public void EntitySetter<T>(string dbKey, T value)
             where T : class
         {
-            // TODO: If value is not a proxy, then commit value as an entity and then update the DB reference.
             var typeMetadata = this.typeRepo.GetOrRegister(typeof(T));
+
+            if (!(value is IProxy))
+            {
+                // If value is not a proxy, then commit value as an entity and then update the DB reference.
+                var records = this.dbRecordBuilder.Generate(value);
+                foreach (var record in records)
+                {
+                    this.dbRecorderSubmitter.Commit(record);
+                }
+            }
+
             var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
             this.dbAccessor.Set(dbKey, entityKey);
         }

@@ -171,14 +171,5 @@
                     throw new NotSupportedException($"Key property cannot be {keyPropMetadata.ValueType}");
             }
         }
-
-        /// <summary>
-        /// Create an instance of <see cref="TypeRepository"/>.
-        /// </summary>
-        /// <returns>The instance of <see cref="TypeRepository"/>.</returns>
-        public static TypeRepository CreateInstance()
-        {
-            return new TypeRepository(new TypeMetadataGenerator());
-        }
     }
 }

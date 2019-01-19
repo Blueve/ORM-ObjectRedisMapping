@@ -16,9 +16,8 @@
         {
             // Use virtual factory to allow end user to switch functions.
             var typeRepo = this.CreateTypeRepo();
-            var entityKeyValueFormatter = this.CreateEntityKeyValueFormatter();
 
-            var entityKeyGenerator = new EntityKeyGenerator(entityKeyValueFormatter);
+            var entityKeyGenerator = new EntityKeyGenerator();
             var dbRecordBuilder = new DbRecordBuilder(typeRepo, entityKeyGenerator);
 
             var dbAccessor = new StackExchangeDatabaseAdaptor(database);
@@ -34,11 +33,6 @@
         {
             var typeMetadataGenerator = new TypeMetadataGenerator();
             return new TypeRepository(typeMetadataGenerator);
-        }
-
-        internal virtual EntityKeyValueFormatter CreateEntityKeyValueFormatter()
-        {
-            return new EntityKeyValueFormatter();
         }
     }
 }
