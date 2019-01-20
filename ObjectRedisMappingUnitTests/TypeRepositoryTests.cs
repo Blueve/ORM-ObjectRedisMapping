@@ -1,6 +1,7 @@
 ﻿namespace Blueve.ObjectRedisMapping.UnitTests
 {
     using System;
+    using System.Collections.Generic;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -83,6 +84,19 @@
                 Assert.Fail();
             }
             catch (ArgumentException)
+            {
+            }
+        }
+
+        [TestMethod]
+        public void TestGet_TypeNotExists()
+        {
+            try
+            {
+                this.repo.Get(typeof(int));
+                Assert.Fail();
+            }
+            catch (KeyNotFoundException)
             {
             }
         }

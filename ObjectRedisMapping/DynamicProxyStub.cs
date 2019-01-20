@@ -108,7 +108,7 @@
         /// </summary>
         /// <param name="dbKey">The database key.</param>
         /// <param name="value">The value.</param>
-        public void Int32Setter(string dbKey, short value)
+        public void Int32Setter(string dbKey, int value)
         {
             this.dbAccessor.Set(dbKey, value.ToString());
         }
@@ -128,7 +128,7 @@
         /// </summary>
         /// <param name="dbKey">The database key.</param>
         /// <param name="value">The value.</param>
-        public void Int64Setter(string dbKey, short value)
+        public void Int64Setter(string dbKey, long value)
         {
             this.dbAccessor.Set(dbKey, value.ToString());
         }
@@ -142,7 +142,11 @@
         public T EntityGetter<T>(string dbKey)
             where T : class
         {
-            // TODO: If key not existed, return null.
+            if (!this.dbAccessor.KeyExists(dbKey))
+            {
+                return null;
+            }
+
             var entityKey = this.dbAccessor.Get(dbKey);
             var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor);
             return proxyGenerator.GenerateForEntity<T>(entityKey);
@@ -179,6 +183,7 @@
         public T ObjectGetter<T>(string dbKey)
             where T : class
         {
+            // TODO: Object can be null too.
             var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }

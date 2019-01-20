@@ -111,17 +111,6 @@
         }
 
         /// <summary>
-        /// Try get the type metadata of a given type.
-        /// </summary>
-        /// <param name="type">The type.</param>
-        /// <param name="typeMetadata">The type's type metadata.</param>
-        /// <returns>True if get the metadata succeed.</returns>
-        public bool TryGet(Type type, out TypeMetadata typeMetadata)
-        {
-            return this.typeMetadataDict.TryGetValue(type, out typeMetadata);
-        }
-
-        /// <summary>
         /// Gets the type's metadata and create one if the metadata not registered before.
         /// </summary>
         /// <param name="type">The type.</param>

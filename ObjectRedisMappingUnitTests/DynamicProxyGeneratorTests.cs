@@ -83,6 +83,19 @@
         }
 
         [TestMethod]
+        public void TestGenerateForEntity_PlainObject()
+        {
+            try
+            {
+                this.generator.GenerateForEntity<PlainObject>("Blueve");
+                Assert.Fail();
+            }
+            catch (ArgumentException)
+            {
+            }
+        }
+
+        [TestMethod]
         public void TestGenerateForObject_PlainObject()
         {
             this.db.Add("PrefixName", "Age");
