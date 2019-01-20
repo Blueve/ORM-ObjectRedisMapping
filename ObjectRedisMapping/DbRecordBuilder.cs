@@ -74,22 +74,23 @@
         private IEnumerable<DbRecord> Generate(TypeMetadata typeMetadata, string name, object obj, string prefix = "")
         {
             // Traverse the property tree by using DFS.
-            var states = new Stack<(Type type, string name, object val, string prefix)>();
+            var states = new Stack<(Type type, string name, object val, string prefix, uint depth)>();
+            var path = new Dictionary<uint, object>();
 
             // Initialize the searching with the properties of the object.
             var basePrefix = typeMetadata.ValueType == ObjectValueType.Entity
                 ? this.entityKeyGenerator.GetDbKey(typeMetadata, obj)
                 : prefix;
 
-            states.Push((typeMetadata.Type, name, obj, prefix));
+            states.Push((typeMetadata.Type, name, obj, prefix, 0u));
 
             // Searching and build the database record.
-            var visitedObjs = new HashSet<object>();
             var visitedEntities = new HashSet<string>();
             while (states.Count != 0)
             {
-                var (curType, curName, curValue, curPrefix) = states.Pop();
+                var (curType, curName, curValue, curPrefix, depth) = states.Pop();
                 var curTypeMetadata = this.typeRepo.GetOrRegister(curType);
+                path[depth] = curValue;
 
                 // Process current property.
                 curPrefix += curName;
@@ -101,15 +102,14 @@
                         break;
 
                     case ObjectValueType.Entity:
-                        // TODO: If entity is an proxy, stop to generate record for it, just create reference.
                         var entityKey = this.entityKeyGenerator.GetDbKey(curTypeMetadata, curValue);
                         var entityKeyValue = this.entityKeyGenerator.GetEntityKey(curTypeMetadata, curValue);
-                        if (!visitedEntities.Contains(entityKey))
+                        if (!visitedEntities.Contains(entityKey) && !(curValue is IProxy))
                         {
                             // For new entity, add it to records.
                             visitedEntities.Add(entityKey);
                             yield return new DbRecord(entityKey, new DbValue(DbValueType.String, true.ToString()));
-                            ExpandProperties(states, entityKey, curValue, curTypeMetadata.Properties);
+                            ExpandProperties(states, entityKey, curValue, curTypeMetadata.Properties, depth + 1);
                         }
 
                         // For added entity, just record the reference.
@@ -121,14 +121,15 @@
                         break;
 
                     case ObjectValueType.Object:
-                        // TODO: Use path to find circular reference.
-                        if (visitedObjs.Contains(curValue))
+                        for (var i = 0u; i < depth; i++)
                         {
-                            throw new NotSupportedException("Circular reference is not support Object type, consider use Entity instead.");
+                            if (path[i] == curValue)
+                            {
+                                throw new NotSupportedException("Circular reference is not support Object type, consider use Entity instead.");
+                            }
                         }
 
-                        visitedObjs.Add(curValue);
-                        ExpandProperties(states, curPrefix, curValue, curTypeMetadata.Properties);
+                        ExpandProperties(states, curPrefix, curValue, curTypeMetadata.Properties, depth + 1);
                         break;
 
                     case ObjectValueType.Struct:
@@ -147,11 +148,14 @@
         /// <param name="prefix">The prefix.</param>
         /// <param name="obj">The object.</param>
         /// <param name="properties">The object's properties.</param>
+        /// <param name="depth">The depth of current path.</param>
+        /// <param name="path">Current path.</param>
         private static void ExpandProperties(
-            Stack<(Type type, string name, object val, string prefix)> states,
+            Stack<(Type type, string name, object val, string prefix, uint depth)> states,
             string prefix,
             object obj,
-            PropertyInfo[] properties)
+            PropertyInfo[] properties,
+            uint depth)
         {
             foreach (var prop in properties)
             {
@@ -161,7 +165,7 @@
                     continue;
                 }
 
-                states.Push((prop.PropertyType, prop.Name, value, prefix));
+                states.Push((prop.PropertyType, prop.Name, value, prefix, depth));
             }
         }
     }

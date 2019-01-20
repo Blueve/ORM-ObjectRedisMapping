@@ -1,5 +1,6 @@
 ﻿namespace Blueve.ObjectRedisMapping.UnitTests
 {
+    using System;
     using System.Linq;
     using Blueve.ObjectRedisMapping;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
@@ -62,6 +63,31 @@
         }
 
         [TestMethod]
+        public void TestGenerate_NestedEntity_CircularReference()
+        {
+            var nestedEntity = new NestedEntity
+            {
+                Key = "1",
+                LeftChild = new NestedEntity
+                {
+                    Key = "2"
+                }
+            };
+            nestedEntity.LeftChild.LeftChild = nestedEntity;
+            var records = this.builder.Generate(nestedEntity).ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1", new DbValue(DbValueType.String, "True")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1Key", new DbValue(DbValueType.String, "1")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity1LeftChild", new DbValue(DbValueType.String, "2")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity2", new DbValue(DbValueType.String, "True")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity2Key", new DbValue(DbValueType.String, "2")),
+                new DbRecord("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntity2LeftChild", new DbValue(DbValueType.String, "1"))
+            }, records);
+        }
+
+        [TestMethod]
         public void TestGenerate_PlainObject()
         {
             var obj = new PlainObject
@@ -96,6 +122,29 @@
                 new DbRecord("PrefixName", new DbValue(DbValueType.String, "Blueve")),
                 new DbRecord("PrefixChildName", new DbValue(DbValueType.String, "Unknown"))
             }, records);
+        }
+
+        [TestMethod]
+        public void TestGenerate_NestedObject_CircularReference()
+        {
+            var obj = new NestedObject
+            {
+                Name = "Blueve",
+                Child = new NestedObject
+                {
+                    Name = "Unknown"
+                }
+            };
+            obj.Child.Child = obj;
+
+            try
+            {
+                this.builder.Generate(obj).ToArray();
+                Assert.Fail();
+            }
+            catch (NotSupportedException)
+            {
+            }
         }
 
         [DataTestMethod]

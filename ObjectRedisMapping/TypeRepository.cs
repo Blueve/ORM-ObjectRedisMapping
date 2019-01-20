@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
 
     /// <summary>
@@ -51,7 +52,7 @@
 
             // Generate the metadata and add it to container.
             var typeMetadata = this.typeMetadataGenerator.Generate(type);
-            this.typeMetadataDict.Add(type, typeMetadata);
+            this.typeMetadataDict.Add(typeMetadata.Type, typeMetadata);
 
             // Try analyze the type and resolve internal type if possible.
             switch (typeMetadata.ValueType)
@@ -70,6 +71,7 @@
                     break;
 
                 case ObjectValueType.Object:
+                    // TODO: Use path to find circular reference.
                     foreach (var prop in typeMetadata.Properties)
                     {
                         this.Register(prop.PropertyType);
