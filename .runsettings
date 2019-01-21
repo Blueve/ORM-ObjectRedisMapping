@@ -10,10 +10,12 @@
               <Include>
                 <ModulePath>.*Blueve\..*.dll$</ModulePath>
               </Include>
-              <Exclude>
-                <ModulePath>.*Blueve\..*Tests.dll$</ModulePath>
-              </Exclude>
             </ModulePaths>
+            <Attributes>
+              <Exclude>
+                <Attribute>^System\.Diagnostics\.CodeAnalysis.ExcludeFromCodeCoverageAttribute$</Attribute>
+              </Exclude>
+            </Attributes>
             <UseVerifiableInstrumentation>True</UseVerifiableInstrumentation>
             <AllowLowIntegrityProcesses>True</AllowLowIntegrityProcesses>
             <CollectFromChildProcesses>True</CollectFromChildProcesses>
