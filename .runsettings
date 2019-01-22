@@ -10,6 +10,9 @@
               <Include>
                 <ModulePath>.*Blueve\..*.dll$</ModulePath>
               </Include>
+              <Exclude>
+                <ModulePath>.*Blueve\..*Tests.dll$</ModulePath>
+              </Exclude>
             </ModulePaths>
             <Attributes>
               <Exclude>

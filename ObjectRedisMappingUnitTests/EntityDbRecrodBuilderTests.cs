@@ -99,6 +99,7 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
+                new DbRecord("Prefix", new DbValue(DbValueType.String, "True")),
                 new DbRecord("PrefixName", new DbValue(DbValueType.String, "Age")),
                 new DbRecord("PrefixValue", new DbValue(DbValueType.String, "26"))
             }, records);
@@ -119,7 +120,9 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
+                new DbRecord("Prefix", new DbValue(DbValueType.String, "True")),
                 new DbRecord("PrefixName", new DbValue(DbValueType.String, "Blueve")),
+                new DbRecord("PrefixChild", new DbValue(DbValueType.String, "True")),
                 new DbRecord("PrefixChildName", new DbValue(DbValueType.String, "Unknown"))
             }, records);
         }

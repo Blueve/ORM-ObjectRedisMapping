@@ -77,14 +77,8 @@
             {
                 throw new ArgumentException("The given type is not an Entity.");
             }
-
-            // Return null if the target entity not exists.
+            
             var dbKey = this.entityKeyGenerator.GetDbKey(typeMetadata, entityKey);
-            if (!this.dbAccessor.KeyExists(dbKey))
-            {
-                return null;
-            }
-
             return this.GenerateForObject<T>(dbKey);
         }
 
@@ -92,11 +86,17 @@
         /// Generate a proxy for the given object type.
         /// </summary>
         /// <typeparam name="T">The object type.</typeparam>
-        /// <param name="entityKey">The prefix of database key.</param>
+        /// <param name="dbPrefix">The prefix of database key.</param>
         /// <returns>The proxy.</returns>
         public T GenerateForObject<T>(string dbPrefix)
             where T : class
         {
+            // Return null if the target object not exists.
+            if (!this.dbAccessor.KeyExists(dbPrefix))
+            {
+                return null;
+            }
+
             var type = typeof(T);
             var typeMetadata = this.typeRepo.GetOrRegister(type);
 

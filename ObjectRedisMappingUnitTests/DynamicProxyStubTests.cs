@@ -153,6 +153,7 @@
         [TestMethod]
         public void TestObjectGetter_PlainObject()
         {
+            this.db["DbKey"] = "True";
             this.db["DbKeyName"] = "Blueve";
 
             var proxy = this.stub.ObjectGetter<PlainObject>("DbKey");
@@ -162,6 +163,7 @@
         [TestMethod]
         public void TestReadonlyObjectGetter_PlainObject()
         {
+            this.db["DbKey"] = "True";
             this.db["DbKeyName"] = "Blueve";
 
             var proxy = this.stub.ReadonlyObjectGetter<PlainObject>("DbKey");

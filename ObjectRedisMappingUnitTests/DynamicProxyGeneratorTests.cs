@@ -98,6 +98,7 @@
         [TestMethod]
         public void TestGenerateForObject_PlainObject()
         {
+            this.db.Add("Prefix", "True");
             this.db.Add("PrefixName", "Age");
             this.db.Add("PrefixValue", "18");
 
@@ -112,7 +113,9 @@
         [TestMethod]
         public void TestGenerateForObject_NestedObject()
         {
+            this.db.Add("Prefix", "True");
             this.db.Add("PrefixName", "Blueve");
+            this.db.Add("PrefixChild", "True");
             this.db.Add("PrefixChildName", "Youd");
 
             var proxyObj = this.generator.GenerateForObject<NestedObject>("Prefix");
@@ -147,6 +150,7 @@
         public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_ReadKeyValue()
         {
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueve", "True");
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKey", "True");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
@@ -157,6 +161,7 @@
         public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_UpdateKeyValue()
         {
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueve", "True");
+            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKey", "True");
             this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
@@ -200,6 +205,18 @@
             Assert.AreEqual("2", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity2Val"]);
             Assert.AreEqual("3", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity2Next"]);
             Assert.AreEqual("3", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity3Val"]);
+        }
+
+        [TestMethod]
+        public void TestGenerateForEntity_Null()
+        {
+            Assert.IsNull(this.generator.GenerateForEntity<PlainEntity>("Key"));
+        }
+
+        [TestMethod]
+        public void TestGenerateForObject_Null()
+        {
+            Assert.IsNull(this.generator.GenerateForObject<PlainObject>("Key"));
         }
     }
 }

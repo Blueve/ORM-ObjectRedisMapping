@@ -129,6 +129,7 @@
                             }
                         }
 
+                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, true.ToString()));
                         ExpandProperties(states, curPrefix, curValue, curTypeMetadata.Properties, depth + 1);
                         break;
 
