@@ -60,7 +60,7 @@
         /// <returns>The value.</returns>
         public string StringGetter(string dbKey)
         {
-            return this.dbAccessor.Get(dbKey);
+            return this.dbAccessor.KeyExists(dbKey) ? this.dbAccessor.Get(dbKey) : default;
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
         /// <returns>The value.</returns>
         public short Int16Getter(string dbKey)
         {
-            return Convert.ToInt16(this.dbAccessor.Get(dbKey));
+            return this.dbAccessor.KeyExists(dbKey) ? Convert.ToInt16(this.dbAccessor.Get(dbKey)) : default;
         }
 
         /// <summary>
@@ -100,7 +100,7 @@
         /// <returns>The value.</returns>
         public int Int32Getter(string dbKey)
         {
-            return Convert.ToInt32(this.dbAccessor.Get(dbKey));
+            return this.dbAccessor.KeyExists(dbKey) ? Convert.ToInt32(this.dbAccessor.Get(dbKey)) : default;
         }
 
         /// <summary>
@@ -120,7 +120,7 @@
         /// <returns>The value.</returns>
         public long Int64Getter(string dbKey)
         {
-            return Convert.ToInt64(this.dbAccessor.Get(dbKey));
+            return this.dbAccessor.KeyExists(dbKey) ? Convert.ToInt64(this.dbAccessor.Get(dbKey)) : default;
         }
 
         /// <summary>
@@ -144,7 +144,7 @@
         {
             if (!this.dbAccessor.KeyExists(dbKey))
             {
-                return null;
+                return default;
             }
 
             var entityKey = this.dbAccessor.Get(dbKey);
@@ -183,7 +183,11 @@
         public T ObjectGetter<T>(string dbKey)
             where T : class
         {
-            // TODO: Object can be null too.
+            if (!this.dbAccessor.KeyExists(dbKey))
+            {
+                return default;
+            }
+
             var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
@@ -197,6 +201,11 @@
         public T ReadonlyObjectGetter<T>(string dbKey)
             where T : class
         {
+            if (!this.dbAccessor.KeyExists(dbKey))
+            {
+                return default;
+            }
+
             var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor, true);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }

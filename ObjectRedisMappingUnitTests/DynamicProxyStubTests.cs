@@ -50,6 +50,12 @@
         }
 
         [TestMethod]
+        public void TestStringGetter_Null()
+        {
+            Assert.IsNull(this.stub.StringGetter("Key"));
+        }
+
+        [TestMethod]
         public void TestStringSetter()
         {
             this.stub.StringSetter("Key", "Value");
@@ -63,6 +69,12 @@
             var result = this.stub.Int16Getter("Key");
             Assert.AreEqual(typeof(short), result.GetType());
             Assert.AreEqual(1, result);
+        }
+
+        [TestMethod]
+        public void TestInt16Getter_Default()
+        {
+            Assert.AreEqual(default, this.stub.Int16Getter("Key"));
         }
 
         [TestMethod]
@@ -82,6 +94,12 @@
         }
 
         [TestMethod]
+        public void TestInt32Getter_Default()
+        {
+            Assert.AreEqual(default, this.stub.Int32Getter("Key"));
+        }
+
+        [TestMethod]
         public void TestInt32Setter()
         {
             this.stub.Int32Setter("Key", 1);
@@ -95,6 +113,12 @@
             var result = this.stub.Int64Getter("Key");
             Assert.AreEqual(typeof(long), result.GetType());
             Assert.AreEqual(1, result);
+        }
+
+        [TestMethod]
+        public void TestInt64Getter_Default()
+        {
+            Assert.AreEqual(default, this.stub.Int64Getter("Key"));
         }
 
         [TestMethod]
@@ -161,6 +185,13 @@
         }
 
         [TestMethod]
+        public void TestObjectGetter_PlainObject_Null()
+        {
+            var proxy = this.stub.ObjectGetter<PlainObject>("DbKey");
+            Assert.IsNull(proxy);
+        }
+
+        [TestMethod]
         public void TestReadonlyObjectGetter_PlainObject()
         {
             this.db["DbKey"] = "True";
@@ -175,6 +206,13 @@
             catch (InvalidOperationException)
             {
             }
+        }
+
+        [TestMethod]
+        public void TestReadonlyObjectGetter_PlainObject_Null()
+        {
+            var proxy = this.stub.ReadonlyObjectGetter<PlainObject>("DbKey");
+            Assert.IsNull(proxy);
         }
 
         [TestMethod]
