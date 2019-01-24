@@ -13,26 +13,26 @@
     public class DbContextTests
     {
         private Dictionary<string, string> db;
-        private Mock<IDbAccessor> dbAccessor;
+        private Mock<IDatabaseClient> dbClient;
         private IDbContext dbContext;
 
         [TestInitialize]
         public void Initialize()
         {
             this.db = new Dictionary<string, string>();
-            this.dbAccessor = new Mock<IDbAccessor>();
-            this.dbAccessor
-                .Setup(accessor => accessor.Set(It.IsAny<string>(), It.IsAny<string>()))
+            this.dbClient = new Mock<IDatabaseClient>();
+            this.dbClient
+                .Setup(accessor => accessor.StringSet(It.IsAny<string>(), It.IsAny<string>()))
                 .Callback<string, string>((k, v) => this.db[k] = v);
-            this.dbAccessor
-                .Setup(accessor => accessor.Get(It.IsAny<string>()))
+            this.dbClient
+                .Setup(accessor => accessor.StringGet(It.IsAny<string>()))
                 .Returns<string>(k => this.db[k]);
-            this.dbAccessor
+            this.dbClient
                 .Setup(accessor => accessor.KeyExists(It.IsAny<string>()))
                 .Returns<string>(k => this.db.ContainsKey(k));
 
             var factory = new DbContextFactory();
-            this.dbContext = factory.Create(this.dbAccessor.Object);
+            this.dbContext = factory.Create(this.dbClient.Object);
         }
 
         [TestMethod]

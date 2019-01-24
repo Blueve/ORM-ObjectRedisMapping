@@ -9,17 +9,17 @@
     internal class DbRecordSubmitter
     {
         /// <summary>
-        /// The database accessor.
+        /// The database client.
         /// </summary>
-        private readonly IDbAccessor dbAccessor;
+        private readonly IDatabaseClient dbClient;
 
         /// <summary>
         /// Initialize an instance of <see cref="DbRecordSubmitter"/>.
         /// </summary>
-        /// <param name="dbAccessor">The database accessor.</param>
-        public DbRecordSubmitter(IDbAccessor dbAccessor)
+        /// <param name="dbClient">The database client.</param>
+        public DbRecordSubmitter(IDatabaseClient dbClient)
         {
-            this.dbAccessor = dbAccessor;
+            this.dbClient = dbClient;
         }
 
         /// <summary>
@@ -31,7 +31,7 @@
             switch (record.Value.Type)
             {
                 case DbValueType.String:
-                    this.dbAccessor.Set(record.Key, record.Value.Object as string);
+                    this.dbClient.StringSet(record.Key, record.Value.Object as string);
                     break;
 
                 default:

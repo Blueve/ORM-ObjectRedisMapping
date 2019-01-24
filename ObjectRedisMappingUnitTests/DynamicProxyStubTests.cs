@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Text;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
@@ -14,7 +13,7 @@
     public class DynamicProxyStubTests
     {
         private Dictionary<string, string> db;
-        private Mock<IDbAccessor> dbAccessor;
+        private Mock<IDatabaseClient> dbClient;
         private DbRecordBuilder dbRecordBuilder;
         private EntityKeyGenerator keyGenerator;
         private DynamicProxyStub stub;
@@ -23,23 +22,23 @@
         public void Initialize()
         {
             this.db = new Dictionary<string, string>();
-            this.dbAccessor = new Mock<IDbAccessor>();
-            this.dbAccessor
-                .Setup(accessor => accessor.Set(It.IsAny<string>(), It.IsAny<string>()))
+            this.dbClient = new Mock<IDatabaseClient>();
+            this.dbClient
+                .Setup(accessor => accessor.StringSet(It.IsAny<string>(), It.IsAny<string>()))
                 .Callback<string, string>((k, v) => this.db[k] = v);
-            this.dbAccessor
-                .Setup(accessor => accessor.Get(It.IsAny<string>()))
+            this.dbClient
+                .Setup(accessor => accessor.StringGet(It.IsAny<string>()))
                 .Returns<string>(k => this.db[k]);
-            this.dbAccessor
+            this.dbClient
                 .Setup(accessor => accessor.KeyExists(It.IsAny<string>()))
                 .Returns<string>(k => this.db.ContainsKey(k));
 
             var typeRepo = new TypeRepository(new TypeMetadataGenerator());
-            var dbRecordSubmitter = new DbRecordSubmitter(this.dbAccessor.Object);
+            var dbRecordSubmitter = new DbRecordSubmitter(this.dbClient.Object);
 
             this.keyGenerator = new EntityKeyGenerator();
             this.dbRecordBuilder = new DbRecordBuilder(typeRepo, this.keyGenerator);
-            this.stub = new DynamicProxyStub(typeRepo, this.dbAccessor.Object, this.dbRecordBuilder, this.keyGenerator, dbRecordSubmitter);
+            this.stub = new DynamicProxyStub(typeRepo, this.dbClient.Object, this.dbRecordBuilder, this.keyGenerator, dbRecordSubmitter);
         }
 
         [TestMethod]

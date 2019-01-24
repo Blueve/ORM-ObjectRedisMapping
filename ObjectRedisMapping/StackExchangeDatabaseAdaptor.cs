@@ -1,7 +1,5 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using StackExchange.Redis;
 
@@ -9,7 +7,7 @@
     /// The StackExchangeDatabaseAdaptor.
     /// </summary>
     [ExcludeFromCodeCoverage]
-    internal class StackExchangeDatabaseAdaptor : IDbAccessor
+    internal class StackExchangeDatabaseAdaptor : IDatabaseClient
     {
         /// <summary>
         /// The database interface.
@@ -26,69 +24,21 @@
         }
 
         /// <inheritdoc/>
-        public void Add(string key, string member)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
         public bool KeyExists(string key)
         {
             return this.database.KeyExists(key);
         }
 
         /// <inheritdoc/>
-        public string Get(string key)
+        public string StringGet(string key)
         {
             return this.database.StringGet(key);
         }
 
         /// <inheritdoc/>
-        public string PopBack(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public string PopFront(string key)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void PushBack(string key, string member)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void PushFront(string key, string member)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void Set(string key, string value)
+        public void StringSet(string key, string value)
         {
             this.database.StringSet(key, value);
-        }
-
-        /// <inheritdoc/>
-        public void Set(string key, IList<string> value)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void Set(string key, ISet<string> value)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public void Set(string key, IDictionary<int, string> value)
-        {
-            throw new NotImplementedException();
         }
     }
 }

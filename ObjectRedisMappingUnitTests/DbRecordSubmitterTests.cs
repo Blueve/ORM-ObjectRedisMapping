@@ -12,14 +12,14 @@
     [TestClass]
     public class DbRecordSubmitterTests
     {
-        private Mock<IDbAccessor> dbAccessor;
+        private Mock<IDatabaseClient> dbClient;
         private DbRecordSubmitter submitter;
 
         [TestInitialize]
         public void Initialize()
         {
-            this.dbAccessor = new Mock<IDbAccessor>();
-            this.submitter = new DbRecordSubmitter(this.dbAccessor.Object);
+            this.dbClient = new Mock<IDatabaseClient>();
+            this.submitter = new DbRecordSubmitter(this.dbClient.Object);
         }
 
         [DataTestMethod]
@@ -28,8 +28,8 @@
         public void TestCommit_StringRecord(string key, string value)
         {
             var stringDict = new Dictionary<string, string>();
-            this.dbAccessor
-                .Setup(accessor => accessor.Set(It.IsAny<string>(), It.IsAny<string>()))
+            this.dbClient
+                .Setup(accessor => accessor.StringSet(It.IsAny<string>(), It.IsAny<string>()))
                 .Callback<string, string>((k, v) => stringDict.TryAdd(k, v));
 
             // Commit the entity.

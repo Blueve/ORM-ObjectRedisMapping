@@ -31,9 +31,9 @@
         private readonly DynamicProxyStub dynamicProxyStub;
 
         /// <summary>
-        /// The database accessor.
+        /// The database client.
         /// </summary>
-        private readonly IDbAccessor dbAccessor;
+        private readonly IDatabaseClient dbClient;
 
         /// <summary>
         /// True if the proxy from the getter is readonly.
@@ -46,19 +46,19 @@
         /// <param name="typeRepo">The type repository.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         /// <param name="dynamicProxyStub">The dynamic proxy stub.</param>
-        /// <param name="dbAccessor">The database accessor.</param>
+        /// <param name="dbClient">The database client.</param>
         /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
         public DynamicProxyGenerator(
             TypeRepository typeRepo,
             EntityKeyGenerator entityKeyGenerator,
             DynamicProxyStub dynamicProxyStub,
-            IDbAccessor dbAccessor,
+            IDatabaseClient dbClient,
             bool isReadonly = false)
         {
             this.typeRepo = typeRepo;
             this.entityKeyGenerator = entityKeyGenerator;
             this.dynamicProxyStub = dynamicProxyStub;
-            this.dbAccessor = dbAccessor;
+            this.dbClient = dbClient;
             this.isReadonly = isReadonly;
         }
 
@@ -92,7 +92,7 @@
             where T : class
         {
             // Return null if the target object not exists.
-            if (!this.dbAccessor.KeyExists(dbPrefix))
+            if (!this.dbClient.KeyExists(dbPrefix))
             {
                 return null;
             }
@@ -110,9 +110,9 @@
             typeBuilder.AddInterfaceImplementation(typeof(IProxy));
 
             // Prepare dependency fields.
-            var stubFieldBuilder = typeBuilder.DefineField(StubFieldName, typeof(IDbAccessor), FieldAttributes.Private | FieldAttributes.InitOnly);
+            var stubFieldBuilder = typeBuilder.DefineField(StubFieldName, typeof(IDatabaseClient), FieldAttributes.Private | FieldAttributes.InitOnly);
 
-            // Build a constructor and inject IDbAccessor.
+            // Build a constructor and inject IDatabaseClient.
             var constructorBuilder = typeBuilder.DefineConstructor(
                 MethodAttributes.Public,
                 CallingConventions.Standard,

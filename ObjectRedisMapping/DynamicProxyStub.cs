@@ -13,9 +13,9 @@
         private readonly TypeRepository typeRepo;
 
         /// <summary>
-        /// The database accessor.
+        /// The database client.
         /// </summary>
-        private readonly IDbAccessor dbAccessor;
+        private readonly IDatabaseClient dbClient;
 
         /// <summary>
         /// The database record builder.
@@ -36,18 +36,18 @@
         /// Initialzie an instance of <see cref="DynamicProxyStub"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
-        /// <param name="dbAccessor">The database accessor.</param>
+        /// <param name="dbClient">The database client.</param>
         /// <param name="dbRecordBuilder">The database record builder.</param>
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         internal DynamicProxyStub(
             TypeRepository typeRepo,
-            IDbAccessor dbAccessor,
+            IDatabaseClient dbClient,
             IDbRecordBuilder dbRecordBuilder,
             EntityKeyGenerator entityKeyGenerator,
             DbRecordSubmitter dbRecordSubmitter)
         {
             this.typeRepo = typeRepo;
-            this.dbAccessor = dbAccessor;
+            this.dbClient = dbClient;
             this.dbRecordBuilder = dbRecordBuilder;
             this.entityKeyGenerator = entityKeyGenerator;
             this.dbRecorderSubmitter = dbRecordSubmitter;
@@ -60,7 +60,7 @@
         /// <returns>The value.</returns>
         public string StringGetter(string dbKey)
         {
-            return this.dbAccessor.KeyExists(dbKey) ? this.dbAccessor.Get(dbKey) : default;
+            return this.dbClient.KeyExists(dbKey) ? this.dbClient.StringGet(dbKey) : default;
         }
 
         /// <summary>
@@ -70,7 +70,7 @@
         /// <param name="value">The value.</param>
         public void StringSetter(string dbKey, string value)
         {
-            this.dbAccessor.Set(dbKey, value);
+            this.dbClient.StringSet(dbKey, value);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@
         /// <returns>The value.</returns>
         public short Int16Getter(string dbKey)
         {
-            return this.dbAccessor.KeyExists(dbKey) ? Convert.ToInt16(this.dbAccessor.Get(dbKey)) : default;
+            return this.dbClient.KeyExists(dbKey) ? Convert.ToInt16(this.dbClient.StringGet(dbKey)) : default;
         }
 
         /// <summary>
@@ -90,7 +90,7 @@
         /// <param name="value">The value.</param>
         public void Int16Setter(string dbKey, short value)
         {
-            this.dbAccessor.Set(dbKey, value.ToString());
+            this.dbClient.StringSet(dbKey, value.ToString());
         }
 
         /// <summary>
@@ -100,7 +100,7 @@
         /// <returns>The value.</returns>
         public int Int32Getter(string dbKey)
         {
-            return this.dbAccessor.KeyExists(dbKey) ? Convert.ToInt32(this.dbAccessor.Get(dbKey)) : default;
+            return this.dbClient.KeyExists(dbKey) ? Convert.ToInt32(this.dbClient.StringGet(dbKey)) : default;
         }
 
         /// <summary>
@@ -110,7 +110,7 @@
         /// <param name="value">The value.</param>
         public void Int32Setter(string dbKey, int value)
         {
-            this.dbAccessor.Set(dbKey, value.ToString());
+            this.dbClient.StringSet(dbKey, value.ToString());
         }
 
         /// <summary>
@@ -120,7 +120,7 @@
         /// <returns>The value.</returns>
         public long Int64Getter(string dbKey)
         {
-            return this.dbAccessor.KeyExists(dbKey) ? Convert.ToInt64(this.dbAccessor.Get(dbKey)) : default;
+            return this.dbClient.KeyExists(dbKey) ? Convert.ToInt64(this.dbClient.StringGet(dbKey)) : default;
         }
 
         /// <summary>
@@ -130,7 +130,7 @@
         /// <param name="value">The value.</param>
         public void Int64Setter(string dbKey, long value)
         {
-            this.dbAccessor.Set(dbKey, value.ToString());
+            this.dbClient.StringSet(dbKey, value.ToString());
         }
 
         /// <summary>
@@ -142,13 +142,13 @@
         public T EntityGetter<T>(string dbKey)
             where T : class
         {
-            if (!this.dbAccessor.KeyExists(dbKey))
+            if (!this.dbClient.KeyExists(dbKey))
             {
                 return default;
             }
 
-            var entityKey = this.dbAccessor.Get(dbKey);
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor);
+            var entityKey = this.dbClient.StringGet(dbKey);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient);
             return proxyGenerator.GenerateForEntity<T>(entityKey);
         }
 
@@ -171,7 +171,7 @@
             }
 
             var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
-            this.dbAccessor.Set(dbKey, entityKey);
+            this.dbClient.StringSet(dbKey, entityKey);
         }
 
         /// <summary>
@@ -183,12 +183,12 @@
         public T ObjectGetter<T>(string dbKey)
             where T : class
         {
-            if (!this.dbAccessor.KeyExists(dbKey))
+            if (!this.dbClient.KeyExists(dbKey))
             {
                 return default;
             }
 
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 
@@ -201,12 +201,12 @@
         public T ReadonlyObjectGetter<T>(string dbKey)
             where T : class
         {
-            if (!this.dbAccessor.KeyExists(dbKey))
+            if (!this.dbClient.KeyExists(dbKey))
             {
                 return default;
             }
 
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbAccessor, true);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient, true);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 
