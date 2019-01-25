@@ -7,7 +7,7 @@
     /// </summary>
     public class DbContextFactory
     {
-        private static readonly DbContextFactory Instance;
+        private static readonly DbContextFactory Instance = new DbContextFactory();
 
         /// <summary>
         /// Get an instance of <see cref="IDbContext"/>.
