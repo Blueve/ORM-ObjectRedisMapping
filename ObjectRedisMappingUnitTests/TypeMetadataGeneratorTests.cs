@@ -13,7 +13,7 @@
         public void TestGenerate_FullName_PlainEntity()
         {
             var generator = new TypeMetadataGenerator(true);
-            var metadata = generator.Generate(typeof(PlainEntity));
+            var metadata = generator.Generate(typeof(PlainEntity)) as EntityTypeMetadata;
             Assert.AreEqual("UserId", metadata.KeyProperty.Name);
             Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity", metadata.Name);
         }
@@ -22,7 +22,7 @@
         public void TestGenerate_Name_PlainEntity()
         {
             var generator = new TypeMetadataGenerator(false);
-            var metadata = generator.Generate(typeof(PlainEntity));
+            var metadata = generator.Generate(typeof(PlainEntity)) as EntityTypeMetadata;
             Assert.AreEqual("UserId", metadata.KeyProperty.Name);
             Assert.AreEqual("PlainEntity", metadata.Name);
         }

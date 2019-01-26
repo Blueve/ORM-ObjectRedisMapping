@@ -161,7 +161,7 @@
         public void EntitySetter<T>(string dbKey, T value)
             where T : class
         {
-            var typeMetadata = this.typeRepo.GetOrRegister(typeof(T));
+            var typeMetadata = this.typeRepo.GetOrRegister(typeof(T)) as EntityTypeMetadata;
 
             if (!(value is IProxy))
             {

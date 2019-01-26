@@ -79,7 +79,7 @@
 
             // Initialize the searching with the properties of the object.
             var basePrefix = typeMetadata.ValueType == ObjectValueType.Entity
-                ? this.entityKeyGenerator.GetDbKey(typeMetadata, obj)
+                ? this.entityKeyGenerator.GetDbKey(typeMetadata as EntityTypeMetadata, obj)
                 : prefix;
 
             states.Push((typeMetadata.Type, name, obj, prefix, 0u));
@@ -94,22 +94,22 @@
 
                 // Process current property.
                 curPrefix += curName;
-                switch (curTypeMetadata.ValueType)
+                switch (curTypeMetadata)
                 {
-                    case ObjectValueType.Primitive:
-                    case ObjectValueType.String:
-                        yield return DbRecord.GenerateStringRecord(curPrefix, curValue.ToString());
-                        break;
-
-                    case ObjectValueType.Entity:
-                        var entityKey = this.entityKeyGenerator.GetDbKey(curTypeMetadata, curValue);
-                        var entityKeyValue = this.entityKeyGenerator.GetEntityKey(curTypeMetadata, curValue);
+                    case EntityTypeMetadata entityTypeMetadata:
+                        var entityKey = this.entityKeyGenerator.GetDbKey(entityTypeMetadata, curValue);
+                        var entityKeyValue = this.entityKeyGenerator.GetEntityKey(entityTypeMetadata, curValue);
                         if (!visitedEntities.Contains(entityKey) && !(curValue is IProxy))
                         {
                             // For new entity, add it to records.
                             visitedEntities.Add(entityKey);
                             yield return new DbRecord(entityKey, new DbValue(DbValueType.String, true.ToString()));
-                            ExpandProperties(states, entityKey, curValue, curTypeMetadata.Properties, depth + 1);
+                            ExpandProperties(
+                                states,
+                                entityKey,
+                                curValue,
+                                entityTypeMetadata.Properties.Append(entityTypeMetadata.KeyProperty),
+                                depth + 1);
                         }
 
                         // For added entity, just record the reference.
@@ -120,7 +120,7 @@
 
                         break;
 
-                    case ObjectValueType.Object:
+                    case ObjectTypeMetadata objectTypeMetadata:
                         for (var i = 0u; i < depth; i++)
                         {
                             if (path[i] == curValue)
@@ -130,12 +130,13 @@
                         }
 
                         yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, true.ToString()));
-                        ExpandProperties(states, curPrefix, curValue, curTypeMetadata.Properties, depth + 1);
+                        ExpandProperties(states, curPrefix, curValue, objectTypeMetadata.Properties, depth + 1);
                         break;
 
-                    case ObjectValueType.Struct:
-                    case ObjectValueType.List:
-                    case ObjectValueType.Set:
+                    case TypeMetadata basicTypeMetadata when basicTypeMetadata.ValueType == ObjectValueType.Primitive || basicTypeMetadata.ValueType == ObjectValueType.String:
+                        yield return DbRecord.GenerateStringRecord(curPrefix, curValue.ToString());
+                        break;
+
                     default:
                         throw new NotSupportedException();
                 }
@@ -155,7 +156,7 @@
             Stack<(Type type, string name, object val, string prefix, uint depth)> states,
             string prefix,
             object obj,
-            PropertyInfo[] properties,
+            IEnumerable<PropertyInfo> properties,
             uint depth)
         {
             foreach (var prop in properties)

@@ -62,22 +62,16 @@
             {
                 // The type is an entity because it has a key.
                 var (keyAttr, keyProp) = key;
-                return new TypeMetadata(type)
+                return new EntityTypeMetadata(type, properties, keyProp, keyAttr)
                 {
-                    ValueType = ObjectValueType.Entity,
-                    Properties = properties,
-                    KeyProperty = keyProp,
-                    KeyAttribute = keyAttr,
                     Name = this.UseFullTypeName ? type.FullName : type.Name
                 };
             }
             else
             {
                 // The type is a user defined type but not declared as an entity.
-                return new TypeMetadata(type)
+                return new ObjectTypeMetadata(type, properties)
                 {
-                    ValueType = ObjectValueType.Object,
-                    Properties = properties,
                     Name = type.Name
                 };
             }

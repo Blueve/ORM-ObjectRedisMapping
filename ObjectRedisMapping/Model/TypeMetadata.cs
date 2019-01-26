@@ -4,10 +4,14 @@
     using System.Reflection;
 
     /// <summary>
-    /// The type metadata dictionary.
+    /// The type metadata.
     /// </summary>
     internal class TypeMetadata
     {
+        /// <summary>
+        /// Initialze an instance of <see cref="TypeMetadata"/>.
+        /// </summary>
+        /// <param name="type">The type.</param>
         public TypeMetadata(Type type)
         {
             this.Type = type;
@@ -22,21 +26,6 @@
         /// The object value type.
         /// </summary>
         public ObjectValueType ValueType { get; set; }
-
-        /// <summary>
-        /// The properties which can be mapping to database.
-        /// </summary>
-        public PropertyInfo[] Properties { get; set; }
-
-        /// <summary>
-        /// The property which hold the key of entity.
-        /// </summary>
-        public PropertyInfo KeyProperty { get; set; }
-
-        /// <summary>
-        /// The attribute which is hold by key property.
-        /// </summary>
-        public EntityKeyAttribute KeyAttribute { get; set; }
 
         /// <summary>
         /// The type name.

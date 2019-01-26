@@ -55,24 +55,19 @@
             this.typeMetadataDict.Add(typeMetadata.Type, typeMetadata);
 
             // Try analyze the type and resolve internal type if possible.
-            switch (typeMetadata.ValueType)
+            switch (typeMetadata)
             {
-                case ObjectValueType.Primitive:
-                case ObjectValueType.String:
-                    break;
-
-                case ObjectValueType.Entity:
-                    this.RegisterKeyProperty(typeMetadata.KeyProperty);
-                    foreach (var prop in typeMetadata.Properties)
+                case EntityTypeMetadata entityMetadata:
+                    this.RegisterKeyProperty(entityMetadata.KeyProperty);
+                    foreach (var prop in entityMetadata.Properties)
                     {
                         this.Register(prop.PropertyType);
                     }
 
                     break;
 
-                case ObjectValueType.Object:
-                    // TODO: Use path to find circular reference.
-                    foreach (var prop in typeMetadata.Properties)
+                case ObjectTypeMetadata objectMetadata:
+                    foreach (var prop in objectMetadata.Properties)
                     {
                         this.Register(prop.PropertyType);
                     }
@@ -80,7 +75,7 @@
                     break;
 
                 default:
-                    throw new NotImplementedException();
+                    break;
             }
         }
 
@@ -136,22 +131,20 @@
         {
             var keyPropMetadata = this.GetOrRegister(keyProp.PropertyType);
             
-            switch (keyPropMetadata.ValueType)
+            switch (keyPropMetadata)
             {
-                case ObjectValueType.Primitive:
-                case ObjectValueType.String:
-                case ObjectValueType.Struct:
-                    break;
-
-                case ObjectValueType.Entity:
+                case EntityTypeMetadata entityTypeMetadata:
                     throw new ArgumentException("Key property cannot be an entity type or include an entity type.");
 
-                case ObjectValueType.Object:
-                    foreach (var prop in keyPropMetadata.Properties)
+                case ObjectTypeMetadata objectTypeMetadata:
+                    foreach (var prop in objectTypeMetadata.Properties)
                     {
                         this.RegisterKeyProperty(prop);
                     }
 
+                    break;
+
+                case TypeMetadata typeMetadata:
                     break;
 
                 default:
