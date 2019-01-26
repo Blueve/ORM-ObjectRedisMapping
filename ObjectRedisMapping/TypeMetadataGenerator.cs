@@ -33,21 +33,13 @@
             if (type.IsPrimitive)
             {
                 // The type is primitive type.
-                return new TypeMetadata(type)
-                {
-                    ValueType = ObjectValueType.Primitive,
-                    Name = type.Name
-                };
+                return new TypeMetadata(type, ObjectValueType.Primitive, type.Name);
             }
 
             if (type == typeof(string))
             {
                 // The type is string.
-                return new TypeMetadata(type)
-                {
-                    ValueType = ObjectValueType.String,
-                    Name = type.Name
-                };
+                return new TypeMetadata(type, ObjectValueType.String, type.Name);
             }
 
             // TODO: Deal the containers and array type.
@@ -62,18 +54,17 @@
             {
                 // The type is an entity because it has a key.
                 var (keyAttr, keyProp) = key;
-                return new EntityTypeMetadata(type, properties, keyProp, keyAttr)
-                {
-                    Name = this.UseFullTypeName ? type.FullName : type.Name
-                };
+                return new EntityTypeMetadata(
+                    type,
+                    this.UseFullTypeName ? type.FullName : type.Name,
+                    properties,
+                    keyProp,
+                    keyAttr);
             }
             else
             {
                 // The type is a user defined type but not declared as an entity.
-                return new ObjectTypeMetadata(type, properties)
-                {
-                    Name = type.Name
-                };
+                return new ObjectTypeMetadata(type, type.Name, properties);
             }
 
         }

@@ -54,29 +54,8 @@
             var typeMetadata = this.typeMetadataGenerator.Generate(type);
             this.typeMetadataDict.Add(typeMetadata.Type, typeMetadata);
 
-            // Try analyze the type and resolve internal type if possible.
-            switch (typeMetadata)
-            {
-                case EntityTypeMetadata entityMetadata:
-                    this.RegisterKeyProperty(entityMetadata.KeyProperty);
-                    foreach (var prop in entityMetadata.Properties)
-                    {
-                        this.Register(prop.PropertyType);
-                    }
-
-                    break;
-
-                case ObjectTypeMetadata objectMetadata:
-                    foreach (var prop in objectMetadata.Properties)
-                    {
-                        this.Register(prop.PropertyType);
-                    }
-
-                    break;
-
-                default:
-                    break;
-            }
+            // Register sub-types.
+            typeMetadata.RegisterSubType(this);
         }
 
         /// <summary>
@@ -127,29 +106,10 @@
         /// <param name="keyProp">The key property.</param>
         /// <exception cref="ArgumentException">The key property type is entity or include entity.</exception>
         /// <exception cref="NotSupportedException">The key property type is not supported or include not supported type.</exception>
-        private void RegisterKeyProperty(PropertyInfo keyProp)
+        public void RegisterKeyProperty(PropertyInfo keyProp)
         {
             var keyPropMetadata = this.GetOrRegister(keyProp.PropertyType);
-            
-            switch (keyPropMetadata)
-            {
-                case EntityTypeMetadata entityTypeMetadata:
-                    throw new ArgumentException("Key property cannot be an entity type or include an entity type.");
-
-                case ObjectTypeMetadata objectTypeMetadata:
-                    foreach (var prop in objectTypeMetadata.Properties)
-                    {
-                        this.RegisterKeyProperty(prop);
-                    }
-
-                    break;
-
-                case TypeMetadata typeMetadata:
-                    break;
-
-                default:
-                    throw new NotSupportedException($"Key property cannot be {keyPropMetadata.ValueType}");
-            }
+            keyPropMetadata.RegisterKeyType(this);
         }
     }
 }

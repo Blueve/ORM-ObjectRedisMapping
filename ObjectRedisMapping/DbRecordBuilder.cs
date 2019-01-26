@@ -38,42 +38,20 @@
         {
             var type = typeof(T);
             var typeMetadata = this.typeRepo.GetOrRegister(type);
-
-            switch (typeMetadata.ValueType)
-            {
-                // Deal with all non-reference types here to avoid boxing.
-                // TODO: Refactor primitive and string type to avoid generate an itor for a single record.
-                case ObjectValueType.Primitive:
-                case ObjectValueType.String:
-                    // TODO: We can convert primitive to binary format to avoid information missing.
-                    return Enumerable.Empty<DbRecord>().Append(DbRecord.GenerateStringRecord(prefix, obj.ToString()));
-
-                // Deal with reference types.
-                case ObjectValueType.Entity:
-                case ObjectValueType.Object:
-                    return this.Generate(typeMetadata, null, obj, prefix);
-
-                case ObjectValueType.Struct:
-                case ObjectValueType.List:
-                case ObjectValueType.Set:
-                    throw new NotImplementedException();
-
-                default:
-                    throw new NotSupportedException();
-            }
+            return typeMetadata.GenerateDbRecords<T>(this, prefix, obj);
         }
 
-        /// <summary>
-        /// Generate database records for the given object.
-        /// </summary>
-        /// <param name="typeMetadata">The type metadata of the object.</param>
-        /// <param name="name">The name of current object's property, null if the object is not belong to an property.</param>
-        /// <param name="obj">The object.</param>
-        /// <param name="prefix">The prefix, default is an empty string.</param>
-        /// <returns></returns>
-        private IEnumerable<DbRecord> Generate(TypeMetadata typeMetadata, string name, object obj, string prefix = "")
+        /// <inheritdoc/>
+        public IEnumerable<DbRecord> GenerateStringRecord<T>(string prefix, T obj)
+        {
+            return Enumerable.Empty<DbRecord>().Append(DbRecord.GenerateStringRecord(prefix, obj.ToString()));
+        }
+
+        /// <inheritdoc/>
+        public IEnumerable<DbRecord> GenerateObjectRecord(string prefix, object obj, ObjectTypeMetadata typeMetadata)
         {
             // Traverse the property tree by using DFS.
+            // This implemention is for better performance in case some object have too much layers.
             var states = new Stack<(Type type, string name, object val, string prefix, uint depth)>();
             var path = new Dictionary<uint, object>();
 
@@ -82,7 +60,7 @@
                 ? this.entityKeyGenerator.GetDbKey(typeMetadata as EntityTypeMetadata, obj)
                 : prefix;
 
-            states.Push((typeMetadata.Type, name, obj, prefix, 0u));
+            states.Push((typeMetadata.Type, null, obj, prefix, 0u));
 
             // Searching and build the database record.
             var visitedEntities = new HashSet<string>();
@@ -96,9 +74,9 @@
                 curPrefix += curName;
                 switch (curTypeMetadata)
                 {
-                    case EntityTypeMetadata entityTypeMetadata:
-                        var entityKey = this.entityKeyGenerator.GetDbKey(entityTypeMetadata, curValue);
-                        var entityKeyValue = this.entityKeyGenerator.GetEntityKey(entityTypeMetadata, curValue);
+                    case EntityTypeMetadata entityType:
+                        var entityKey = this.entityKeyGenerator.GetDbKey(entityType, curValue);
+                        var entityKeyValue = this.entityKeyGenerator.GetEntityKey(entityType, curValue);
                         if (!visitedEntities.Contains(entityKey) && !(curValue is IProxy))
                         {
                             // For new entity, add it to records.
@@ -108,7 +86,7 @@
                                 states,
                                 entityKey,
                                 curValue,
-                                entityTypeMetadata.Properties.Append(entityTypeMetadata.KeyProperty),
+                                entityType.Properties.Append(entityType.KeyProperty),
                                 depth + 1);
                         }
 
@@ -120,7 +98,7 @@
 
                         break;
 
-                    case ObjectTypeMetadata objectTypeMetadata:
+                    case ObjectTypeMetadata objType:
                         for (var i = 0u; i < depth; i++)
                         {
                             if (path[i] == curValue)
@@ -130,7 +108,7 @@
                         }
 
                         yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, true.ToString()));
-                        ExpandProperties(states, curPrefix, curValue, objectTypeMetadata.Properties, depth + 1);
+                        ExpandProperties(states, curPrefix, curValue, objType.Properties, depth + 1);
                         break;
 
                     case TypeMetadata basicTypeMetadata when basicTypeMetadata.ValueType == ObjectValueType.Primitive || basicTypeMetadata.ValueType == ObjectValueType.String:

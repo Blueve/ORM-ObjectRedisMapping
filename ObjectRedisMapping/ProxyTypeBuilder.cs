@@ -143,43 +143,21 @@
         /// <param name="dbKey">The database key of this property.</param>
         /// <param name="propMetadata">The type metadata for this property.</param>
         /// <param name="ilGenerator">The getter's IL generator.</param>
-        /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
+        /// <param name="readOnly">True if the proxy from the getter is readonly.</param>
         private static void GenerateGetterIL(
             FieldInfo stubField,
             string dbKey,
             TypeMetadata propMetadata,
             ILGenerator ilGenerator,
-            bool isReadonly = false)
+            bool readOnly = false)
         {
             // this._stub.
             ilGenerator.Emit(OpCodes.Ldarg_0);
             ilGenerator.Emit(OpCodes.Ldfld, stubField);
             ilGenerator.Emit(OpCodes.Ldstr, dbKey);
-            var stubMethodPrefix = DynamicProxyStub.GetStubMethodPrefix(propMetadata, isReadonly);
-            var stubMethodName = string.Concat(stubMethodPrefix, "Getter");
 
             // this._stub.?Getter(dbKey).
-            switch (propMetadata.ValueType)
-            {
-                case ObjectValueType.Primitive:
-                case ObjectValueType.String:
-                    ilGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub).GetMethod(stubMethodName, new[] { typeof(string) }));
-                    break;
-
-                case ObjectValueType.Entity:
-                case ObjectValueType.Object:
-                    ilGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub)
-                            .GetMethods()
-                            .First(m => m.Name.Equals(stubMethodName)).MakeGenericMethod(propMetadata.Type));
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            propMetadata.CallStubGetter(ilGenerator, readOnly);
 
             // return ?;
             ilGenerator.Emit(OpCodes.Ret);
@@ -202,33 +180,9 @@
             ilGenerator.Emit(OpCodes.Ldarg_0);
             ilGenerator.Emit(OpCodes.Ldfld, stubField);
             ilGenerator.Emit(OpCodes.Ldstr, dbKey);
-            var stubMethodPrefix = DynamicProxyStub.GetStubMethodPrefix(propMetadata);
-            var stubMethodName = string.Concat(stubMethodPrefix, "Setter");
 
             // this._stub.?().
-            switch (propMetadata.ValueType)
-            {
-                case ObjectValueType.Primitive:
-                case ObjectValueType.String:
-                    ilGenerator.Emit(OpCodes.Ldarg_1);
-                    ilGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub).GetMethod(stubMethodName, new[] { typeof(string), propMetadata.Type }));
-                    break;
-
-                case ObjectValueType.Entity:
-                case ObjectValueType.Object:
-                    ilGenerator.Emit(OpCodes.Ldarg_1);
-                    ilGenerator.Emit(
-                        OpCodes.Call,
-                        typeof(DynamicProxyStub)
-                            .GetMethods()
-                            .First(m => m.Name.Equals(stubMethodName)).MakeGenericMethod(propMetadata.Type));
-                    break;
-
-                default:
-                    throw new NotSupportedException();
-            }
+            propMetadata.CallStubSetter(ilGenerator);
 
             // return ?;
             ilGenerator.Emit(OpCodes.Ret);

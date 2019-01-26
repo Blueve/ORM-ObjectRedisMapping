@@ -69,7 +69,7 @@
                 throw new InvalidOperationException($"The type {typeMetadata.Name} is not an entity type.");
             }
 
-            var records = this.dbRecordBuilder.Generate(entity);
+            var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, entity);
             this.dbRecordSubmitter.Commit(records);
         }
 

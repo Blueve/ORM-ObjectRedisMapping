@@ -166,7 +166,7 @@
             if (!(value is IProxy))
             {
                 // If value is not a proxy, then commit value as an entity and then update the DB reference.
-                var records = this.dbRecordBuilder.Generate(value);
+                var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, value);
                 this.dbRecorderSubmitter.Commit(records);
             }
 
@@ -198,7 +198,7 @@
         /// <typeparam name="T">The object type.</typeparam>
         /// <param name="dbKey">The database key.</param>
         /// <returns>The proxy of object which all property are readonly.</returns>
-        public T ReadonlyObjectGetter<T>(string dbKey)
+        public T ReadOnlyObjectGetter<T>(string dbKey)
             where T : class
         {
             if (!this.dbClient.KeyExists(dbKey))
@@ -218,35 +218,8 @@
         /// <param name="value">The object or proxy of object.</param>
         public void ObjectSetter<T>(string dbKey, T value)
         {
-            var records = this.dbRecordBuilder.Generate(value, dbKey);
+            var records = this.dbRecordBuilder.Generate<T>(value, dbKey);
             this.dbRecorderSubmitter.Commit(records);
-        }
-
-        /// <summary>
-        /// Gets the stub method's prefix by a type metadata.
-        /// </summary>
-        /// <param name="typeMetadata">The type metadata.</param>
-        /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
-        /// <returns>The stub method prefix.</returns>
-        internal static string GetStubMethodPrefix(TypeMetadata typeMetadata, bool isReadonly = false)
-        {
-            switch (typeMetadata.ValueType)
-            {
-                case ObjectValueType.Primitive:
-                case ObjectValueType.String:
-                    return typeMetadata.Name;
-
-                case ObjectValueType.Entity:
-                case ObjectValueType.Struct:
-                case ObjectValueType.Object when !isReadonly:
-                    return typeMetadata.ValueType.ToString();
-
-                case ObjectValueType.Object when isReadonly:
-                    return string.Concat("Readonly", nameof(ObjectValueType.Object));
-
-                default:
-                    throw new NotImplementedException();
-            }
         }
     }
 }

@@ -196,7 +196,7 @@
             this.db["DbKey"] = "True";
             this.db["DbKeyName"] = "Blueve";
 
-            var proxy = this.stub.ReadonlyObjectGetter<PlainObject>("DbKey");
+            var proxy = this.stub.ReadOnlyObjectGetter<PlainObject>("DbKey");
             try
             {
                 proxy.Name = "Ada";
@@ -210,7 +210,7 @@
         [TestMethod]
         public void TestReadonlyObjectGetter_PlainObject_Null()
         {
-            var proxy = this.stub.ReadonlyObjectGetter<PlainObject>("DbKey");
+            var proxy = this.stub.ReadOnlyObjectGetter<PlainObject>("DbKey");
             Assert.IsNull(proxy);
         }
 
