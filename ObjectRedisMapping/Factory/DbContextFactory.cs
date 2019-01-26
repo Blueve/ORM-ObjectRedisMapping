@@ -7,16 +7,27 @@
     /// </summary>
     public class DbContextFactory
     {
-        private static readonly DbContextFactory Instance = new DbContextFactory();
+        /// <summary>
+        /// The configuration of database context factory.
+        /// </summary>
+        private readonly Config config;
 
         /// <summary>
-        /// Get an instance of <see cref="IDbContext"/>.
+        /// Initialize an instance of <see cref="DbContextFactory"/>.
         /// </summary>
-        /// <param name="database">The database client.</param>
-        /// <returns>The databse context.</returns>
-        public static IDbContext GetDbContext(IDatabaseClient database)
+        public DbContextFactory()
         {
-            return Instance.Create(database);
+            // Use default configurations.
+            this.config = new Config();
+        }
+
+        /// <summary>
+        /// Initialize an instance of <see cref="DbContextFactory"/>.
+        /// </summary>
+        /// <param name="config">The configuration of database context factory.</param>
+        public DbContextFactory(Config config)
+        {
+            this.config = config;
         }
 
         /// <summary>
@@ -35,7 +46,7 @@
         /// </summary>
         /// <param name="dbClient">The database client.</param>
         /// <returns>The database context.</returns>
-        internal IDbContext Create(IDatabaseClient dbClient)
+        public IDbContext Create(IDatabaseClient dbClient)
         {
             var typeRepo = this.CreateTypeRepo();
 
@@ -52,7 +63,7 @@
 
         internal virtual TypeRepository CreateTypeRepo()
         {
-            var typeMetadataGenerator = new TypeMetadataGenerator();
+            var typeMetadataGenerator = new TypeMetadataGenerator(this.config.UseFullTypeName);
             return new TypeRepository(typeMetadataGenerator);
         }
     }

@@ -10,6 +10,20 @@
     internal class TypeMetadataGenerator
     {
         /// <summary>
+        /// Indicate whether use full type name as the type name.
+        /// </summary>
+        private readonly bool UseFullTypeName;
+
+        /// <summary>
+        /// Initialize an instance of <see cref="TypeMetadataGenerator"/>.
+        /// </summary>
+        /// <param name="useFullTypeName"></param>
+        public TypeMetadataGenerator(bool useFullTypeName)
+        {
+            this.UseFullTypeName = useFullTypeName;
+        }
+
+        /// <summary>
         /// Generate the metadata for the given type.
         /// </summary>
         /// <param name="type">The type.</param>
@@ -54,7 +68,7 @@
                     Properties = properties,
                     KeyProperty = keyProp,
                     KeyAttribute = keyAttr,
-                    Name = type.FullName // TODO: We can let user to decide that use short name or full name.
+                    Name = this.UseFullTypeName ? type.FullName : type.Name
                 };
             }
             else
@@ -64,7 +78,7 @@
                 {
                     ValueType = ObjectValueType.Object,
                     Properties = properties,
-                    Name = type.FullName
+                    Name = type.Name
                 };
             }
 

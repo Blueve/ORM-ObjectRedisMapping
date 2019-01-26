@@ -18,7 +18,7 @@
         [TestInitialize]
         public void Initialize()
         {
-            this.typeRepo = new TypeRepository(new TypeMetadataGenerator());
+            this.typeRepo = new TypeRepository(new TypeMetadataGenerator(false));
             this.generator = new EntityKeyGenerator();
         }
 

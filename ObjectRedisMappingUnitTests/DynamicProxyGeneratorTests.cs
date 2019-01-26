@@ -35,7 +35,7 @@
                 .Setup(accessor => accessor.KeyExists(It.IsAny<string>()))
                 .Returns<string>(k => this.db.ContainsKey(k));
 
-            var typeRepo = new TypeRepository(new TypeMetadataGenerator());
+            var typeRepo = new TypeRepository(new TypeMetadataGenerator(false));
             var dbRecordSubmitter = new DbRecordSubmitter(this.dbClient.Object);
 
             this.keyGenerator = new EntityKeyGenerator();
@@ -47,14 +47,14 @@
         [TestMethod]
         public void TestGenerateForEntity_PlainEntity()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueve", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueveUserId", "Blueve");
+            this.db.Add("PlainEntityBlueve", "True");
+            this.db.Add("PlainEntityBlueveUserId", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<PlainEntity>("Blueve");
             Assert.AreEqual("Blueve", proxyObj.UserId);
 
             proxyObj.UserName = "Blueve";
-            Assert.AreEqual("Blueve", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueveUserName"]);
+            Assert.AreEqual("Blueve", this.db["PlainEntityBlueveUserName"]);
         }
 
         [TestMethod]
@@ -67,8 +67,8 @@
         [TestMethod]
         public void TestGenerateForEntity_NestedEntity()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueve", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueveKey", "Blueve");
+            this.db.Add("NestedEntityBlueve", "True");
+            this.db.Add("NestedEntityBlueveKey", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<NestedEntity>("Blueve");
             Assert.AreEqual("Blueve", proxyObj.Key);
@@ -78,8 +78,8 @@
                 Key = "Youd"
             };
             Assert.AreEqual("Youd", proxyObj.LeftChild.Key);
-            Assert.AreEqual("Youd", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityBlueveLeftChild"]);
-            Assert.AreEqual("Youd", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.NestedEntityYoudKey"]);
+            Assert.AreEqual("Youd", this.db["NestedEntityBlueveLeftChild"]);
+            Assert.AreEqual("Youd", this.db["NestedEntityYoudKey"]);
         }
 
         [TestMethod]
@@ -132,8 +132,8 @@
         [TestMethod]
         public void TestGenerateForEntity_PlainEntity_OverrideKey()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueve", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityBlueveUserId", "1");
+            this.db.Add("PlainEntityBlueve", "True");
+            this.db.Add("PlainEntityBlueveUserId", "1");
 
             try
             {
@@ -149,9 +149,9 @@
         [TestMethod]
         public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_ReadKeyValue()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueve", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKey", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
+            this.db.Add("KeyIsObject_UseInterface_EntityKeyBlueve", "True");
+            this.db.Add("KeyIsObject_UseInterface_EntityKeyBlueveKey", "True");
+            this.db.Add("KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
             Assert.AreEqual("Blueve", proxyObj.Key.Value);
@@ -160,9 +160,9 @@
         [TestMethod]
         public void TestGenerateForEntity_KeyIsObject_UseInterface_Entity_UpdateKeyValue()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueve", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKey", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
+            this.db.Add("KeyIsObject_UseInterface_EntityKeyBlueve", "True");
+            this.db.Add("KeyIsObject_UseInterface_EntityKeyBlueveKey", "True");
+            this.db.Add("KeyIsObject_UseInterface_EntityKeyBlueveKeyValue", "Blueve");
 
             var proxyObj = this.generator.GenerateForEntity<KeyIsObject_UseInterface_Entity>("KeyBlueve");
             try
@@ -178,15 +178,15 @@
         [TestMethod]
         public void TestGenerateForEntity_ListNodeEntity()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1Id", "1");
+            this.db.Add("ListNodeEntity1", "True");
+            this.db.Add("ListNodeEntity1Id", "1");
 
             var proxyObj = this.generator.GenerateForEntity<ListNodeEntity>("1");
             Assert.AreEqual(1, proxyObj.Id);
 
             proxyObj.Val = 1;
             Assert.AreEqual(1, proxyObj.Val);
-            Assert.AreEqual("1", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1Val"]);
+            Assert.AreEqual("1", this.db["ListNodeEntity1Val"]);
 
             var tail = new ListNodeEntity
             {
@@ -201,10 +201,10 @@
 
             proxyObj.Next = tail;
 
-            Assert.AreEqual("2", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity1Next"]);
-            Assert.AreEqual("2", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity2Val"]);
-            Assert.AreEqual("3", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity2Next"]);
-            Assert.AreEqual("3", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.ListNodeEntity3Val"]);
+            Assert.AreEqual("2", this.db["ListNodeEntity1Next"]);
+            Assert.AreEqual("2", this.db["ListNodeEntity2Val"]);
+            Assert.AreEqual("3", this.db["ListNodeEntity2Next"]);
+            Assert.AreEqual("3", this.db["ListNodeEntity3Val"]);
         }
 
         [TestMethod]

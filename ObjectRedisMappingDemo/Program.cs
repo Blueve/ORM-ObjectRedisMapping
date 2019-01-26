@@ -11,7 +11,8 @@
         {
             // Get a database context.
             var redisEmulator = new RedisEmulator();
-            var dbContext = DbContextFactory.GetDbContext(redisEmulator);
+            var dcContextFactory = new DbContextFactory();
+            var dbContext = dcContextFactory.Create(redisEmulator);
 
             // Commit an entity.
             var person = new Person

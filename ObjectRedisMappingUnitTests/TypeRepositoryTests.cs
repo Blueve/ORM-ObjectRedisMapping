@@ -16,7 +16,7 @@
         [TestInitialize]
         public void Initialize()
         {
-            this.repo = new TypeRepository(new TypeMetadataGenerator());
+            this.repo = new TypeRepository(new TypeMetadataGenerator(false));
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@
             var metadata = this.repo.Get(typeof(DerivedEntity));
 
             Assert.AreEqual(ObjectValueType.Entity, metadata.ValueType);
-            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.DerivedEntity", metadata.Name);
+            Assert.AreEqual("DerivedEntity", metadata.Name);
         }
 
         [TestMethod]
@@ -63,7 +63,7 @@
             var metadata = this.repo.Get<DerivedEntity>();
 
             Assert.AreEqual(ObjectValueType.Entity, metadata.ValueType);
-            Assert.AreEqual("Blueve.ObjectRedisMapping.UnitTests.Model.DerivedEntity", metadata.Name);
+            Assert.AreEqual("DerivedEntity", metadata.Name);
         }
 
         [TestMethod]

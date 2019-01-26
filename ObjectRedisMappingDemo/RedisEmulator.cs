@@ -13,7 +13,7 @@
         {
             foreach (var kv in this.stringDict.OrderBy(kv => kv.Key))
             {
-                yield return $"{kv.Key, -50}: {kv.Value}";
+                yield return $"{kv.Key, -30}: {kv.Value}";
             }
         }
 

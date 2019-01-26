@@ -45,7 +45,7 @@
             };
 
             this.dbContext.Commit(entity);
-            Assert.AreEqual("Blueve", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1UserName"]);
+            Assert.AreEqual("Blueve", this.db["PlainEntity1UserName"]);
         }
 
         [TestMethod]
@@ -70,9 +70,9 @@
         [TestMethod]
         public void TestFind_PlainEntity()
         {
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1", "True");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1UserId", "1");
-            this.db.Add("Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1UserName", "Blueve");
+            this.db.Add("PlainEntity1", "True");
+            this.db.Add("PlainEntity1UserId", "1");
+            this.db.Add("PlainEntity1UserName", "Blueve");
 
             var entity = this.dbContext.Find<PlainEntity>("1");
             Assert.AreEqual("Blueve", entity.UserName);

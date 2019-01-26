@@ -5,11 +5,17 @@
     <AssemblyName>Blueve.ObjectRedisMapping</AssemblyName>
     <RootNamespace>Blueve.ObjectRedisMapping</RootNamespace>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>0.0.1</Version>
+    <Version>0.1</Version>
     <Authors>Blueve</Authors>
     <Description>A tool to map and associate objects(entities) with Key-Value based database Redis.</Description>
     <SignAssembly>false</SignAssembly>
     <LangVersion>7.2</LangVersion>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>0</WarningLevel>
   </PropertyGroup>
 
   <ItemGroup>

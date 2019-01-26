@@ -33,7 +33,7 @@
                 .Setup(accessor => accessor.KeyExists(It.IsAny<string>()))
                 .Returns<string>(k => this.db.ContainsKey(k));
 
-            var typeRepo = new TypeRepository(new TypeMetadataGenerator());
+            var typeRepo = new TypeRepository(new TypeMetadataGenerator(false));
             var dbRecordSubmitter = new DbRecordSubmitter(this.dbClient.Object);
 
             this.keyGenerator = new EntityKeyGenerator();
@@ -138,7 +138,7 @@
         public void TestEntityGetter_PlainEntity_KeyExists()
         {
             this.db["DbKey"] = "Value";
-            this.db["Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntityValue"] = "True";
+            this.db["PlainEntityValue"] = "True";
 
             var proxy = this.stub.EntityGetter<PlainEntity>("DbKey");
             Assert.IsTrue(proxy is PlainEntity);
@@ -156,7 +156,7 @@
             this.stub.EntitySetter("DbKey", obj);
 
             Assert.AreEqual("1", this.db["DbKey"]);
-            Assert.AreEqual("Blueve", this.db["Blueve.ObjectRedisMapping.UnitTests.Model.PlainEntity1UserName"]);
+            Assert.AreEqual("Blueve", this.db["PlainEntity1UserName"]);
         }
 
         [TestMethod]
