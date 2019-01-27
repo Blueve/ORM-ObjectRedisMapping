@@ -103,13 +103,13 @@
         /// <summary>
         /// Register entity key property.
         /// </summary>
-        /// <param name="keyProp">The key property.</param>
+        /// <param name="keyType">The key type.</param>
         /// <exception cref="ArgumentException">The key property type is entity or include entity.</exception>
         /// <exception cref="NotSupportedException">The key property type is not supported or include not supported type.</exception>
-        public void RegisterKeyProperty(PropertyInfo keyProp)
+        public void RegisterKeyProperty(Type keyType)
         {
-            var keyPropMetadata = this.GetOrRegister(keyProp.PropertyType);
-            keyPropMetadata.RegisterKeyType(this);
+            var keyPropMetadata = this.GetOrRegister(keyType);
+            keyPropMetadata.RegisterAsKeyType(this);
         }
     }
 }

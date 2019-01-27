@@ -48,7 +48,7 @@
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DbRecord> GenerateObjectRecord(string prefix, object obj, ObjectTypeMetadata typeMetadata)
+        public IEnumerable<DbRecord> GenerateObjectRecord(string prefix, object obj, ObjectMetadata typeMetadata)
         {
             // Traverse the property tree by using DFS.
             // This implemention is for better performance in case some object have too much layers.
@@ -56,10 +56,6 @@
             var path = new Dictionary<uint, object>();
 
             // Initialize the searching with the properties of the object.
-            var basePrefix = typeMetadata.ValueType == ObjectValueType.Entity
-                ? this.entityKeyGenerator.GetDbKey(typeMetadata as EntityTypeMetadata, obj)
-                : prefix;
-
             states.Push((typeMetadata.Type, null, obj, prefix, 0u));
 
             // Searching and build the database record.
@@ -74,14 +70,21 @@
                 curPrefix += curName;
                 switch (curTypeMetadata)
                 {
-                    case EntityTypeMetadata entityType:
+                    case EntityMetadata entityType:
                         var entityKey = this.entityKeyGenerator.GetDbKey(entityType, curValue);
                         var entityKeyValue = this.entityKeyGenerator.GetEntityKey(entityType, curValue);
+
+                        // For added entity, just record the reference.
+                        if (curName != null)
+                        {
+                            yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, entityKeyValue));
+                        }
+                        
                         if (!visitedEntities.Contains(entityKey) && !(curValue is IProxy))
                         {
                             // For new entity, add it to records.
                             visitedEntities.Add(entityKey);
-                            yield return new DbRecord(entityKey, new DbValue(DbValueType.String, true.ToString()));
+                            yield return new DbRecord(entityKey, new DbValue(DbValueType.String, bool.TrueString));
                             ExpandProperties(
                                 states,
                                 entityKey,
@@ -90,15 +93,9 @@
                                 depth + 1);
                         }
 
-                        // For added entity, just record the reference.
-                        if (curName != null)
-                        {
-                            yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, entityKeyValue));
-                        }
-
                         break;
 
-                    case ObjectTypeMetadata objType:
+                    case ObjectMetadata objType:
                         for (var i = 0u; i < depth; i++)
                         {
                             if (path[i] == curValue)
@@ -107,11 +104,11 @@
                             }
                         }
 
-                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, true.ToString()));
+                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, bool.TrueString));
                         ExpandProperties(states, curPrefix, curValue, objType.Properties, depth + 1);
                         break;
 
-                    case TypeMetadata basicTypeMetadata when basicTypeMetadata.ValueType == ObjectValueType.Primitive || basicTypeMetadata.ValueType == ObjectValueType.String:
+                    case TypeMetadata basicType when basicType.ValueType == ObjectValueType.Primitive || basicType.ValueType == ObjectValueType.String:
                         yield return DbRecord.GenerateStringRecord(curPrefix, curValue.ToString());
                         break;
 

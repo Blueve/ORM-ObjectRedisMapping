@@ -32,6 +32,6 @@
         /// <param name="obj">The object.</param>
         /// <param name="typeMetadata">The type metadata of the object.</param>
         /// <returns>The records.</returns>
-        IEnumerable<DbRecord> GenerateObjectRecord(string prefix, object obj, ObjectTypeMetadata typeMetadata);
+        IEnumerable<DbRecord> GenerateObjectRecord(string prefix, object obj, ObjectMetadata typeMetadata);
     }
 }

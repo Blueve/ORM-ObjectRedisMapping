@@ -1,6 +1,8 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
@@ -67,7 +69,7 @@
             where T : class
         {
             var type = typeof(T);
-            var typeMetadata = this.typeRepo.GetOrRegister(type) as EntityTypeMetadata;
+            var typeMetadata = this.typeRepo.GetOrRegister(type) as EntityMetadata;
             if (typeMetadata == null)
             {
                 throw new ArgumentException("The given type must be an entity type.");
@@ -100,14 +102,28 @@
         {
             if (!this.dbClient.KeyExists(dbPrefix))
             {
-                return null;
+                return default;
             }
 
             var type = typeof(T);
-            var typeMetadata = this.typeRepo.GetOrRegister(type) as ObjectTypeMetadata;
+            var typeMetadata = this.typeRepo.GetOrRegister(type) as ObjectMetadata;
             var proxyTypeBuilder = new ProxyTypeBuilder(type);
 
             return this.GenerateForObjectInternal<T>(proxyTypeBuilder, typeMetadata, dbPrefix);
+        }
+
+        public IList<T> GenerateForList<T>(string dbPrefix)
+        {
+            if (!this.dbClient.KeyExists(dbPrefix))
+            {
+                return default;
+            }
+
+            var type = typeof(T);
+            var typeMetadata = this.typeRepo.GetOrRegister(type) as ListMetadata;
+            var proxyTypeBuilder = new ProxyTypeBuilder(type);
+
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -118,7 +134,7 @@
         /// <param name="typeMetadata">The type metadata of object.</param>
         /// <param name="dbPrefix">The prefix of database key.</param>
         /// <returns>The proxy.</returns>
-        private T GenerateForObjectInternal<T>(ProxyTypeBuilder proxyTypeBuilder, ObjectTypeMetadata typeMetadata, string dbPrefix)
+        private T GenerateForObjectInternal<T>(ProxyTypeBuilder proxyTypeBuilder, ObjectMetadata typeMetadata, string dbPrefix)
             where T : class
         {
             // Generate proxy each property.

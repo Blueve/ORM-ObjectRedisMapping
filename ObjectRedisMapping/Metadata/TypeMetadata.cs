@@ -61,10 +61,10 @@
         }
 
         /// <summary>
-        /// Register key type to type repository.
+        /// Register as key type to type repository.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
-        public virtual void RegisterKeyType(TypeRepository typeRepo)
+        public virtual void RegisterAsKeyType(TypeRepository typeRepo)
         {
         }
 
@@ -86,7 +86,6 @@
         /// <param name="ilGenerator"></param>
         public virtual void CallStubSetter(ILGenerator ilGenerator)
         {
-            ilGenerator.Emit(OpCodes.Ldarg_1);
             ilGenerator.Emit(
                 OpCodes.Call,
                 typeof(DynamicProxyStub).GetMethod(this.StubSetterMethodName, new[] { typeof(string), this.Type }));

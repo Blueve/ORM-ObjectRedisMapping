@@ -10,15 +10,15 @@
     /// <summary>
     /// The type metadata for object.
     /// </summary>
-    internal class ObjectTypeMetadata : TypeMetadata
+    internal class ObjectMetadata : TypeMetadata
     {
         /// <summary>
-        /// Initialize an instacne of <see cref="ObjectTypeMetadata"/>.
+        /// Initialize an instacne of <see cref="ObjectMetadata"/>.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <param name="type">The type name.</param>
+        /// <param name="name">The type name.</param>
         /// <param name="properties">The peoperties of object.</param>
-        public ObjectTypeMetadata(
+        public ObjectMetadata(
             Type type,
             string name,
             IEnumerable<PropertyInfo> properties)
@@ -48,11 +48,11 @@
         }
 
         /// <inheritdoc/>
-        public override void RegisterKeyType(TypeRepository typeRepo)
+        public override void RegisterAsKeyType(TypeRepository typeRepo)
         {
             foreach (var prop in this.Properties)
             {
-                typeRepo.RegisterKeyProperty(prop);
+                typeRepo.RegisterKeyProperty(prop.PropertyType);
             }
         }
 
@@ -70,7 +70,6 @@
         /// <inheritdoc/>
         public override void CallStubSetter(ILGenerator ilGenerator)
         {
-            ilGenerator.Emit(OpCodes.Ldarg_1);
             ilGenerator.Emit(
                 OpCodes.Call,
                 typeof(DynamicProxyStub)

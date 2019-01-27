@@ -182,6 +182,7 @@
             ilGenerator.Emit(OpCodes.Ldstr, dbKey);
 
             // this._stub.?().
+            ilGenerator.Emit(OpCodes.Ldarg_1);
             propMetadata.CallStubSetter(ilGenerator);
 
             // return ?;

@@ -7,10 +7,8 @@
     {
         Primitive,
         String,
-        Struct,
         Entity,
         Object,
         List,
-        Set,
     }
 }

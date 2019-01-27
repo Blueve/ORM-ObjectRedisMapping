@@ -13,7 +13,7 @@
         /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entityKey">The entity key.</param>
         /// <returns>The database key.</returns>
-        public string GetDbKey(EntityTypeMetadata typeMetadata, string entityKey)
+        public string GetDbKey(EntityMetadata typeMetadata, string entityKey)
         {
             return string.Concat(typeMetadata.Name, entityKey);
         }
@@ -24,7 +24,7 @@
         /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entity">The value of entity.</param>
         /// <returns>The database key.</returns>
-        public string GetDbKey(EntityTypeMetadata typeMetadata, object entity)
+        public string GetDbKey(EntityMetadata typeMetadata, object entity)
         {
             return this.GetDbKey(typeMetadata, this.GetEntityKey(typeMetadata, entity));
         }
@@ -35,7 +35,7 @@
         /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entity">The value of entity.</param>
         /// <returns>The entity key.</returns>
-        public string GetEntityKey(EntityTypeMetadata typeMetadata, object entity)
+        public string GetEntityKey(EntityMetadata typeMetadata, object entity)
         {
             var key = typeMetadata.KeyProperty.GetValue(entity);
 

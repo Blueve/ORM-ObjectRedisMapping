@@ -25,7 +25,7 @@
         [TestMethod]
         public void TestGetEntityKey_PlainEntity()
         {
-            var typeMetadata = this.typeRepo.GetOrRegister(typeof(PlainEntity)) as EntityTypeMetadata;
+            var typeMetadata = this.typeRepo.GetOrRegister(typeof(PlainEntity)) as EntityMetadata;
             var key = this.generator.GetEntityKey(typeMetadata, new PlainEntity
             {
                 UserId = "5"
@@ -36,7 +36,7 @@
         [TestMethod]
         public void TestGetEntityKey_KeyIsObject_UseInterface_Entity()
         {
-            var typeMetadata = this.typeRepo.GetOrRegister(typeof(KeyIsObject_UseInterface_Entity)) as EntityTypeMetadata;
+            var typeMetadata = this.typeRepo.GetOrRegister(typeof(KeyIsObject_UseInterface_Entity)) as EntityMetadata;
             var key = this.generator.GetEntityKey(typeMetadata, new KeyIsObject_UseInterface_Entity
             {
                 Key = new ObjectEntityKey
@@ -50,7 +50,7 @@
         [TestMethod]
         public void TestGetEntityKey_KeyIsObject_UseInterface_NotImplement_Entity()
         {
-            var typeMetadata = this.typeRepo.GetOrRegister(typeof(KeyIsObject_UseInterface_NotImplement_Entity)) as EntityTypeMetadata;
+            var typeMetadata = this.typeRepo.GetOrRegister(typeof(KeyIsObject_UseInterface_NotImplement_Entity)) as EntityMetadata;
 
             try
             {

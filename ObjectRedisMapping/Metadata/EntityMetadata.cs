@@ -9,17 +9,17 @@
     /// <summary>
     /// The type metadata for entity.
     /// </summary>
-    internal class EntityTypeMetadata : ObjectTypeMetadata
+    internal class EntityMetadata : ObjectMetadata
     {
         /// <summary>
-        /// Initialize an instacne of <see cref="ObjectTypeMetadata"/>.
+        /// Initialize an instacne of <see cref="ObjectMetadata"/>.
         /// </summary>
         /// <param name="type">The type.</param>
         /// <param name="name">The type name.</param>
         /// <param name="properties">The properties of entity.</param>
         /// <param name="keyProperty">The entity key property.</param>
         /// <param name="keyAttr">The key attribute of entity key property.</param>
-        public EntityTypeMetadata(
+        public EntityMetadata(
             Type type,
             string name,
             IEnumerable<PropertyInfo> properties,
@@ -51,12 +51,12 @@
         /// <inheritdoc/>
         public override void RegisterSubType(TypeRepository typeRepo)
         {
-            typeRepo.RegisterKeyProperty(this.KeyProperty);
+            typeRepo.RegisterKeyProperty(this.KeyProperty.PropertyType);
             base.RegisterSubType(typeRepo);
         }
 
         /// <inheritdoc/>
-        public override void RegisterKeyType(TypeRepository typeRepo)
+        public override void RegisterAsKeyType(TypeRepository typeRepo)
         {
             throw new ArgumentException("Key property cannot be an entity type or include an entity type.");
         }

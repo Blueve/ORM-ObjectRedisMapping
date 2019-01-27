@@ -1,6 +1,7 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
     using System;
+    using System.Collections.Generic;
 
     /// <summary>
     /// The stub of dynamic proxy.
@@ -161,16 +162,16 @@
         public void EntitySetter<T>(string dbKey, T value)
             where T : class
         {
-            var typeMetadata = this.typeRepo.GetOrRegister(typeof(T)) as EntityTypeMetadata;
+            var typeMetadata = this.typeRepo.GetOrRegister(typeof(T)) as EntityMetadata;
+            var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
 
             if (!(value is IProxy))
             {
                 // If value is not a proxy, then commit value as an entity and then update the DB reference.
-                var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, value);
+                var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, entityKey, value);
                 this.dbRecorderSubmitter.Commit(records);
             }
-
-            var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
+            
             this.dbClient.StringSet(dbKey, entityKey);
         }
 
@@ -220,6 +221,17 @@
         {
             var records = this.dbRecordBuilder.Generate<T>(value, dbKey);
             this.dbRecorderSubmitter.Commit(records);
+        }
+
+        public IEnumerable<T> EnumerableGetter<T>(string dbKey)
+        {
+            if (!this.dbClient.KeyExists(dbKey))
+            {
+                return default;
+            }
+
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient);
+            return proxyGenerator.GenerateForList<T>(dbKey);
         }
     }
 }
