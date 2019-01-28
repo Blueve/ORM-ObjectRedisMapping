@@ -1,6 +1,7 @@
 # ORM - Object Redis Mapping (Developing)
 
 [![Build Status](https://dev.azure.com/blueveyoud/ORM-ObjectRedisMapping/_apis/build/status/Blueve.ORM-ObjectRedisMapping?branchName=master)](https://dev.azure.com/blueveyoud/ORM-ObjectRedisMapping/_build/latest?definitionId=1?branchName=master)
+![](https://img.shields.io/azure-devops/tests/blueveyoud/ORM-ObjectRedisMapping/1/master.svg)
 ![](https://img.shields.io/azure-devops/coverage/blueveyoud/ORM-ObjectRedisMapping/1/master.svg)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2a5b5ae1dfbe4ce4a7db402e572c49e9)](https://app.codacy.com/app/672454911/ORM-ObjectRedisMapping?utm_source=github.com&utm_medium=referral&utm_content=Blueve/ORM-ObjectRedisMapping&utm_campaign=Badge_Grade_Settings)
 
