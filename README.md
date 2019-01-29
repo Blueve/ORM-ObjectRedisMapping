@@ -5,10 +5,7 @@
 ![](https://img.shields.io/azure-devops/coverage/blueveyoud/ORM-ObjectRedisMapping/1/master.svg)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2a5b5ae1dfbe4ce4a7db402e572c49e9)](https://app.codacy.com/app/672454911/ORM-ObjectRedisMapping?utm_source=github.com&utm_medium=referral&utm_content=Blueve/ORM-ObjectRedisMapping&utm_campaign=Badge_Grade_Settings)
 
-
-A tool to map and associate objects(entities) with Key-Value based database Redis.
-
-You will no longer have to worry about how to design Redis schema and needn't to deal with data acuisition and writing too with this tool.
+ObjectRedisMapping(ORM) is an object-redis mapper that enables .NET developers to work with a Redis database using .NET objects. It eliminating the need for most of the data-access code and Redis schema design that developers usually need to write.
 
 This is a toy project developed out of personal interest. I will try to use this project to experiment with some problemes in my work. Although I have no way to apply the technology used in this project in my work, I believe that the experience I gained in developing this project will be of great benefit to me.
 
