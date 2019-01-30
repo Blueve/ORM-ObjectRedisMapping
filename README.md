@@ -31,7 +31,7 @@ var person2 = new Person
 person1.Partner = person2;
 person2.Partner = person1;
 
-dbContext.Commit(person1);
+dbContext.Save<Person>(person1);
 
 // Redis
 // PersonTom -> True
@@ -46,7 +46,7 @@ dbContext.Commit(person1);
 
 Fetch from Redis
 ```csharp
-var person = dbContext.Find("Tom");
+var person = dbContext.Find<Person>("Tom");
 Console.WriteLine(person.Partern.Name); // Jerry
 Console.WriteLine(person.Partern.Age); // 10
 Console.WriteLine(person.Partern.Partern.Name); // Tom
@@ -55,7 +55,7 @@ Console.WriteLine(person.Partern.Partern.Name); // 18
 
 Update in place by a dynmic proxy
 ```csharp
-var person = dbContext.Find("Jerry");
+var person = dbContext.Find<Person>("Jerry");
 person.Age = 18;
 
 // Redis
@@ -76,7 +76,7 @@ var head = new ListNode
         }
     }
 };
-dbContext.Commit(head);
+dbContext.Save<ListNode>(head);
 
 // Redis
 // ListNode1 -> True
