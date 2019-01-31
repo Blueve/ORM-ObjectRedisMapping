@@ -22,7 +22,7 @@
                 Age = 27
             };
             Console.WriteLine("Commit a Person{ Id=1, Name=Blueve, Age=27 } to database");
-            dbContext.Commit(person);
+            dbContext.Save(person);
             PrintDbStatus(redisEmulator.Explain());
 
             Console.WriteLine("Get the person from DB");

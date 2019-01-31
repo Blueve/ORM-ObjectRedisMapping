@@ -36,7 +36,7 @@
         }
 
         [TestMethod]
-        public void TestCommit_PlainEntity()
+        public void TestSave_PlainEntity()
         {
             var entity = new PlainEntity
             {
@@ -44,12 +44,12 @@
                 UserName = "Blueve"
             };
 
-            this.dbContext.Commit(entity);
+            this.dbContext.Save(entity);
             Assert.AreEqual("Blueve", this.db["PlainEntity1UserName"]);
         }
 
         [TestMethod]
-        public void TestCommit_PlainObject()
+        public void TestSave_PlainObject()
         {
             var entity = new PlainObject
             {
@@ -59,7 +59,7 @@
 
             try
             {
-                this.dbContext.Commit(entity);
+                this.dbContext.Save(entity);
                 Assert.Fail();
             }
             catch (InvalidOperationException)

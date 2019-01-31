@@ -14,11 +14,11 @@
         T Find<T>(string key) where T : class;
 
         /// <summary>
-        /// Commit an entity to database.
+        /// Store an entity to database.
         /// </summary>
         /// <typeparam name="T">The type of entity.</typeparam>
         /// <param name="entity">The entity.</param>
-        void Commit<T>(T entity) where T : class;
+        void Save<T>(T entity) where T : class;
 
         /// <summary>
         /// Remove an entity by a given key in database.

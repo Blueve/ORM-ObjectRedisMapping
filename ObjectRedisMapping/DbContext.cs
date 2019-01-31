@@ -60,7 +60,7 @@
         }
 
         /// <inheritdoc/>
-        public void Commit<T>(T entity)
+        public void Save<T>(T entity)
             where T : class
         {
             var typeMetadata = this.typeRepository.GetOrRegister(typeof(T));
