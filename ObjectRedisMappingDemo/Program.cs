@@ -5,7 +5,7 @@
     using Blueve.ObjectRedisMapping;
     using ObjectRedisMappingDemo.Model;
 
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

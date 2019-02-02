@@ -43,10 +43,10 @@
         public PropertyInfo KeyProperty { get; private set; }
 
         /// <inheritdoc/>
-        protected override string StubGetterMethodName => string.Concat("EntityGetter");
+        protected override string StubGetterMethodName => "EntityGetter";
 
         /// <inheritdoc/>
-        protected override string StubSetterMethodName => string.Concat("EntitySetter");
+        protected override string StubSetterMethodName => "EntitySetter";
 
         /// <inheritdoc/>
         public override void RegisterSubType(TypeRepository typeRepo)

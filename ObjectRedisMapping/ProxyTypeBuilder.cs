@@ -94,7 +94,7 @@
             // Generate IL for setter.
             if (readOnly)
             {
-                GenerateNotAvailableSetterIL(this.stubFieldBuilder, setterILGenerator);
+                GenerateNotAvailableSetterIL(setterILGenerator);
             }
             else
             {
@@ -192,10 +192,8 @@
         /// <summary>
         /// Generate IL for the not available setter.
         /// </summary>
-        /// <param name="stubField">The proxy stub field.</param>
         /// <param name="ilGenerator">The setter's IL generator.</param>
         private static void GenerateNotAvailableSetterIL(
-            FieldInfo stubField,
             ILGenerator ilGenerator)
         {
             ilGenerator.Emit(OpCodes.Ldstr, "Current property is the entity's key and could not be override.");
