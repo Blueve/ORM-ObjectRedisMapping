@@ -77,14 +77,14 @@
                         // For added entity, just record the reference.
                         if (curName != null)
                         {
-                            yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, entityKeyValue));
+                            yield return DbRecord.GenerateStringRecord(curPrefix, entityKeyValue);
                         }
                         
                         if (!visitedEntities.Contains(entityKey) && !(curValue is IProxy))
                         {
                             // For new entity, add it to records.
                             visitedEntities.Add(entityKey);
-                            yield return new DbRecord(entityKey, new DbValue(DbValueType.String, bool.TrueString));
+                            yield return DbRecord.GenerateStringRecord(entityKey, bool.TrueString);
                             ExpandProperties(
                                 states,
                                 entityKey,
@@ -104,7 +104,7 @@
                             }
                         }
 
-                        yield return new DbRecord(curPrefix, new DbValue(DbValueType.String, bool.TrueString));
+                        yield return DbRecord.GenerateStringRecord(curPrefix, bool.TrueString);
                         ExpandProperties(states, curPrefix, curValue, objType.Properties, depth + 1);
                         break;
 
