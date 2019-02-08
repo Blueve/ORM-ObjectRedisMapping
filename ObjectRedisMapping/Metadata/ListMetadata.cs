@@ -16,21 +16,29 @@
         /// Initialize an instacne of <see cref="ListMetadata"/>.
         /// </summary>
         /// <param name="type">The type.</param>
-        /// <param name="type">The type name.</param>
-        /// <param name="properties">The peoperties of object.</param>
+        /// <param name="name">The type name.</param>
+        /// <param name="innerType">The inner type.</param>
+        /// <param name="readOnly">Indicate that if the current list is read-only.</param>
         public ListMetadata(
             Type type,
             string name,
-            Type innerType)
+            Type innerType,
+            bool readOnly)
             : base(type, ObjectValueType.List, name)
         {
             this.InnerType = innerType;
+            this.ReadOnly = readOnly;
         }
 
         /// <summary>
         /// The inner type of current enumerable type.
         /// </summary>
         public Type InnerType { get; protected set; }
+
+        /// <summary>
+        /// Indicate that if the current list is read-only.
+        /// </summary>
+        public bool ReadOnly { get; protected set; }
 
         /// <inheritdoc/>
         protected override string StubGetterMethodName => "ListGetter";

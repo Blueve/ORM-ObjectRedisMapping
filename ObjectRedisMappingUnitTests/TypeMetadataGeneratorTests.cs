@@ -26,5 +26,23 @@
             Assert.AreEqual("UserId", metadata.KeyProperty.Name);
             Assert.AreEqual("PlainEntity", metadata.Name);
         }
+
+        [TestMethod]
+        public void TestGenerate_PrimitiveArray()
+        {
+            var generator = new TypeMetadataGenerator(false);
+            var metadata = generator.Generate(typeof(int[])) as ListMetadata;
+            Assert.AreEqual(typeof(int), metadata.InnerType);
+            Assert.IsTrue(metadata.ReadOnly);
+        }
+
+        [TestMethod]
+        public void TestGenerate_PlainObjectArray()
+        {
+            var generator = new TypeMetadataGenerator(false);
+            var metadata = generator.Generate(typeof(PlainObject[])) as ListMetadata;
+            Assert.AreEqual(typeof(PlainObject), metadata.InnerType);
+            Assert.IsTrue(metadata.ReadOnly);
+        }
     }
 }

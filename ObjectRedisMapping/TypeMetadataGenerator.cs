@@ -42,7 +42,13 @@
                 return new TypeMetadata(type, ObjectValueType.String, type.Name);
             }
 
-            // TODO: Deal the containers and array type.
+            if (type.IsArray)
+            {
+                // The type is array.
+                return new ListMetadata(type, type.Name, type.GetElementType(), true);
+            }
+
+            // TODO: Deal the containerstype.
             ////
 
             // Only count the virtual property.

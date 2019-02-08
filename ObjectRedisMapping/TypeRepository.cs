@@ -102,6 +102,8 @@
 
         /// <summary>
         /// Register entity key property.
+        /// The input type is a part of the key type.
+        /// e.g. If the key type is an object type, then the input type might be the property type of the object type.
         /// </summary>
         /// <param name="keyType">The key type.</param>
         /// <exception cref="ArgumentException">The key property type is entity or include entity.</exception>
