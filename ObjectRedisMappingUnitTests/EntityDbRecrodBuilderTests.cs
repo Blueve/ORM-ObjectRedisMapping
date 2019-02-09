@@ -176,5 +176,73 @@
                 DbRecord.GenerateStringRecord(expectedKey, expectedValue)
             }, records);
         }
+
+        [TestMethod]
+        public void TestGenerate_PrimitiveArray()
+        {
+            var elems = new[] { 1, 9, 9, 2 };
+            var records = this.builder.Generate(elems, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                DbRecord.GenerateStringRecord("Prefix", 4.ToString()),
+                DbRecord.GenerateStringRecord("Prefix0", "1"),
+                DbRecord.GenerateStringRecord("Prefix1", "9"),
+                DbRecord.GenerateStringRecord("Prefix2", "9"),
+                DbRecord.GenerateStringRecord("Prefix3", "2"),
+            }, records);
+        }
+
+        [TestMethod]
+        public void TestGenerate_StringArray()
+        {
+            var elems = new[] { "1", "9", "9", "2" };
+            var records = this.builder.Generate(elems, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                DbRecord.GenerateStringRecord("Prefix", 4.ToString()),
+                DbRecord.GenerateStringRecord("Prefix0", "1"),
+                DbRecord.GenerateStringRecord("Prefix1", "9"),
+                DbRecord.GenerateStringRecord("Prefix2", "9"),
+                DbRecord.GenerateStringRecord("Prefix3", "2"),
+            }, records);
+        }
+
+        [TestMethod]
+        public void TestGenerate_PlainObjectArray()
+        {
+            var elems = new[] { new PlainObject { Name = "Tom", Value = "1" }, new PlainObject { Name = "Jerry", Value = "2" } };
+            var records = this.builder.Generate(elems, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                DbRecord.GenerateStringRecord("Prefix", 2.ToString()),
+                DbRecord.GenerateStringRecord("Prefix0", "True"),
+                DbRecord.GenerateStringRecord("Prefix0Name", "Tom"),
+                DbRecord.GenerateStringRecord("Prefix0Value", "1"),
+                DbRecord.GenerateStringRecord("Prefix1", "True"),
+                DbRecord.GenerateStringRecord("Prefix1Name", "Jerry"),
+                DbRecord.GenerateStringRecord("Prefix1Value", "2"),
+            }, records);
+        }
+
+        [TestMethod]
+        public void TestGenerate_PlainEntityArray()
+        {
+            var elems = new[] { new PlainEntity { UserId = "1" }, new PlainEntity { UserId = "2" } };
+            var records = this.builder.Generate(elems, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                DbRecord.GenerateStringRecord("Prefix", 2.ToString()),
+                DbRecord.GenerateStringRecord("Prefix0", "1"),
+                DbRecord.GenerateStringRecord("Prefix1", "2"),
+                DbRecord.GenerateStringRecord("PlainEntity1", "True"),
+                DbRecord.GenerateStringRecord("PlainEntity1UserId", "1"),
+                DbRecord.GenerateStringRecord("PlainEntity2", "True"),
+                DbRecord.GenerateStringRecord("PlainEntity2UserId", "2"),
+            }, records);
+        }
     }
 }

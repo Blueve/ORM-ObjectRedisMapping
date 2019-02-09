@@ -1,6 +1,7 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
     using System;
+    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
@@ -48,7 +49,7 @@
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DbRecord> GenerateObjectRecord(string prefix, object obj, ObjectMetadata typeMetadata)
+        public IEnumerable<DbRecord> GenerateObjectRecord(string prefix, object obj, TypeMetadata typeMetadata)
         {
             // Traverse the property tree by using DFS.
             // This implemention is for better performance in case some object have too much layers.
@@ -106,6 +107,16 @@
 
                         yield return DbRecord.GenerateStringRecord(curPrefix, bool.TrueString);
                         ExpandProperties(states, curPrefix, curValue, objType.Properties, depth + 1);
+                        break;
+
+                    case ListMetadata listType:
+                        var list = curValue as IList;
+                        yield return DbRecord.GenerateStringRecord(curPrefix, list.Count.ToString());
+                        for (int i = 0; i < list.Count; i++)
+                        {
+                            states.Push((listType.InnerType, i.ToString(), list[i], curPrefix, depth + 1));
+                        }
+
                         break;
 
                     case TypeMetadata basicType when basicType.ValueType == ObjectValueType.Primitive || basicType.ValueType == ObjectValueType.String:

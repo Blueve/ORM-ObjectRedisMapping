@@ -78,5 +78,11 @@
                     .GetMethods()
                     .First(m => m.Name.Equals(this.StubSetterMethodName)).MakeGenericMethod(this.InnerType));
         }
+
+        /// <inheritdoc/>
+        public override IEnumerable<DbRecord> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value)
+        {
+            return dbRecordBuilder.GenerateObjectRecord(prefix, value, this);
+        }
     }
 }
