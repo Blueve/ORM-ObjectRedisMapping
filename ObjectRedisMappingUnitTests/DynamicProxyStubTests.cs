@@ -34,11 +34,10 @@
                 .Returns<string>(k => this.db.ContainsKey(k));
 
             var typeRepo = new TypeRepository(new TypeMetadataGenerator(false));
-            var dbRecordSubmitter = new DbRecordSubmitter(this.dbClient.Object);
 
             this.keyGenerator = new EntityKeyGenerator();
             this.dbRecordBuilder = new DbRecordBuilder(typeRepo, this.keyGenerator);
-            this.stub = new DynamicProxyStub(typeRepo, this.dbClient.Object, this.dbRecordBuilder, this.keyGenerator, dbRecordSubmitter);
+            this.stub = new DynamicProxyStub(typeRepo, this.dbClient.Object, this.dbRecordBuilder, this.keyGenerator);
         }
 
         [TestMethod]

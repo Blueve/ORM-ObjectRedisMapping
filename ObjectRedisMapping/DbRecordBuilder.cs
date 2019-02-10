@@ -35,7 +35,7 @@
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DbRecord> Generate<T>(T obj, string prefix = "")
+        public IEnumerable<IDbOperation> Generate<T>(T obj, string prefix = "")
         {
             var type = typeof(T);
             var typeMetadata = this.typeRepo.GetOrRegister(type);
@@ -43,13 +43,13 @@
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DbRecord> GenerateStringRecord<T>(string prefix, T obj)
+        public IEnumerable<IDbOperation> GenerateStringRecord<T>(string prefix, T obj)
         {
-            return Enumerable.Empty<DbRecord>().Append(DbRecord.GenerateStringRecord(prefix, obj.ToString()));
+            return Enumerable.Empty<IDbOperation>().Append(new DbStringRecord(prefix, obj.ToString()));
         }
 
         /// <inheritdoc/>
-        public IEnumerable<DbRecord> GenerateObjectRecord(string prefix, object obj, TypeMetadata typeMetadata)
+        public IEnumerable<IDbOperation> GenerateObjectRecord(string prefix, object obj, TypeMetadata typeMetadata)
         {
             // Traverse the property tree by using DFS.
             // This implemention is for better performance in case some object have too much layers.
@@ -78,14 +78,14 @@
                         // For added entity, just record the reference.
                         if (curName != null)
                         {
-                            yield return DbRecord.GenerateStringRecord(curPrefix, entityKeyValue);
+                            yield return new DbStringRecord(curPrefix, entityKeyValue);
                         }
                         
                         if (!visitedEntities.Contains(entityKey) && !(curValue is IProxy))
                         {
                             // For new entity, add it to records.
                             visitedEntities.Add(entityKey);
-                            yield return DbRecord.GenerateStringRecord(entityKey, bool.TrueString);
+                            yield return new DbStringRecord(entityKey, bool.TrueString);
                             ExpandProperties(
                                 states,
                                 entityKey,
@@ -105,13 +105,13 @@
                             }
                         }
 
-                        yield return DbRecord.GenerateStringRecord(curPrefix, bool.TrueString);
+                        yield return new DbStringRecord(curPrefix, bool.TrueString);
                         ExpandProperties(states, curPrefix, curValue, objType.Properties, depth + 1);
                         break;
 
                     case ListMetadata listType:
                         var list = curValue as IList;
-                        yield return DbRecord.GenerateStringRecord(curPrefix, list.Count.ToString());
+                        yield return new DbStringRecord(curPrefix, list.Count.ToString());
                         for (int i = 0; i < list.Count; i++)
                         {
                             states.Push((listType.InnerType, i.ToString(), list[i], curPrefix, depth + 1));
@@ -120,7 +120,7 @@
                         break;
 
                     case TypeMetadata basicType when basicType.ValueType == ObjectValueType.Primitive || basicType.ValueType == ObjectValueType.String:
-                        yield return DbRecord.GenerateStringRecord(curPrefix, curValue.ToString());
+                        yield return new DbStringRecord(curPrefix, curValue.ToString());
                         break;
 
                     default:

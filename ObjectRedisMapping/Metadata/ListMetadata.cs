@@ -80,7 +80,7 @@
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<DbRecord> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value)
+        public override IEnumerable<IDbOperation> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value)
         {
             return dbRecordBuilder.GenerateObjectRecord(prefix, value, this);
         }

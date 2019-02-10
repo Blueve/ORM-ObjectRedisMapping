@@ -10,16 +10,19 @@
     /// Test the <see cref="DbRecordSubmitter"/>.
     /// </summary>
     [TestClass]
-    public class DbRecordSubmitterTests
+    public class DbStringRecordTests
     {
         private Mock<IDatabaseClient> dbClient;
-        private DbRecordSubmitter submitter;
+        private IDictionary<string, string> dict;
 
         [TestInitialize]
         public void Initialize()
         {
             this.dbClient = new Mock<IDatabaseClient>();
-            this.submitter = new DbRecordSubmitter(this.dbClient.Object);
+            this.dict = new Dictionary<string, string>();
+            this.dbClient
+                .Setup(accessor => accessor.StringSet(It.IsAny<string>(), It.IsAny<string>()))
+                .Callback<string, string>((k, v) => this.dict.TryAdd(k, v));
         }
 
         [DataTestMethod]
@@ -27,14 +30,10 @@
         [DataRow("DbKey", "")]
         public void TestCommit_StringRecord(string key, string value)
         {
-            var stringDict = new Dictionary<string, string>();
-            this.dbClient
-                .Setup(accessor => accessor.StringSet(It.IsAny<string>(), It.IsAny<string>()))
-                .Callback<string, string>((k, v) => stringDict.TryAdd(k, v));
+            var record = new DbStringRecord(key, value);
+            record.AddOrUpdate(this.dbClient.Object);
 
-            // Commit the entity.
-            this.submitter.Commit(DbRecord.GenerateStringRecord(key, value));
-            Assert.AreEqual(value, stringDict[key]);
+            Assert.AreEqual(value, this.dict[key]);
         }
     }
 }

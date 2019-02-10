@@ -10,7 +10,7 @@
     /// Test the <see cref="DbRecordBuilder"/>.
     /// </summary>
     [TestClass]
-    public class EntityDbRecrodBuilderTests
+    public class DbRecordBuilderTests
     {
         private DbRecordBuilder builder;
 
@@ -33,9 +33,9 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                new DbRecord("PlainEntity1", new DbValue(DbValueType.String, "True")),
-                new DbRecord("PlainEntity1UserId", new DbValue(DbValueType.String, "1")),
-                new DbRecord("PlainEntity1UserName", new DbValue(DbValueType.String, "Blueve"))
+                new DbStringRecord("PlainEntity1", "True"),
+                new DbStringRecord("PlainEntity1UserId", "1"),
+                new DbStringRecord("PlainEntity1UserName", "Blueve")
             }, records);
         }
 
@@ -54,11 +54,11 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                new DbRecord("NestedEntity1", new DbValue(DbValueType.String, "True")),
-                new DbRecord("NestedEntity1Key", new DbValue(DbValueType.String, "1")),
-                new DbRecord("NestedEntity1LeftChild", new DbValue(DbValueType.String, "2")),
-                new DbRecord("NestedEntity2", new DbValue(DbValueType.String, "True")),
-                new DbRecord("NestedEntity2Key", new DbValue(DbValueType.String, "2"))
+                new DbStringRecord("NestedEntity1", "True"),
+                new DbStringRecord("NestedEntity1Key", "1"),
+                new DbStringRecord("NestedEntity1LeftChild", "2"),
+                new DbStringRecord("NestedEntity2", "True"),
+                new DbStringRecord("NestedEntity2Key", "2")
             }, records);
         }
 
@@ -78,12 +78,12 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                new DbRecord("NestedEntity1", new DbValue(DbValueType.String, "True")),
-                new DbRecord("NestedEntity1Key", new DbValue(DbValueType.String, "1")),
-                new DbRecord("NestedEntity1LeftChild", new DbValue(DbValueType.String, "2")),
-                new DbRecord("NestedEntity2", new DbValue(DbValueType.String, "True")),
-                new DbRecord("NestedEntity2Key", new DbValue(DbValueType.String, "2")),
-                new DbRecord("NestedEntity2LeftChild", new DbValue(DbValueType.String, "1"))
+                new DbStringRecord("NestedEntity1", "True"),
+                new DbStringRecord("NestedEntity1Key", "1"),
+                new DbStringRecord("NestedEntity1LeftChild", "2"),
+                new DbStringRecord("NestedEntity2", "True"),
+                new DbStringRecord("NestedEntity2Key", "2"),
+                new DbStringRecord("NestedEntity2LeftChild", "1")
             }, records);
         }
 
@@ -99,9 +99,9 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                new DbRecord("Prefix", new DbValue(DbValueType.String, "True")),
-                new DbRecord("PrefixName", new DbValue(DbValueType.String, "Age")),
-                new DbRecord("PrefixValue", new DbValue(DbValueType.String, "26"))
+                new DbStringRecord("Prefix", "True"),
+                new DbStringRecord("PrefixName", "Age"),
+                new DbStringRecord("PrefixValue", "26")
             }, records);
         }
 
@@ -120,10 +120,10 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                new DbRecord("Prefix", new DbValue(DbValueType.String, "True")),
-                new DbRecord("PrefixName", new DbValue(DbValueType.String, "Blueve")),
-                new DbRecord("PrefixChild", new DbValue(DbValueType.String, "True")),
-                new DbRecord("PrefixChildName", new DbValue(DbValueType.String, "Unknown"))
+                new DbStringRecord("Prefix", "True"),
+                new DbStringRecord("PrefixName", "Blueve"),
+                new DbStringRecord("PrefixChild", "True"),
+                new DbStringRecord("PrefixChildName", "Unknown")
             }, records);
         }
 
@@ -159,7 +159,7 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                DbRecord.GenerateStringRecord(expectedKey, expectedValue)
+                new DbStringRecord(expectedKey, expectedValue)
             }, records);
         }
 
@@ -173,7 +173,7 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                DbRecord.GenerateStringRecord(expectedKey, expectedValue)
+                new DbStringRecord(expectedKey, expectedValue)
             }, records);
         }
 
@@ -185,11 +185,11 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                DbRecord.GenerateStringRecord("Prefix", 4.ToString()),
-                DbRecord.GenerateStringRecord("Prefix0", "1"),
-                DbRecord.GenerateStringRecord("Prefix1", "9"),
-                DbRecord.GenerateStringRecord("Prefix2", "9"),
-                DbRecord.GenerateStringRecord("Prefix3", "2"),
+                new DbStringRecord("Prefix", 4.ToString()),
+                new DbStringRecord("Prefix0", "1"),
+                new DbStringRecord("Prefix1", "9"),
+                new DbStringRecord("Prefix2", "9"),
+                new DbStringRecord("Prefix3", "2"),
             }, records);
         }
 
@@ -201,11 +201,11 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                DbRecord.GenerateStringRecord("Prefix", 4.ToString()),
-                DbRecord.GenerateStringRecord("Prefix0", "1"),
-                DbRecord.GenerateStringRecord("Prefix1", "9"),
-                DbRecord.GenerateStringRecord("Prefix2", "9"),
-                DbRecord.GenerateStringRecord("Prefix3", "2"),
+                new DbStringRecord("Prefix", 4.ToString()),
+                new DbStringRecord("Prefix0", "1"),
+                new DbStringRecord("Prefix1", "9"),
+                new DbStringRecord("Prefix2", "9"),
+                new DbStringRecord("Prefix3", "2"),
             }, records);
         }
 
@@ -217,13 +217,13 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                DbRecord.GenerateStringRecord("Prefix", 2.ToString()),
-                DbRecord.GenerateStringRecord("Prefix0", "True"),
-                DbRecord.GenerateStringRecord("Prefix0Name", "Tom"),
-                DbRecord.GenerateStringRecord("Prefix0Value", "1"),
-                DbRecord.GenerateStringRecord("Prefix1", "True"),
-                DbRecord.GenerateStringRecord("Prefix1Name", "Jerry"),
-                DbRecord.GenerateStringRecord("Prefix1Value", "2"),
+                new DbStringRecord("Prefix", 2.ToString()),
+                new DbStringRecord("Prefix0", "True"),
+                new DbStringRecord("Prefix0Name", "Tom"),
+                new DbStringRecord("Prefix0Value", "1"),
+                new DbStringRecord("Prefix1", "True"),
+                new DbStringRecord("Prefix1Name", "Jerry"),
+                new DbStringRecord("Prefix1Value", "2"),
             }, records);
         }
 
@@ -235,13 +235,13 @@
 
             CollectionAssert.AreEquivalent(new[]
             {
-                DbRecord.GenerateStringRecord("Prefix", 2.ToString()),
-                DbRecord.GenerateStringRecord("Prefix0", "1"),
-                DbRecord.GenerateStringRecord("Prefix1", "2"),
-                DbRecord.GenerateStringRecord("PlainEntity1", "True"),
-                DbRecord.GenerateStringRecord("PlainEntity1UserId", "1"),
-                DbRecord.GenerateStringRecord("PlainEntity2", "True"),
-                DbRecord.GenerateStringRecord("PlainEntity2UserId", "2"),
+                new DbStringRecord("Prefix", 2.ToString()),
+                new DbStringRecord("Prefix0", "1"),
+                new DbStringRecord("Prefix1", "2"),
+                new DbStringRecord("PlainEntity1", "True"),
+                new DbStringRecord("PlainEntity1UserId", "1"),
+                new DbStringRecord("PlainEntity2", "True"),
+                new DbStringRecord("PlainEntity2UserId", "2"),
             }, records);
         }
     }

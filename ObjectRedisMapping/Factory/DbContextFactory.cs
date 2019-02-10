@@ -53,12 +53,10 @@
             var entityKeyGenerator = new EntityKeyGenerator();
             var dbRecordBuilder = new DbRecordBuilder(typeRepo, entityKeyGenerator);
 
-            var dbRecordSubmitter = new DbRecordSubmitter(dbClient);
-
-            var proxyStub = new DynamicProxyStub(typeRepo, dbClient, dbRecordBuilder, entityKeyGenerator, dbRecordSubmitter);
+            var proxyStub = new DynamicProxyStub(typeRepo, dbClient, dbRecordBuilder, entityKeyGenerator);
             var proxyGenerator = new DynamicProxyGenerator(typeRepo, entityKeyGenerator, proxyStub, dbClient);
 
-            return new DbContext(typeRepo, dbRecordBuilder, dbRecordSubmitter, proxyGenerator);
+            return new DbContext(typeRepo, dbRecordBuilder, proxyGenerator, dbClient);
         }
 
         internal virtual TypeRepository CreateTypeRepo()

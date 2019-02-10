@@ -98,8 +98,8 @@
         /// <param name="dbRecordBuilder">The database record builder.</param>
         /// <param name="prefix">The prefix.</param>
         /// <param name="value">The object value.</param>
-        /// <returns></returns>
-        public virtual IEnumerable<DbRecord> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value)
+        /// <returns>A set of records which can be apply to database operation.</returns>
+        public virtual IEnumerable<IDbOperation> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value)
         {
             return dbRecordBuilder.GenerateStringRecord<T>(prefix, value);
         }

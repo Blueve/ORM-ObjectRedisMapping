@@ -29,11 +29,6 @@
         private readonly EntityKeyGenerator entityKeyGenerator;
 
         /// <summary>
-        /// The database record submitter.
-        /// </summary>
-        private readonly DbRecordSubmitter dbRecorderSubmitter;
-
-        /// <summary>
         /// Initialzie an instance of <see cref="DynamicProxyStub"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
@@ -44,14 +39,12 @@
             TypeRepository typeRepo,
             IDatabaseClient dbClient,
             IDbRecordBuilder dbRecordBuilder,
-            EntityKeyGenerator entityKeyGenerator,
-            DbRecordSubmitter dbRecordSubmitter)
+            EntityKeyGenerator entityKeyGenerator)
         {
             this.typeRepo = typeRepo;
             this.dbClient = dbClient;
             this.dbRecordBuilder = dbRecordBuilder;
             this.entityKeyGenerator = entityKeyGenerator;
-            this.dbRecorderSubmitter = dbRecordSubmitter;
         }
 
         /// <summary>
@@ -169,7 +162,7 @@
             {
                 // If value is not a proxy, then commit value as an entity and then update the DB reference.
                 var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, entityKey, value);
-                this.dbRecorderSubmitter.Commit(records);
+                records.AddOrUpdate(this.dbClient);
             }
             
             this.dbClient.StringSet(dbKey, entityKey);
@@ -220,7 +213,7 @@
         public void ObjectSetter<T>(string dbKey, T value)
         {
             var records = this.dbRecordBuilder.Generate<T>(value, dbKey);
-            this.dbRecorderSubmitter.Commit(records);
+            records.AddOrUpdate(this.dbClient);
         }
 
         public IEnumerable<T> EnumerableGetter<T>(string dbKey)

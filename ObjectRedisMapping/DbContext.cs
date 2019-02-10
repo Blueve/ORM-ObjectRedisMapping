@@ -18,32 +18,32 @@
         private readonly DbRecordBuilder dbRecordBuilder;
 
         /// <summary>
-        /// The database record submitter.
-        /// </summary>
-        private readonly DbRecordSubmitter dbRecordSubmitter;
-
-        /// <summary>
         /// The proxy generator.
         /// </summary>
         private readonly DynamicProxyGenerator proxyGenerator;
+
+        /// <summary>
+        /// The database client.
+        /// </summary>
+        private readonly IDatabaseClient dbClient;
 
         /// <summary>
         /// Initialize an instance of <see cref="DbContext"/>.
         /// </summary>
         /// <param name="typeRepository">The type repository.</param>
         /// <param name="dbRecordBuilder">The database record builder.</param>
-        /// <param name="dbRecordSubmitter">The database record submitter.</param>
         /// <param name="proxyGenerator">The proxy generator.</param>
+        /// <param name="dbClient">The database client.</param>
         internal DbContext(
             TypeRepository typeRepository,
             DbRecordBuilder dbRecordBuilder,
-            DbRecordSubmitter dbRecordSubmitter,
-            DynamicProxyGenerator proxyGenerator)
+            DynamicProxyGenerator proxyGenerator,
+            IDatabaseClient dbClient)
         {
             this.typeRepository = typeRepository;
             this.dbRecordBuilder = dbRecordBuilder;
-            this.dbRecordSubmitter = dbRecordSubmitter;
             this.proxyGenerator = proxyGenerator;
+            this.dbClient = dbClient;
         }
 
         /// <inheritdoc/>
@@ -70,7 +70,7 @@
             }
 
             var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, entity);
-            this.dbRecordSubmitter.Commit(records);
+            records.AddOrUpdate(this.dbClient);
         }
 
         /// <inheritdoc/>
