@@ -1,6 +1,7 @@
 ﻿namespace Blueve.ObjectRedisMapping.UnitTests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using Blueve.ObjectRedisMapping;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
@@ -231,6 +232,74 @@
         public void TestGenerate_PlainEntityArray()
         {
             var elems = new[] { new PlainEntity { UserId = "1" }, new PlainEntity { UserId = "2" } };
+            var records = this.builder.Generate(elems, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbStringRecord("Prefix", 2.ToString()),
+                new DbStringRecord("Prefix0", "1"),
+                new DbStringRecord("Prefix1", "2"),
+                new DbStringRecord("PlainEntity1", "True"),
+                new DbStringRecord("PlainEntity1UserId", "1"),
+                new DbStringRecord("PlainEntity2", "True"),
+                new DbStringRecord("PlainEntity2UserId", "2"),
+            }, records);
+        }
+
+        [TestMethod]
+        public void TestGenerate_PrimitiveList()
+        {
+            IList<int> elems = new List<int> { 1, 9, 9, 2 };
+            var records = this.builder.Generate(elems, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbStringRecord("Prefix", 4.ToString()),
+                new DbStringRecord("Prefix0", "1"),
+                new DbStringRecord("Prefix1", "9"),
+                new DbStringRecord("Prefix2", "9"),
+                new DbStringRecord("Prefix3", "2"),
+            }, records);
+        }
+
+        [TestMethod]
+        public void TestGenerate_StringList()
+        {
+            IList<string> elems = new List<string> { "1", "9", "9", "2" };
+            var records = this.builder.Generate(elems, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbStringRecord("Prefix", 4.ToString()),
+                new DbStringRecord("Prefix0", "1"),
+                new DbStringRecord("Prefix1", "9"),
+                new DbStringRecord("Prefix2", "9"),
+                new DbStringRecord("Prefix3", "2"),
+            }, records);
+        }
+
+        [TestMethod]
+        public void TestGenerate_PlainObjectList()
+        {
+            IList<PlainObject> elems = new List<PlainObject> { new PlainObject { Name = "Tom", Value = "1" }, new PlainObject { Name = "Jerry", Value = "2" } };
+            var records = this.builder.Generate(elems, "Prefix").ToArray();
+
+            CollectionAssert.AreEquivalent(new[]
+            {
+                new DbStringRecord("Prefix", 2.ToString()),
+                new DbStringRecord("Prefix0", "True"),
+                new DbStringRecord("Prefix0Name", "Tom"),
+                new DbStringRecord("Prefix0Value", "1"),
+                new DbStringRecord("Prefix1", "True"),
+                new DbStringRecord("Prefix1Name", "Jerry"),
+                new DbStringRecord("Prefix1Value", "2"),
+            }, records);
+        }
+
+        [TestMethod]
+        public void TestGenerate_PlainEntityList()
+        {
+            IList<PlainEntity> elems = new List<PlainEntity> { new PlainEntity { UserId = "1" }, new PlainEntity { UserId = "2" } };
             var records = this.builder.Generate(elems, "Prefix").ToArray();
 
             CollectionAssert.AreEquivalent(new[]

@@ -205,7 +205,7 @@
         }
 
         /// <summary>
-        /// The settre for object type.
+        /// The setter for object type.
         /// </summary>
         /// <typeparam name="T">The object type.</typeparam>
         /// <param name="dbKey">The database key.</param>
@@ -216,7 +216,13 @@
             records.AddOrUpdate(this.dbClient);
         }
 
-        public IEnumerable<T> EnumerableGetter<T>(string dbKey)
+        /// <summary>
+        /// The getter for list type.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="dbKey">The database key.</param>
+        /// <returns></returns>
+        public IList<T> ListGetter<T>(string dbKey)
         {
             if (!this.dbClient.KeyExists(dbKey))
             {

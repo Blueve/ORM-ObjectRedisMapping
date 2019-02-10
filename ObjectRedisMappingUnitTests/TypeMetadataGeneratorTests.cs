@@ -1,5 +1,6 @@
 ﻿namespace Blueve.ObjectRedisMapping.UnitTests
 {
+    using System.Collections.Generic;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -43,6 +44,24 @@
             var metadata = generator.Generate(typeof(PlainObject[])) as ListMetadata;
             Assert.AreEqual(typeof(PlainObject), metadata.InnerType);
             Assert.IsTrue(metadata.ReadOnly);
+        }
+
+        [TestMethod]
+        public void TestGenerate_PrimitiveList()
+        {
+            var generator = new TypeMetadataGenerator(false);
+            var metadata = generator.Generate(typeof(IList<int>)) as ListMetadata;
+            Assert.AreEqual(typeof(int), metadata.InnerType);
+            Assert.IsFalse(metadata.ReadOnly);
+        }
+
+        [TestMethod]
+        public void TestGenerate_PlainObjectList()
+        {
+            var generator = new TypeMetadataGenerator(false);
+            var metadata = generator.Generate(typeof(IList<PlainObject>)) as ListMetadata;
+            Assert.AreEqual(typeof(PlainObject), metadata.InnerType);
+            Assert.IsFalse(metadata.ReadOnly);
         }
     }
 }

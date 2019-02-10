@@ -112,7 +112,13 @@
             return this.GenerateForObjectInternal<T>(proxyTypeBuilder, typeMetadata, dbPrefix);
         }
 
-        public IList<T> GenerateForList<T>(string dbPrefix)
+        /// <summary>
+        /// Generate a proxy for the given list type.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="dbPrefix">The prefix of database key.</param>
+        /// <returns>The proxy.</returns>
+        public List<T> GenerateForList<T>(string dbPrefix)
         {
             if (!this.dbClient.KeyExists(dbPrefix))
             {

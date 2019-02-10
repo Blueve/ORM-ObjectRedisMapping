@@ -38,13 +38,15 @@
             this.assembly = new AssemblyName(Guid.NewGuid().ToString());
             this.assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(this.assembly, AssemblyBuilderAccess.Run);
             this.moduleBuilder = this.assemblyBuilder.DefineDynamicModule(ProxyModuleName);
-            this.typeBuilder = this.moduleBuilder.DefineType(type.FullName + ProxyModuleName, TypeAttributes.Public | TypeAttributes.Class, type);
+            this.typeBuilder = this.moduleBuilder.DefineType(
+                type.FullName + ProxyModuleName, TypeAttributes.Public | TypeAttributes.Class, type);
 
             // Implement IProxy for all proxy type.
             this.typeBuilder.AddInterfaceImplementation(typeof(IProxy));
 
             // Prepare dependency fields.
-            this.stubFieldBuilder = this.typeBuilder.DefineField(StubFieldName, typeof(IDatabaseClient), FieldAttributes.Private | FieldAttributes.InitOnly);
+            this.stubFieldBuilder = this.typeBuilder.DefineField(
+                StubFieldName, typeof(IDatabaseClient), FieldAttributes.Private | FieldAttributes.InitOnly);
 
             // Build a constructor and inject IDatabaseClient.
             var constructorBuilder = this.typeBuilder.DefineConstructor(

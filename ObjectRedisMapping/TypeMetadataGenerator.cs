@@ -1,6 +1,7 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -48,13 +49,22 @@
                 return new ListMetadata(type, type.Name, type.GetElementType(), true);
             }
 
-            // TODO: Deal the containerstype.
-            ////
+            if (type.IsGenericType && type.GetGenericTypeDefinition().Equals(typeof(IList<>)))
+            {
+                // The type is IList.
+                return new ListMetadata(type, type.Name, type.GetGenericArguments().Single(), false);
+            }
+
+            // TODO: Deal the container type.
+            //// IReadOnlyList, ISet.
 
             // Only count the virtual property.
             var properties = type
                 .GetProperties()
-                .Where(prop => prop.GetMethod.IsVirtual && prop.SetMethod.IsVirtual)
+                .Where(prop =>
+                    (prop.GetIndexParameters().Length == 0) &&
+                    (prop.GetMethod?.IsVirtual ?? false) &&
+                    (prop.SetMethod?.IsVirtual ?? false))
                 .ToArray();
             if (TryExtractKeyProperty(properties, out var key))
             {
