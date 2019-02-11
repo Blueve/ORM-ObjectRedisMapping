@@ -6,6 +6,7 @@
     using System.Linq;
     using System.Reflection;
     using System.Reflection.Emit;
+    using Blueve.ObjectRedisMapping.Proxy;
 
     /// <summary>
     /// The dynamic proxy generator.
@@ -85,7 +86,7 @@
 
             // Generate proxy for key property.
             var keyPropTypeMetadata = this.typeRepo.Get(typeMetadata.KeyProperty.PropertyType);
-            proxyTypeBuilder.OverrideProperty(typeMetadata.KeyProperty, keyPropTypeMetadata, string.Concat(dbKey, typeMetadata.KeyProperty.Name), true);
+            proxyTypeBuilder.InjectStub().CreateCtor().OverrideProperty(typeMetadata.KeyProperty, keyPropTypeMetadata, string.Concat(dbKey, typeMetadata.KeyProperty.Name), true);
             
             // Generate proxies for other properties.
             return this.GenerateForObjectInternal<T>(proxyTypeBuilder, typeMetadata, dbKey);
@@ -107,7 +108,7 @@
 
             var type = typeof(T);
             var typeMetadata = this.typeRepo.GetOrRegister(type) as ObjectMetadata;
-            var proxyTypeBuilder = new ProxyTypeBuilder(type);
+            var proxyTypeBuilder = new ProxyTypeBuilder(type).InjectStub().CreateCtor();
 
             return this.GenerateForObjectInternal<T>(proxyTypeBuilder, typeMetadata, dbPrefix);
         }
@@ -125,11 +126,18 @@
                 return default;
             }
 
-            var type = typeof(T);
+            var type = typeof(IList<T>);
             var typeMetadata = this.typeRepo.GetOrRegister(type) as ListMetadata;
-            var proxyTypeBuilder = new ProxyTypeBuilder(type);
+            var proxyTypeBuilder = new ProxyTypeBuilder(typeof(ListProxy<T>))
+                .OverrideElemMethods(this.typeRepo.GetOrRegister(typeMetadata.InnerType))
+                .InjectStub(typeof(ListProxy<T>).GetField("stub", BindingFlags.NonPublic | BindingFlags.Instance))
+                .CreateCtor<T>();
 
-            throw new NotImplementedException();
+            // Create the proxy type.
+            var proxyType = proxyTypeBuilder.CreateType();
+
+            // Create an instrance of the proxy.
+            return Activator.CreateInstance(proxyType, dbPrefix, this.dynamicProxyStub) as IList<T>;
         }
 
         /// <summary>
@@ -154,7 +162,7 @@
             // Create the proxy type.
             var proxyType = proxyTypeBuilder.CreateType();
 
-            // Create an instrance of the proxy, every object.
+            // Create an instrance of the proxy.
             return Activator.CreateInstance(proxyType, this.dynamicProxyStub) as T;
         }
     }

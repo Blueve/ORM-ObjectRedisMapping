@@ -8,24 +8,24 @@
     /// <summary>
     /// The abstract list proxy.
     /// </summary>
-    internal abstract class ListProxy<T> : IList<T>, IProxy
+    public abstract class ListProxy<T> : IList<T>, IProxy
     {
         /// <summary>
         /// Current prefix.
         /// </summary>
-        private readonly string prefix;
+        protected readonly string prefix;
 
         /// <summary>
         /// The dynamic proxy stub.
         /// </summary>
-        private readonly DynamicProxyStub stub;
+        protected readonly DynamicProxyStub stub;
 
         /// <summary>
         /// Initialize an instance of list proxy.
         /// </summary>
         /// <param name="prefix">The base prefix.</param>
         /// <param name="stub">The stub.</param>
-        protected ListProxy(
+        public ListProxy(
             string prefix,
             DynamicProxyStub stub)
         {
@@ -129,6 +129,16 @@
         }
 
         /// <summary>
+        /// Get the element database key.
+        /// </summary>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        protected string GetElemDbKey(int index)
+        {
+            return string.Concat(this.prefix, index.ToString());
+        }
+
+        /// <summary>
         /// Get the element which at the specificed index.
         /// </summary>
         /// <param name="index">The index number.</param>
@@ -139,6 +149,6 @@
         /// </summary>
         /// <param name="index">The index number.</param>
         /// <param name="value">The value.</param>
-        protected abstract void SetElemAt(int index, T value);
+        protected virtual void SetElemAt(int index, T value) { }
     }
 }

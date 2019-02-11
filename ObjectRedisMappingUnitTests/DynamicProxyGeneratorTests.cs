@@ -217,5 +217,35 @@
         {
             Assert.IsNull(this.generator.GenerateForObject<PlainObject>("Key"));
         }
+
+        [TestMethod]
+        public void TestGenerateForList_PrimitiveList()
+        {
+            this.db.Add("Prefix", "2");
+            this.db.Add("Prefix0", "1992");
+            this.db.Add("Prefix1", "2019");
+
+            var proxyList = this.generator.GenerateForList<int>("Prefix");
+            Assert.AreEqual(2, proxyList.Count);
+            Assert.AreEqual(1992, proxyList[0]);
+            Assert.AreEqual(2019, proxyList[1]);
+        }
+
+        [TestMethod]
+        public void TestGenerateForList_PrimitiveList_OutOfRange()
+        {
+            this.db.Add("Prefix", "0");
+
+            var proxyList = this.generator.GenerateForList<int>("Prefix");
+            Assert.AreEqual(0, proxyList.Count);
+            try
+            {
+                var elem = proxyList[0];
+                Assert.Fail();
+            }
+            catch(IndexOutOfRangeException)
+            {
+            }
+        }
     }
 }

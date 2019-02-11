@@ -6,6 +6,7 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using System.Text;
+    using Blueve.ObjectRedisMapping.Proxy;
 
     /// <summary>
     /// The proxy type builder.
@@ -24,7 +25,7 @@
         private readonly ModuleBuilder moduleBuilder;
         private readonly TypeBuilder typeBuilder;
 
-        private readonly FieldBuilder stubFieldBuilder;
+        private FieldInfo stubFieldInfo;
         private readonly ILGenerator ctorBuilder;
 
         /// <summary>
@@ -43,18 +44,66 @@
 
             // Implement IProxy for all proxy type.
             this.typeBuilder.AddInterfaceImplementation(typeof(IProxy));
+        }
 
-            // Prepare dependency fields.
-            this.stubFieldBuilder = this.typeBuilder.DefineField(
+        /// <summary>
+        /// Inject a proxy stub.
+        /// </summary>
+        /// <returns>The proxy type builder.</returns>
+        public ProxyTypeBuilder InjectStub()
+        {
+            this.stubFieldInfo = this.typeBuilder.DefineField(
                 StubFieldName, typeof(IDatabaseClient), FieldAttributes.Private | FieldAttributes.InitOnly);
 
+            return this;
+        }
+
+        /// <summary>
+        /// Inject an existing proxy stub.
+        /// </summary>
+        /// <param name="stubField">The existing stub field.</param>
+        /// <returns>The proxy type builder.</returns>
+        public ProxyTypeBuilder InjectStub(FieldInfo stubField)
+        {
+            this.stubFieldInfo = stubField;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Create a constructor for current type.
+        /// The constructor include one parameter 'stub' and will assign it to this._stub in it's implementation.
+        /// </summary>
+        /// <returns>The proxy type builder.</returns>
+        public ProxyTypeBuilder CreateCtor()
+        {
             // Build a constructor and inject IDatabaseClient.
             var constructorBuilder = this.typeBuilder.DefineConstructor(
                 MethodAttributes.Public,
                 CallingConventions.Standard,
                 new[] { typeof(DynamicProxyStub) });
             var constructorILGenerator = constructorBuilder.GetILGenerator();
-            GenerateConstructorIL(this.stubFieldBuilder, constructorILGenerator);
+            GenerateConstructorIL(this.stubFieldInfo, constructorILGenerator);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Create a constructor for container type.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <returns>The proxy type builder.</returns>
+        public ProxyTypeBuilder CreateCtor<T>()
+        {
+            // Build a constructor and inject IDatabaseClient.
+            var constructorBuilder = this.typeBuilder.DefineConstructor(
+                MethodAttributes.Public,
+                CallingConventions.Standard,
+                new[] { typeof(string), typeof(DynamicProxyStub) });
+            var constructorILGenerator = constructorBuilder.GetILGenerator();
+            GenerateCollectionConstructorIL<T>(this.stubFieldInfo, constructorILGenerator);
+
+            return this;
         }
 
         /// <summary>
@@ -91,7 +140,7 @@
             var setterILGenerator = setterBuilder.GetILGenerator();
 
             // Generate IL for getter.
-            GenerateGetterIL(this.stubFieldBuilder, propDbKey, propTypeMetadata, getterILGenerator, readOnly);
+            GenerateGetterIL(this.stubFieldInfo, propDbKey, propTypeMetadata, getterILGenerator, readOnly);
 
             // Generate IL for setter.
             if (readOnly)
@@ -100,12 +149,31 @@
             }
             else
             {
-                GenerateSetterIL(this.stubFieldBuilder, propDbKey, propTypeMetadata, setterILGenerator);
+                GenerateSetterIL(this.stubFieldInfo, propDbKey, propTypeMetadata, setterILGenerator);
             }
 
             // Binding to property.
             propertyBuilder.SetGetMethod(getterBuilder);
             propertyBuilder.SetSetMethod(setterBuilder);
+
+            return this;
+        }
+
+        /// <summary>
+        /// Override the GetElemAt/SetElemAt method.
+        /// </summary>
+        /// <param name="elemTypeMetadata">The element type.</param>
+        /// <returns>The proxy type builder.</returns>
+        public ProxyTypeBuilder OverrideElemMethods(
+            TypeMetadata elemTypeMetadata)
+        {
+            // Setup GetElemAt.
+            var getterBuilder = this.typeBuilder.DefineMethod(
+                "GetElemAt",
+                MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.ReuseSlot | MethodAttributes.Public,
+                elemTypeMetadata.Type,
+                new[] { typeof(int) });
+            GenerateGetElemAtIL(elemTypeMetadata, getterBuilder.GetILGenerator());
 
             return this;
         }
@@ -135,6 +203,23 @@
             ctorILGenerator.Emit(OpCodes.Ldarg_0);
             ctorILGenerator.Emit(OpCodes.Ldarg_1);
             ctorILGenerator.Emit(OpCodes.Stfld, stubField);
+            ctorILGenerator.Emit(OpCodes.Ret);
+        }
+
+        /// <summary>
+        /// Generate IL for the container type constructor.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="stubField">The proxy stub field</param>
+        /// <param name="ctorILGenerator">The constructor's IL generator.</param>
+        private static void GenerateCollectionConstructorIL<T>(
+            FieldInfo stubField,
+            ILGenerator ctorILGenerator)
+        {
+            ctorILGenerator.Emit(OpCodes.Ldarg_0);
+            ctorILGenerator.Emit(OpCodes.Ldarg_1);
+            ctorILGenerator.Emit(OpCodes.Ldarg_2);
+            ctorILGenerator.Emit(OpCodes.Call, typeof(ListProxy<T>).GetConstructor(new[] { typeof(string), typeof(DynamicProxyStub) }));
             ctorILGenerator.Emit(OpCodes.Ret);
         }
 
@@ -186,6 +271,31 @@
             // this._stub.?().
             ilGenerator.Emit(OpCodes.Ldarg_1);
             propMetadata.CallStubSetter(ilGenerator);
+
+            // return ?;
+            ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        /// <summary>
+        /// Generate IL for GetElemAt method.
+        /// </summary>
+        /// <param name="elemTypeMetadata">The element type metadata.</param>
+        /// <param name="ilGenerator">The method's IL generator.</param>
+        private static void GenerateGetElemAtIL(
+            TypeMetadata elemTypeMetadata,
+            ILGenerator ilGenerator)
+        {
+            // this._stub.
+            ilGenerator.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldfld, typeof(ListProxy<>).MakeGenericType(elemTypeMetadata.Type).GetField("stub", BindingFlags.NonPublic | BindingFlags.Instance));
+
+            // this.ElemPrefix(index).
+            ilGenerator.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            ilGenerator.Emit(OpCodes.Call, typeof(ListProxy<>).MakeGenericType(elemTypeMetadata.Type).GetMethod("GetElemDbKey", BindingFlags.NonPublic | BindingFlags.Instance));
+
+            // this._stub.?Getter(elemPrefix).
+            elemTypeMetadata.CallStubGetter(ilGenerator, false);
 
             // return ?;
             ilGenerator.Emit(OpCodes.Ret);
