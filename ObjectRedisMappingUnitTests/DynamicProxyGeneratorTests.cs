@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Blueve.ObjectRedisMapping;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -229,6 +230,8 @@
             Assert.AreEqual(2, proxyList.Count);
             Assert.AreEqual(1992, proxyList[0]);
             Assert.AreEqual(2019, proxyList[1]);
+
+            CollectionAssert.AreEqual(new[] { 1992, 2019 }, proxyList.ToArray());
         }
 
         [TestMethod]
@@ -246,6 +249,74 @@
             catch(IndexOutOfRangeException)
             {
             }
+        }
+
+        [TestMethod]
+        public void TestGenerateForList_StringList()
+        {
+            this.db.Add("Prefix", "2");
+            this.db.Add("Prefix0", "Tom");
+            this.db.Add("Prefix1", "Jerry");
+
+            var proxyList = this.generator.GenerateForList<string>("Prefix");
+            Assert.AreEqual(2, proxyList.Count);
+            Assert.AreEqual("Tom", proxyList[0]);
+            Assert.AreEqual("Jerry", proxyList[1]);
+
+            CollectionAssert.AreEqual(new[] { "Tom", "Jerry" }, proxyList.ToArray());
+        }
+
+        [TestMethod]
+        public void TestGenerateForList_PlainObjectList()
+        {
+            this.db.Add("Prefix", "2");
+            this.db.Add("Prefix0", "True");
+            this.db.Add("Prefix0Name", "Tom");
+            this.db.Add("Prefix1", "True");
+            this.db.Add("Prefix1Value", "18");
+
+            var proxyList = this.generator.GenerateForList<PlainObject>("Prefix");
+            Assert.AreEqual(2, proxyList.Count);
+            Assert.AreEqual("Tom", proxyList[0].Name);
+            Assert.AreEqual("18", proxyList[1].Value);
+        }
+
+        [TestMethod]
+        public void TestGenerateForList_PlainEntityList()
+        {
+            this.db.Add("Prefix", "2");
+            this.db.Add("Prefix0", "1");
+            this.db.Add("Prefix1", "2");
+            this.db.Add("PlainEntity1", "True");
+            this.db.Add("PlainEntity1UserId", "1");
+            this.db.Add("PlainEntity1UserName", "Tom");
+            this.db.Add("PlainEntity2", "True");
+            this.db.Add("PlainEntity2UserId", "2");
+            this.db.Add("PlainEntity2UserName", "Jerry");
+
+            var proxyList = this.generator.GenerateForList<PlainEntity>("Prefix");
+            Assert.AreEqual(2, proxyList.Count);
+            Assert.AreEqual("Tom", proxyList[0].UserName);
+            Assert.AreEqual("Jerry", proxyList[1].UserName);
+        }
+
+        [TestMethod]
+        public void TestGenerateForList_PrimitiveListList()
+        {
+            this.db.Add("Prefix", "2");
+            this.db.Add("Prefix0", "2");
+            this.db.Add("Prefix00", "1");
+            this.db.Add("Prefix01", "2");
+            this.db.Add("Prefix1", "2");
+            this.db.Add("Prefix10", "3");
+            this.db.Add("Prefix11", "4");
+
+            var proxyList = this.generator.GenerateForList<IList<int>>("Prefix");
+            Assert.AreEqual(2, proxyList.Count);
+            Assert.AreEqual(1, proxyList[0][0]);
+            Assert.AreEqual(2, proxyList[0][1]);
+            Assert.AreEqual(3, proxyList[1][0]);
+            Assert.AreEqual(4, proxyList[1][1]);
         }
     }
 }

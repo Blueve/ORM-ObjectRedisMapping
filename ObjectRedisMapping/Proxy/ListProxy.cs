@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Text;
 
     /// <summary>
@@ -89,13 +90,16 @@
         /// <inheritdoc/>
         public void CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            for (int iArr = arrayIndex, iList = 0; iList < this.Count; iArr++, iList++)
+            {
+                array[iArr] = this[iList];
+            }
         }
 
         /// <inheritdoc/>
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            return Enumerable.Range(0, this.Count).Select(i => this[i]).GetEnumerator();
         }
 
         /// <inheritdoc/>
