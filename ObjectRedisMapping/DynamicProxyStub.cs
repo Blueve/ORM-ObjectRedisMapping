@@ -232,5 +232,17 @@
             var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient);
             return proxyGenerator.GenerateForList<T>(dbKey);
         }
+
+        /// <summary>
+        /// The setter for list type.
+        /// </summary>
+        /// <typeparam name="T">The list type.</typeparam>
+        /// <param name="dbKey">The database key.</param>
+        /// <param name="value">The list or proxy of list.</param>
+        public void ListSetter<T>(string dbKey, T value)
+        {
+            var records = this.dbRecordBuilder.Generate<T>(value, dbKey);
+            records.AddOrUpdate(this.dbClient);
+        }
     }
 }

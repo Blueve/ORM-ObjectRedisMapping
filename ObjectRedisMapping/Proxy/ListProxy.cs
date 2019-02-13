@@ -39,7 +39,7 @@
         {
             get
             {
-                // TODO: User lock to handle the race condition.
+                // TODO: Use lock to handle the race condition.
                 if (index >= this.Count)
                 {
                     throw new IndexOutOfRangeException();
@@ -51,7 +51,7 @@
 
             set
             {
-                // TODO: User lock to handle the race condition.
+                // TODO: Use lock to handle the race condition.
                 if (index >= this.Count)
                 {
                     throw new IndexOutOfRangeException();
@@ -71,7 +71,7 @@
         /// <inheritdoc/>
         public void Add(T item)
         {
-            // TODO: User lock to handle the race condition.
+            // TODO: Use lock to handle the race condition.
             this.SetElemAt(this.Count, item);
         }
 
@@ -153,6 +153,6 @@
         /// </summary>
         /// <param name="index">The index number.</param>
         /// <param name="value">The value.</param>
-        protected virtual void SetElemAt(int index, T value) { }
+        protected abstract void SetElemAt(int index, T value);
     }
 }

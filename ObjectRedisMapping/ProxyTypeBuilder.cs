@@ -175,6 +175,14 @@
                 new[] { typeof(int) });
             GenerateGetElemAtIL(elemTypeMetadata, getterBuilder.GetILGenerator());
 
+            // Setup SetElemAt.
+            var setterBuilder = this.typeBuilder.DefineMethod(
+                "SetElemAt",
+                MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.ReuseSlot | MethodAttributes.Public,
+                null,
+                new[] { typeof(int), elemTypeMetadata.Type });
+            GenerateSetElemAtIL(elemTypeMetadata, setterBuilder.GetILGenerator());
+
             return this;
         }
 
@@ -268,7 +276,7 @@
             ilGenerator.Emit(OpCodes.Ldfld, stubField);
             ilGenerator.Emit(OpCodes.Ldstr, dbKey);
 
-            // this._stub.?().
+            // this._stub.?(value).
             ilGenerator.Emit(OpCodes.Ldarg_1);
             propMetadata.CallStubSetter(ilGenerator);
 
@@ -296,6 +304,32 @@
 
             // this._stub.?Getter(elemPrefix).
             elemTypeMetadata.CallStubGetter(ilGenerator, false);
+
+            // return ?;
+            ilGenerator.Emit(OpCodes.Ret);
+        }
+
+        /// <summary>
+        /// Generate IL for SetElemAt method.
+        /// </summary>
+        /// <param name="elemTypeMetadata"></param>
+        /// <param name="ilGenerator"></param>
+        private static void GenerateSetElemAtIL(
+            TypeMetadata elemTypeMetadata,
+            ILGenerator ilGenerator)
+        {
+            // this._stub.
+            ilGenerator.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldfld, typeof(ListProxy<>).MakeGenericType(elemTypeMetadata.Type).GetField("stub", BindingFlags.NonPublic | BindingFlags.Instance));
+
+            // this.ElemPrefix(index).
+            ilGenerator.Emit(OpCodes.Ldarg_0);
+            ilGenerator.Emit(OpCodes.Ldarg_1);
+            ilGenerator.Emit(OpCodes.Call, typeof(ListProxy<>).MakeGenericType(elemTypeMetadata.Type).GetMethod("GetElemDbKey", BindingFlags.NonPublic | BindingFlags.Instance));
+
+            // this._stub.?Setter(elemPrefix, value).
+            ilGenerator.Emit(OpCodes.Ldarg_2);
+            elemTypeMetadata.CallStubSetter(ilGenerator);
 
             // return ?;
             ilGenerator.Emit(OpCodes.Ret);

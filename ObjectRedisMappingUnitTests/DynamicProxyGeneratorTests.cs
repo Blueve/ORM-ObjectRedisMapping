@@ -232,6 +232,9 @@
             Assert.AreEqual(2019, proxyList[1]);
 
             CollectionAssert.AreEqual(new[] { 1992, 2019 }, proxyList.ToArray());
+
+            proxyList[0] = 1993;
+            Assert.AreEqual("1993", this.db["Prefix0"]);
         }
 
         [TestMethod]
@@ -264,6 +267,9 @@
             Assert.AreEqual("Jerry", proxyList[1]);
 
             CollectionAssert.AreEqual(new[] { "Tom", "Jerry" }, proxyList.ToArray());
+
+            proxyList[0] = "Speike";
+            Assert.AreEqual("Speike", this.db["Prefix0"]);
         }
 
         [TestMethod]
@@ -279,6 +285,9 @@
             Assert.AreEqual(2, proxyList.Count);
             Assert.AreEqual("Tom", proxyList[0].Name);
             Assert.AreEqual("18", proxyList[1].Value);
+
+            proxyList[0] = new PlainObject { Name = "Speike" };
+            Assert.AreEqual("Speike", this.db["Prefix0Name"]);
         }
 
         [TestMethod]
@@ -298,6 +307,12 @@
             Assert.AreEqual(2, proxyList.Count);
             Assert.AreEqual("Tom", proxyList[0].UserName);
             Assert.AreEqual("Jerry", proxyList[1].UserName);
+
+            proxyList[0] = new PlainEntity { UserId = "3", UserName = "Speike" };
+            Assert.AreEqual("3", this.db["Prefix0"]);
+            Assert.AreEqual("True", this.db["PlainEntity3"]);
+            Assert.AreEqual("3", this.db["PlainEntity3UserId"]);
+            Assert.AreEqual("Speike", this.db["PlainEntity3UserName"]);
         }
 
         [TestMethod]
@@ -317,6 +332,11 @@
             Assert.AreEqual(2, proxyList[0][1]);
             Assert.AreEqual(3, proxyList[1][0]);
             Assert.AreEqual(4, proxyList[1][1]);
+
+            proxyList[1][1] = 99;
+            proxyList[0][1] = 98;
+            Assert.AreEqual("98", this.db["Prefix01"]);
+            Assert.AreEqual("99", this.db["Prefix11"]);
         }
     }
 }
