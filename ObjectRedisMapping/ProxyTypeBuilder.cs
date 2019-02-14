@@ -165,7 +165,8 @@
         /// <param name="elemTypeMetadata">The element type.</param>
         /// <returns>The proxy type builder.</returns>
         public ProxyTypeBuilder OverrideElemMethods(
-            TypeMetadata elemTypeMetadata)
+            TypeMetadata elemTypeMetadata,
+            bool readOnly)
         {
             // Setup GetElemAt.
             var getterBuilder = this.typeBuilder.DefineMethod(
@@ -173,7 +174,7 @@
                 MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.ReuseSlot | MethodAttributes.Public,
                 elemTypeMetadata.Type,
                 new[] { typeof(int) });
-            GenerateGetElemAtIL(elemTypeMetadata, getterBuilder.GetILGenerator());
+            GenerateGetElemAtIL(elemTypeMetadata, getterBuilder.GetILGenerator(), readOnly);
 
             // Setup SetElemAt.
             var setterBuilder = this.typeBuilder.DefineMethod(
@@ -181,7 +182,14 @@
                 MethodAttributes.Virtual | MethodAttributes.HideBySig | MethodAttributes.ReuseSlot | MethodAttributes.Public,
                 null,
                 new[] { typeof(int), elemTypeMetadata.Type });
-            GenerateSetElemAtIL(elemTypeMetadata, setterBuilder.GetILGenerator());
+            if (readOnly)
+            {
+                GenerateNotAvailableSetterIL(setterBuilder.GetILGenerator());
+            }
+            else
+            {
+                GenerateSetElemAtIL(elemTypeMetadata, setterBuilder.GetILGenerator());
+            }
 
             return this;
         }
@@ -244,7 +252,7 @@
             string dbKey,
             TypeMetadata propMetadata,
             ILGenerator ilGenerator,
-            bool readOnly = false)
+            bool readOnly)
         {
             // this._stub.
             ilGenerator.Emit(OpCodes.Ldarg_0);
@@ -289,9 +297,11 @@
         /// </summary>
         /// <param name="elemTypeMetadata">The element type metadata.</param>
         /// <param name="ilGenerator">The method's IL generator.</param>
+        /// <param name="readOnly">True if the property is readonly.</param>
         private static void GenerateGetElemAtIL(
             TypeMetadata elemTypeMetadata,
-            ILGenerator ilGenerator)
+            ILGenerator ilGenerator,
+            bool readOnly)
         {
             // this._stub.
             ilGenerator.Emit(OpCodes.Ldarg_0);
@@ -303,7 +313,7 @@
             ilGenerator.Emit(OpCodes.Call, typeof(ListProxy<>).MakeGenericType(elemTypeMetadata.Type).GetMethod("GetElemDbKey", BindingFlags.NonPublic | BindingFlags.Instance));
 
             // this._stub.?Getter(elemPrefix).
-            elemTypeMetadata.CallStubGetter(ilGenerator, false);
+            elemTypeMetadata.CallStubGetter(ilGenerator, readOnly);
 
             // return ?;
             ilGenerator.Emit(OpCodes.Ret);

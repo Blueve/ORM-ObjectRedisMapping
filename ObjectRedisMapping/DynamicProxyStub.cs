@@ -234,6 +234,23 @@
         }
 
         /// <summary>
+        /// The readonly getter for list type.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="dbKey">The database key.</param>
+        /// <returns></returns>
+        public IList<T> ReadOnlyListGetter<T>(string dbKey)
+        {
+            if (!this.dbClient.KeyExists(dbKey))
+            {
+                return default;
+            }
+
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient, true);
+            return proxyGenerator.GenerateForList<T>(dbKey);
+        }
+
+        /// <summary>
         /// The setter for list type.
         /// </summary>
         /// <typeparam name="T">The list type.</typeparam>

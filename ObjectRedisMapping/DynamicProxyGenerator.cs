@@ -129,7 +129,7 @@
             var type = typeof(IList<T>);
             var typeMetadata = this.typeRepo.GetOrRegister(type) as ListMetadata;
             var proxyTypeBuilder = new ProxyTypeBuilder(typeof(ListProxy<T>))
-                .OverrideElemMethods(this.typeRepo.GetOrRegister(typeMetadata.InnerType))
+                .OverrideElemMethods(this.typeRepo.GetOrRegister(typeMetadata.InnerType), this.Readonly)
                 .InjectStub(typeof(ListProxy<T>).GetField("stub", BindingFlags.NonPublic | BindingFlags.Instance))
                 .CreateCtor<T>();
 

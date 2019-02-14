@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
@@ -225,6 +226,57 @@
             this.stub.ObjectSetter("DbKey", obj);
             Assert.AreEqual("UserName", this.db["DbKeyName"]);
             Assert.AreEqual("Blueve", this.db["DbKeyValue"]);
+        }
+
+        [TestMethod]
+        public void TestListGetter_PrimitiveList()
+        {
+            this.db["DbKey"] = "2";
+            this.db["DbKey0"] = "1992";
+            this.db["DbKey1"] = "2019";
+
+            var list = this.stub.ListGetter<int>("DbKey");
+            CollectionAssert.AreEqual(new[] { 1992, 2019 }, list.ToArray());
+        }
+
+        [TestMethod]
+        public void TestReadOnlyListGetter_PrimitiveList()
+        {
+            this.db["DbKey"] = "2";
+            this.db["DbKey0"] = "1992";
+            this.db["DbKey1"] = "2019";
+
+            var list = this.stub.ReadOnlyListGetter<int>("DbKey");
+            CollectionAssert.AreEqual(new[] { 1992, 2019 }, list.ToArray());
+
+            try
+            {
+                list[0] = 1993;
+                Assert.Fail();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+
+            try
+            {
+                list.Add(1993);
+                Assert.Fail();
+            }
+            catch (InvalidOperationException)
+            {
+            }
+        }
+
+        [TestMethod]
+        public void TestListSetter_PrimitiveList()
+        {
+            IList<int> list = new[] { 1992, 2019 };
+
+            this.stub.ListSetter("DbKey", list);
+            Assert.AreEqual("2", this.db["DbKey"]);
+            Assert.AreEqual("1992", this.db["DbKey0"]);
+            Assert.AreEqual("2019", this.db["DbKey1"]);
         }
     }
 }

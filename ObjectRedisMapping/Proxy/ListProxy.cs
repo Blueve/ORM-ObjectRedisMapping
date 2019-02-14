@@ -73,6 +73,7 @@
         {
             // TODO: Use lock to handle the race condition.
             this.SetElemAt(this.Count, item);
+            this.stub.Int32Setter(this.prefix, this.Count + 1);
         }
 
         /// <inheritdoc/>
