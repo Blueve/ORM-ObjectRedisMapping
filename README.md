@@ -21,15 +21,17 @@ Store to Redis
 var person1 = new Person
 {
     Name = "Tom",
-    Age = 18
+    Age = 18,
+    Fellows = new List<Person>()
 };
 var person2 = new Person
 {
     Name = "Jerry",
     Age = 10
+    Fellows = new List<Person>()
 };
-person1.Partner = person2;
-person2.Partner = person1;
+person1.Fellows.Add(person2);
+person2.Fellows.Add(person1);
 
 dbContext.Save<Person>(person1);
 
@@ -37,11 +39,13 @@ dbContext.Save<Person>(person1);
 // PersonTom -> True
 // PersonTomName -> Tom
 // PersonTomeAge -> 18
-// PersonTomPartner -> Jerry
+// PersonTomFellows -> 1
+// PersonTomFellows0 -> Jerry
 // PersonJerry -> True
 // PersonJerryName -> Jerry
 // PersonJerryAge -> 10
-// PersonJerryPartner -> Tom
+// PersonJerryFellows -> 1
+// PersonJerryFellows0 -> Tom
 ```
 
 Fetch from Redis
@@ -49,16 +53,18 @@ Fetch from Redis
 var person = dbContext.Find<Person>("Tom");
 Console.WriteLine(person.Partern.Name); // Jerry
 Console.WriteLine(person.Partern.Age); // 10
-Console.WriteLine(person.Partern.Partern.Name); // Tom
-Console.WriteLine(person.Partern.Partern.Name); // 18
+Console.WriteLine(person.Fellows[0].Name); // Tom
+Console.WriteLine(person.Fellows[0].Fellows[0].Age); // 18
 ```
 
 Update in place by a dynmic proxy
 ```csharp
-var person = dbContext.Find<Person>("Jerry");
-person.Age = 18;
+var person = dbContext.Find<Person>("Tom");
+person.Age = 19;
+person.Fellows[0].Age = 11;
 
 // Redis
+// PersonTomAge -> 11
 // PersonJerryAge -> 18
 ```
 

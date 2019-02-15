@@ -76,7 +76,7 @@
                 OpCodes.Call,
                 typeof(DynamicProxyStub)
                     .GetMethods()
-                    .First(m => m.Name.Equals(this.StubSetterMethodName)).MakeGenericMethod(this.InnerType));
+                    .First(m => m.Name.Equals(this.StubSetterMethodName)).MakeGenericMethod(this.Type, this.InnerType));
         }
 
         /// <inheritdoc/>

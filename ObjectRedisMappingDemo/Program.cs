@@ -17,25 +17,27 @@
             // Commit an entity.
             var person = new Person
             {
-                Id = 1,
-                Name = "Blueve",
-                Age = 27
+                Name = "Tom",
+                Age = 18,
+                Fellows = new List<Person>()
             };
-            Console.WriteLine("Commit a Person{ Id=1, Name=Blueve, Age=27 } to database");
+            Console.WriteLine("Commit a Person{ Name=Blueve, Age=27 } to database");
             dbContext.Save(person);
             PrintDbStatus(redisEmulator.Explain());
 
             Console.WriteLine("Get the person from DB");
-            person = dbContext.Find<Person>(person.Id.ToString());
+            person = dbContext.Find<Person>(person.Name);
 
-            Console.WriteLine("The person get married with Person{ Id=2, Name=Ada, Age=26 }");
-            person.Partner = new Person
-            {
-                Id = 2,
-                Name = "Ada",
-                Age = 26
+            Console.WriteLine("The person get married with Person{ Name=Ada, Age=26 }");
+            person.Fellows = new[] {
+                new Person
+                {
+                    Name = "Jerry",
+                    Age = 10,
+                    Fellows = new List<Person>()
+        }
             };
-            person.Partner.Partner = person;
+            person.Fellows[0].Fellows.Add(person);
             PrintDbStatus(redisEmulator.Explain());
 
             Console.ReadKey();

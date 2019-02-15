@@ -76,6 +76,17 @@
         }
 
         [TestMethod]
+        public void TestRegister_PrimitiveList()
+        {
+            this.repo.Register(typeof(IList<int>));
+            var metadata = this.repo.Get(typeof(IList<int>)) as ListMetadata;
+
+            Assert.IsNotNull(metadata);
+            Assert.AreEqual(ObjectValueType.List, metadata.ValueType);
+            Assert.AreEqual(typeof(int), metadata.InnerType);
+        }
+
+        [TestMethod]
         public void TestRegister_KeyIsEntity_InvalidEntity()
         {
             try
@@ -86,6 +97,16 @@
             catch (ArgumentException)
             {
             }
+        }
+
+        [TestMethod]
+        public void TestRegister_KeyIncludeList_Entity()
+        {
+            this.repo.Register(typeof(KeyIncludeList_Entity));
+            var metadata = this.repo.Get(typeof(KeyIncludeList_Entity)) as EntityMetadata;
+
+            Assert.IsNotNull(metadata);
+            Assert.AreEqual(typeof(ListObject), metadata.KeyProperty.PropertyType);
         }
 
         [TestMethod]

@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using Blueve.ObjectRedisMapping;
-    using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
 

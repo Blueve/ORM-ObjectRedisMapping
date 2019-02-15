@@ -273,7 +273,18 @@
         {
             IList<int> list = new[] { 1992, 2019 };
 
-            this.stub.ListSetter("DbKey", list);
+            this.stub.ListSetter<IList<int>, int>("DbKey", list);
+            Assert.AreEqual("2", this.db["DbKey"]);
+            Assert.AreEqual("1992", this.db["DbKey0"]);
+            Assert.AreEqual("2019", this.db["DbKey1"]);
+        }
+
+        [TestMethod]
+        public void TestListSetter_PrimitiveList_Array()
+        {
+            var list = new[] { 1992, 2019 };
+
+            this.stub.ListSetter<IList<int>, int>("DbKey", list);
             Assert.AreEqual("2", this.db["DbKey"]);
             Assert.AreEqual("1992", this.db["DbKey0"]);
             Assert.AreEqual("2019", this.db["DbKey1"]);

@@ -256,9 +256,11 @@
         /// <typeparam name="T">The list type.</typeparam>
         /// <param name="dbKey">The database key.</param>
         /// <param name="value">The list or proxy of list.</param>
-        public void ListSetter<T>(string dbKey, T value)
+        public void ListSetter<T, TElem>(string dbKey, T value)
+            where T : IList<TElem>
         {
-            var records = this.dbRecordBuilder.Generate<T>(value, dbKey);
+            var list = value as IList<TElem>;
+            var records = this.dbRecordBuilder.Generate<IList<TElem>>(list, dbKey);
             records.AddOrUpdate(this.dbClient);
         }
     }
