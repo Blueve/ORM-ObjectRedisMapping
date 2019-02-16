@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using StackExchange.Redis;
 
 namespace Blueve.ObjectRedisMapping
 {
@@ -30,7 +31,7 @@ namespace Blueve.ObjectRedisMapping
         }
 
         /// <inheritdoc/>
-        public void AddOrUpdate(IDatabaseClient db)
+        public void AddOrUpdate(IDatabase db)
         {
             db.StringSet(this.Key, this.Value);
         }

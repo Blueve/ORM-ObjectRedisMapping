@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using StackExchange.Redis;
 
     /// <summary>
     /// The stub of dynamic proxy.
@@ -16,7 +17,7 @@
         /// <summary>
         /// The database client.
         /// </summary>
-        private readonly IDatabaseClient dbClient;
+        private readonly IDatabase dbClient;
 
         /// <summary>
         /// The database record builder.
@@ -37,7 +38,7 @@
         /// <param name="entityKeyGenerator">The entity key generator.</param>
         internal DynamicProxyStub(
             TypeRepository typeRepo,
-            IDatabaseClient dbClient,
+            IDatabase dbClient,
             IDbRecordBuilder dbRecordBuilder,
             EntityKeyGenerator entityKeyGenerator)
         {

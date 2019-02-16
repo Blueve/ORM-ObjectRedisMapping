@@ -7,6 +7,7 @@
     using System.Reflection;
     using System.Reflection.Emit;
     using Blueve.ObjectRedisMapping.Proxy;
+    using StackExchange.Redis;
 
     /// <summary>
     /// The dynamic proxy generator.
@@ -31,7 +32,7 @@
         /// <summary>
         /// The database client.
         /// </summary>
-        private readonly IDatabaseClient dbClient;
+        private readonly IDatabase dbClient;
 
         /// <summary>
         /// True if the proxy from the getter is readonly.
@@ -50,7 +51,7 @@
             TypeRepository typeRepo,
             EntityKeyGenerator entityKeyGenerator,
             DynamicProxyStub dynamicProxyStub,
-            IDatabaseClient dbClient,
+            IDatabase dbClient,
             bool isReadonly = false)
         {
             this.typeRepo = typeRepo;

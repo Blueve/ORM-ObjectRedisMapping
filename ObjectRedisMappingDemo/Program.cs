@@ -29,14 +29,14 @@
             person = dbContext.Find<Person>(person.Name);
 
             Console.WriteLine("The person get married with Person{ Name=Ada, Age=26 }");
-            person.Fellows = new[] {
+            person.Fellows.Add(
                 new Person
                 {
                     Name = "Jerry",
                     Age = 10,
                     Fellows = new List<Person>()
-        }
-            };
+                }
+            );
             person.Fellows[0].Fellows.Add(person);
             PrintDbStatus(redisEmulator.Explain());
 

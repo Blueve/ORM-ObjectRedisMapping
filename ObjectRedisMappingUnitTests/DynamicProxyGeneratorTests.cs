@@ -7,6 +7,7 @@
     using Blueve.ObjectRedisMapping.UnitTests.Model;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
+    using StackExchange.Redis;
 
     /// <summary>
     /// Test the <see cref="DynamicProxyGenerator"/>.
@@ -15,7 +16,7 @@
     public class DynamicProxyGeneratorTests
     {
         private Dictionary<string, string> db;
-        private Mock<IDatabaseClient> dbClient;
+        private Mock<IDatabase> dbClient;
         private DbRecordBuilder dbRecordBuilder;
         private EntityKeyGenerator keyGenerator;
         private DynamicProxyStub stub;
@@ -25,16 +26,20 @@
         public void Initialize()
         {
             this.db = new Dictionary<string, string>();
-            this.dbClient = new Mock<IDatabaseClient>();
+            this.dbClient = new Mock<IDatabase>();
             this.dbClient
-                .Setup(accessor => accessor.StringSet(It.IsAny<string>(), It.IsAny<string>()))
-                .Callback<string, string>((k, v) => this.db[k] = v);
+                .Setup(accessor => accessor.StringSet(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), null, When.Always, CommandFlags.None))
+                .Returns<RedisKey, RedisValue, TimeSpan?, When, CommandFlags>((k, v, t, w, c) =>
+                {
+                    this.db[k] = v;
+                    return true;
+                });
             this.dbClient
-                .Setup(accessor => accessor.StringGet(It.IsAny<string>()))
-                .Returns<string>(k => this.db[k]);
+                .Setup(accessor => accessor.StringGet(It.IsAny<RedisKey>(), CommandFlags.None))
+                .Returns<RedisKey, CommandFlags>((k, c) => this.db[k]);
             this.dbClient
-                .Setup(accessor => accessor.KeyExists(It.IsAny<string>()))
-                .Returns<string>(k => this.db.ContainsKey(k));
+                .Setup(accessor => accessor.KeyExists(It.IsAny<RedisKey>(), CommandFlags.None))
+                .Returns<RedisKey, CommandFlags>((k, c) => this.db.ContainsKey(k));
 
             var typeRepo = new TypeRepository(new TypeMetadataGenerator(false));
 

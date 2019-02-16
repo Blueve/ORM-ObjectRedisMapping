@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using StackExchange.Redis;
 
     /// <summary>
     /// The extension of database operation.
@@ -15,7 +16,7 @@
         /// </summary>
         /// <param name="records">The records.</param>
         /// <param name="db">The database client.</param>
-        public static void AddOrUpdate(this IEnumerable<IDbOperation> records, IDatabaseClient db)
+        public static void AddOrUpdate(this IEnumerable<IDbOperation> records, IDatabase db)
         {
             foreach (var record in records)
             {

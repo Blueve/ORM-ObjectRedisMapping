@@ -1,6 +1,7 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
     using System;
+    using StackExchange.Redis;
 
     /// <summary>
     /// The database context.
@@ -25,7 +26,7 @@
         /// <summary>
         /// The database client.
         /// </summary>
-        private readonly IDatabaseClient dbClient;
+        private readonly IDatabase dbClient;
 
         /// <summary>
         /// Initialize an instance of <see cref="DbContext"/>.
@@ -38,7 +39,7 @@
             TypeRepository typeRepository,
             DbRecordBuilder dbRecordBuilder,
             DynamicProxyGenerator proxyGenerator,
-            IDatabaseClient dbClient)
+            IDatabase dbClient)
         {
             this.typeRepository = typeRepository;
             this.dbRecordBuilder = dbRecordBuilder;

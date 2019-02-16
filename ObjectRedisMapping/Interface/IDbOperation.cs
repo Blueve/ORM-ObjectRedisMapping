@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using StackExchange.Redis;
 
     /// <summary>
     /// The interface of database operation.
@@ -13,6 +14,6 @@
         /// Add or update the database.
         /// </summary>
         /// <param name="db">The database client.</param>
-        void AddOrUpdate(IDatabaseClient db);
+        void AddOrUpdate(IDatabase db);
     }
 }
