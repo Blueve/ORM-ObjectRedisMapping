@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ObjectRedisMapping\ObjectRedisMapping.csproj" />
+    <ProjectReference Include="..\RedisEmulator\RedisEmulator.csproj" />
   </ItemGroup>
 
 </Project>

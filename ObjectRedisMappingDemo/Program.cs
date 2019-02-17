@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using Blueve.ObjectRedisMapping;
+    using Blueve.RedisEmulator;
     using ObjectRedisMappingDemo.Model;
 
     public static class Program

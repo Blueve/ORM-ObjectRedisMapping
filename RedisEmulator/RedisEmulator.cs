@@ -1,4 +1,4 @@
-﻿namespace ObjectRedisMappingDemo
+﻿namespace Blueve.RedisEmulator
 {
     using System;
     using System.Collections.Generic;
@@ -7,14 +7,14 @@
     using System.Threading.Tasks;
     using StackExchange.Redis;
 
-    internal class RedisEmulator : IDatabase
+    public class RedisEmulator : IDatabase
     {
         private readonly ISet<string> keys = new HashSet<string>();
         private readonly IDictionary<string, string> stringDict = new Dictionary<string, string>();
 
-        public int Database => throw new NotImplementedException();
+        public int Database => default(int);
 
-        public IConnectionMultiplexer Multiplexer => throw new NotImplementedException();
+        public IConnectionMultiplexer Multiplexer => throw new NotSupportedException();
 
         public IBatch CreateBatch(object asyncState = null)
         {
@@ -28,12 +28,12 @@
 
         public RedisValue DebugObject(RedisKey key, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<RedisValue> DebugObjectAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public RedisResult Execute(string command, params object[] args)
@@ -60,118 +60,118 @@
         {
             foreach (var kv in this.stringDict.OrderBy(kv => kv.Key))
             {
-                yield return $"{kv.Key,-30}: {kv.Value}";
+                yield return $"{kv.Key, -30}: {kv.Value}";
             }
         }
 
         public bool GeoAdd(RedisKey key, double longitude, double latitude, RedisValue member, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public bool GeoAdd(RedisKey key, GeoEntry value, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public long GeoAdd(RedisKey key, GeoEntry[] values, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<bool> GeoAddAsync(RedisKey key, double longitude, double latitude, RedisValue member, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<bool> GeoAddAsync(RedisKey key, GeoEntry value, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<long> GeoAddAsync(RedisKey key, GeoEntry[] values, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public double? GeoDistance(RedisKey key, RedisValue member1, RedisValue member2, GeoUnit unit = GeoUnit.Meters, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<double?> GeoDistanceAsync(RedisKey key, RedisValue member1, RedisValue member2, GeoUnit unit = GeoUnit.Meters, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public string[] GeoHash(RedisKey key, RedisValue[] members, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public string GeoHash(RedisKey key, RedisValue member, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<string[]> GeoHashAsync(RedisKey key, RedisValue[] members, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<string> GeoHashAsync(RedisKey key, RedisValue member, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public GeoPosition?[] GeoPosition(RedisKey key, RedisValue[] members, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public GeoPosition? GeoPosition(RedisKey key, RedisValue member, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<GeoPosition?[]> GeoPositionAsync(RedisKey key, RedisValue[] members, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<GeoPosition?> GeoPositionAsync(RedisKey key, RedisValue member, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public GeoRadiusResult[] GeoRadius(RedisKey key, RedisValue member, double radius, GeoUnit unit = GeoUnit.Meters, int count = -1, Order? order = null, GeoRadiusOptions options = GeoRadiusOptions.Default, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public GeoRadiusResult[] GeoRadius(RedisKey key, double longitude, double latitude, double radius, GeoUnit unit = GeoUnit.Meters, int count = -1, Order? order = null, GeoRadiusOptions options = GeoRadiusOptions.Default, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<GeoRadiusResult[]> GeoRadiusAsync(RedisKey key, RedisValue member, double radius, GeoUnit unit = GeoUnit.Meters, int count = -1, Order? order = null, GeoRadiusOptions options = GeoRadiusOptions.Default, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<GeoRadiusResult[]> GeoRadiusAsync(RedisKey key, double longitude, double latitude, double radius, GeoUnit unit = GeoUnit.Meters, int count = -1, Order? order = null, GeoRadiusOptions options = GeoRadiusOptions.Default, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public bool GeoRemove(RedisKey key, RedisValue member, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public Task<bool> GeoRemoveAsync(RedisKey key, RedisValue member, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public long HashDecrement(RedisKey key, RedisValue hashField, long value = 1, CommandFlags flags = CommandFlags.None)
@@ -1566,17 +1566,17 @@
 
         public RedisValue[] StringGet(RedisKey[] keys, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return keys.Select(key => (RedisValue)this.stringDict[key]).ToArray();
         }
 
         public Task<RedisValue> StringGetAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(this.StringGet(key));
         }
 
         public Task<RedisValue[]> StringGetAsync(RedisKey[] keys, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(this.StringGet(keys));
         }
 
         public bool StringGetBit(RedisKey key, long offset, CommandFlags flags = CommandFlags.None)
@@ -1651,12 +1651,12 @@
 
         public long StringLength(RedisKey key, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return this.stringDict[key].Length;
         }
 
         public Task<long> StringLengthAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(this.StringLength(key));
         }
 
         public bool StringSet(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CommandFlags flags = CommandFlags.None)
@@ -1667,17 +1667,22 @@
 
         public bool StringSet(KeyValuePair<RedisKey, RedisValue>[] values, When when = When.Always, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            foreach (var value in values)
+            {
+                this.StringSet(value.Key, value.Value);
+            }
+
+            return true;
         }
 
         public Task<bool> StringSetAsync(RedisKey key, RedisValue value, TimeSpan? expiry = null, When when = When.Always, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(this.StringSet(key, value));
         }
 
         public Task<bool> StringSetAsync(KeyValuePair<RedisKey, RedisValue>[] values, When when = When.Always, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(this.StringSet(values));
         }
 
         public bool StringSetBit(RedisKey key, long offset, bool bit, CommandFlags flags = CommandFlags.None)
