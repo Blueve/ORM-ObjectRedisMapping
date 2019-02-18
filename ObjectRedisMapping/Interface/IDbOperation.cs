@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using System.Threading.Tasks;
     using StackExchange.Redis;
 
     /// <summary>
@@ -14,6 +15,6 @@
         /// Add or update the database.
         /// </summary>
         /// <param name="db">The database client.</param>
-        void AddOrUpdate(IDatabase db);
+        Task AddOrUpdate(IDatabaseAsync db);
     }
 }

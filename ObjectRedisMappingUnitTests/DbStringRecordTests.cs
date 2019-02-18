@@ -2,7 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Blueve.ObjectRedisMapping;
+    using Blueve.RedisEmulator;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Moq;
     using StackExchange.Redis;
@@ -13,28 +15,23 @@
     [TestClass]
     public class DbStringRecordTests
     {
-        private Mock<IDatabase> dbClient;
-        private IDictionary<string, string> dict;
+        private RedisDatabase db;
 
         [TestInitialize]
         public void Initialize()
         {
-            this.dbClient = new Mock<IDatabase>();
-            this.dict = new Dictionary<string, string>();
-            this.dbClient
-                .Setup(accessor => accessor.StringSet(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), null, When.Always, CommandFlags.None))
-                .Callback<RedisKey, RedisValue, TimeSpan?, When, CommandFlags>((k, v, t, w, c) => this.dict.TryAdd(k.ToString(), v.ToString()));
+            this.db = new RedisDatabase();
         }
 
         [DataTestMethod]
         [DataRow("DbKey", "DbValue")]
         [DataRow("DbKey", "")]
-        public void TestCommit_StringRecord(string key, string value)
+        public async Task TestCommit_StringRecord(string key, string value)
         {
             var record = new DbStringRecord(key, value);
-            record.AddOrUpdate(this.dbClient.Object);
+            await record.AddOrUpdate(this.db);
 
-            Assert.AreEqual(value, this.dict[key]);
+            Assert.AreEqual(value, this.db.StringGet(key).ToString());
         }
     }
 }

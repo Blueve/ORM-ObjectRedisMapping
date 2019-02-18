@@ -7,7 +7,7 @@
     using System.Threading.Tasks;
     using StackExchange.Redis;
 
-    public class RedisEmulator : IDatabase
+    public class RedisDatabase : IDatabase
     {
         private readonly ISet<string> keys = new HashSet<string>();
         private readonly IDictionary<string, string> stringDict = new Dictionary<string, string>();
@@ -18,7 +18,7 @@
 
         public IBatch CreateBatch(object asyncState = null)
         {
-            throw new NotImplementedException();
+            return new Batch(this);
         }
 
         public ITransaction CreateTransaction(object asyncState = null)

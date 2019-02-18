@@ -11,7 +11,7 @@
         public static void Main(string[] args)
         {
             // Get a database context.
-            var redisEmulator = new RedisEmulator();
+            var redisEmulator = new RedisDatabase();
             var dcContextFactory = new DbContextFactory();
             var dbContext = dcContextFactory.Create(redisEmulator);
 

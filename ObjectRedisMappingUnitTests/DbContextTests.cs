@@ -1,11 +1,9 @@
 ﻿namespace Blueve.ObjectRedisMapping.UnitTests
 {
     using System;
-    using System.Collections.Generic;
     using Blueve.ObjectRedisMapping.UnitTests.Model;
+    using Blueve.RedisEmulator;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using Moq;
-    using StackExchange.Redis;
 
     /// <summary>
     /// Test the <see cref="DbContext"/>.
@@ -13,27 +11,15 @@
     [TestClass]
     public class DbContextTests
     {
-        private Dictionary<string, string> db;
-        private Mock<IDatabase> dbClient;
+        private RedisDatabase db;
         private IDbContext dbContext;
 
         [TestInitialize]
         public void Initialize()
         {
-            this.db = new Dictionary<string, string>();
-            this.dbClient = new Mock<IDatabase>();
-            this.dbClient
-                .Setup(accessor => accessor.StringSet(It.IsAny<RedisKey>(), It.IsAny<RedisValue>(), null, When.Always, CommandFlags.None))
-                .Callback<RedisKey, RedisValue, TimeSpan?, When, CommandFlags>((k, v, t, w, c) => this.db[k] = v);
-            this.dbClient
-                .Setup(accessor => accessor.StringGet(It.IsAny<RedisKey>(), CommandFlags.None))
-                .Returns<RedisKey, CommandFlags>((k, c) => this.db[k]);
-            this.dbClient
-                .Setup(accessor => accessor.KeyExists(It.IsAny<RedisKey>(), CommandFlags.None))
-                .Returns<RedisKey, CommandFlags>((k, c) => this.db.ContainsKey(k));
-
             var factory = new DbContextFactory();
-            this.dbContext = factory.Create(this.dbClient.Object);
+            this.db = new RedisDatabase();
+            this.dbContext = factory.Create(this.db);
         }
 
         [TestMethod]
@@ -46,7 +32,7 @@
             };
 
             this.dbContext.Save(entity);
-            Assert.AreEqual("Blueve", this.db["PlainEntity1UserName"]);
+            Assert.AreEqual("Blueve", this.db.StringGet("PlainEntity1UserName").ToString());
         }
 
         [TestMethod]
@@ -71,9 +57,9 @@
         [TestMethod]
         public void TestFind_PlainEntity()
         {
-            this.db.Add("PlainEntity1", "True");
-            this.db.Add("PlainEntity1UserId", "1");
-            this.db.Add("PlainEntity1UserName", "Blueve");
+            this.db.StringSet("PlainEntity1", "True");
+            this.db.StringSet("PlainEntity1UserId", "1");
+            this.db.StringSet("PlainEntity1UserName", "Blueve");
 
             var entity = this.dbContext.Find<PlainEntity>("1");
             Assert.AreEqual("Blueve", entity.UserName);

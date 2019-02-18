@@ -1,8 +1,9 @@
-﻿using System.Diagnostics;
-using StackExchange.Redis;
-
-namespace Blueve.ObjectRedisMapping
+﻿namespace Blueve.ObjectRedisMapping
 {
+    using System.Diagnostics;
+    using System.Threading.Tasks;
+    using StackExchange.Redis;
+
     /// <summary>
     /// The database string record.
     /// </summary>
@@ -31,9 +32,9 @@ namespace Blueve.ObjectRedisMapping
         }
 
         /// <inheritdoc/>
-        public void AddOrUpdate(IDatabase db)
+        public async Task AddOrUpdate(IDatabaseAsync db)
         {
-            db.StringSet(this.Key, this.Value);
+            await db.StringSetAsync(this.Key, this.Value);
         }
     }
 }

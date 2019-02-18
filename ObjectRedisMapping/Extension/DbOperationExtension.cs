@@ -18,10 +18,13 @@
         /// <param name="db">The database client.</param>
         public static void AddOrUpdate(this IEnumerable<IDbOperation> records, IDatabase db)
         {
+            var batch = db.CreateBatch();
             foreach (var record in records)
             {
-                record.AddOrUpdate(db);
+                record.AddOrUpdate(batch);
             }
+
+            batch.Execute();
         }
     }
 }

@@ -12,6 +12,7 @@
               </Include>
               <Exclude>
                 <ModulePath>.*Blueve\..*Tests.dll$</ModulePath>
+                <ModulePath>.*Blueve\.RedisEmulator.dll$</ModulePath>
               </Exclude>
             </ModulePaths>
             <Attributes>
