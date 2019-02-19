@@ -15,11 +15,6 @@
         private readonly TypeRepository typeRepo;
 
         /// <summary>
-        /// The database client.
-        /// </summary>
-        private readonly IDatabase dbClient;
-
-        /// <summary>
         /// The database record builder.
         /// </summary>
         private readonly IDbRecordBuilder dbRecordBuilder;
@@ -28,6 +23,11 @@
         /// The entity key generator.
         /// </summary>
         private readonly EntityKeyGenerator entityKeyGenerator;
+
+        /// <summary>
+        /// The database client.
+        /// </summary>
+        internal readonly IDatabase dbClient;
 
         /// <summary>
         /// Initialzie an instance of <see cref="DynamicProxyStub"/>.

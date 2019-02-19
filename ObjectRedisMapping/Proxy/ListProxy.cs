@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// The abstract list proxy.
@@ -71,9 +72,25 @@
         /// <inheritdoc/>
         public void Add(T item)
         {
-            // TODO: Use lock to handle the race condition.
-            this.SetElemAt(this.Count, item);
-            this.stub.Int32Setter(this.prefix, this.Count + 1);
+            // TODO: Below is the lock's property.
+            var lockKey = $"lock:{this.prefix}";
+            var mutex = Guid.NewGuid().ToString();
+
+            try
+            {
+                while (!this.stub.dbClient.LockTake(lockKey, mutex, TimeSpan.FromMinutes(1)))
+                {
+                    Task.Delay(TimeSpan.FromMilliseconds(500));
+                }
+
+                // Still need transaction.
+                this.SetElemAt(this.Count, item);
+                this.stub.Int32Setter(this.prefix, this.Count + 1);
+            }
+            finally
+            {
+                this.stub.dbClient.LockRelease(lockKey, mutex);
+            }
         }
 
         /// <inheritdoc/>

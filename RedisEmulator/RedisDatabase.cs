@@ -23,7 +23,7 @@
 
         public ITransaction CreateTransaction(object asyncState = null)
         {
-            throw new NotImplementedException();
+            return new Transaction(this);
         }
 
         public RedisValue DebugObject(RedisKey key, CommandFlags flags = CommandFlags.None)
@@ -751,7 +751,7 @@
 
         public bool LockRelease(RedisKey key, RedisValue value, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public Task<bool> LockReleaseAsync(RedisKey key, RedisValue value, CommandFlags flags = CommandFlags.None)
@@ -761,7 +761,7 @@
 
         public bool LockTake(RedisKey key, RedisValue value, TimeSpan expiry, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return true;
         }
 
         public Task<bool> LockTakeAsync(RedisKey key, RedisValue value, TimeSpan expiry, CommandFlags flags = CommandFlags.None)
