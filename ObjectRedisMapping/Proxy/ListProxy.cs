@@ -40,26 +40,30 @@
         {
             get
             {
-                // TODO: Use lock to handle the race condition.
-                if (index >= this.Count)
+                using (var mutex = Lock.Take(this.stub.dbClient, this.prefix))
                 {
-                    throw new IndexOutOfRangeException();
-                }
+                    if (index >= this.Count)
+                    {
+                        throw new IndexOutOfRangeException();
+                    }
 
-                // Override following logic by using emit.
-                return this.GetElemAt(index);
+                    // Override following logic by using emit.
+                    return this.GetElemAt(index);
+                }
             }
 
             set
             {
-                // TODO: Use lock to handle the race condition.
-                if (index >= this.Count)
+                using (var mutex = Lock.Take(this.stub.dbClient, this.prefix))
                 {
-                    throw new IndexOutOfRangeException();
-                }
+                    if (index >= this.Count)
+                    {
+                        throw new IndexOutOfRangeException();
+                    }
 
-                // Override following logic by using emit.
-                this.SetElemAt(index, value);
+                    // Override following logic by using emit.
+                    this.SetElemAt(index, value);
+                }
             }
         }
 
@@ -72,24 +76,10 @@
         /// <inheritdoc/>
         public void Add(T item)
         {
-            // TODO: Below is the lock's property.
-            var lockKey = $"lock:{this.prefix}";
-            var mutex = Guid.NewGuid().ToString();
-
-            try
+            using (var mutex = Lock.Take(this.stub.dbClient, this.prefix))
             {
-                while (!this.stub.dbClient.LockTake(lockKey, mutex, TimeSpan.FromMinutes(1)))
-                {
-                    Task.Delay(TimeSpan.FromMilliseconds(500));
-                }
-
-                // Still need transaction.
                 this.SetElemAt(this.Count, item);
                 this.stub.Int32Setter(this.prefix, this.Count + 1);
-            }
-            finally
-            {
-                this.stub.dbClient.LockRelease(lockKey, mutex);
             }
         }
 
