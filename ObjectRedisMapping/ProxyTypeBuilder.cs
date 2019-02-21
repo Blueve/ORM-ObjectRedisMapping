@@ -53,7 +53,7 @@
         public ProxyTypeBuilder InjectStub()
         {
             this.stubFieldInfo = this.typeBuilder.DefineField(
-                StubFieldName, typeof(IDatabaseClient), FieldAttributes.Private | FieldAttributes.InitOnly);
+                StubFieldName, typeof(DynamicProxyStub), FieldAttributes.Private | FieldAttributes.InitOnly);
 
             return this;
         }

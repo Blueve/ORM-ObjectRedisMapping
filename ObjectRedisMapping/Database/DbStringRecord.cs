@@ -36,5 +36,11 @@
         {
             await db.StringSetAsync(this.Key, this.Value);
         }
+
+        /// <inheritdoc/>
+        public async Task Remove(IDatabaseAsync db)
+        {
+            await db.KeyDeleteAsync(this.Key);
+        }
     }
 }

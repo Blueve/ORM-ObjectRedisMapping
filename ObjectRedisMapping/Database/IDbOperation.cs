@@ -16,5 +16,11 @@
         /// </summary>
         /// <param name="db">The database client.</param>
         Task AddOrUpdate(IDatabaseAsync db);
+
+        /// <summary>
+        /// Remove from database.
+        /// </summary>
+        /// <param name="db">The database client.</param>
+        Task Remove(IDatabaseAsync db);
     }
 }

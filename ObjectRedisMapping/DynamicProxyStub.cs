@@ -222,7 +222,7 @@
         /// </summary>
         /// <typeparam name="T">The element type.</typeparam>
         /// <param name="dbKey">The database key.</param>
-        /// <returns></returns>
+        /// <returns>The proxy of list.</returns>
         public IList<T> ListGetter<T>(string dbKey)
         {
             if (!this.dbClient.KeyExists(dbKey))
@@ -239,7 +239,7 @@
         /// </summary>
         /// <typeparam name="T">The element type.</typeparam>
         /// <param name="dbKey">The database key.</param>
-        /// <returns></returns>
+        /// <returns>The proxy of list which all property are readonly.</returns>
         public IList<T> ReadOnlyListGetter<T>(string dbKey)
         {
             if (!this.dbClient.KeyExists(dbKey))
