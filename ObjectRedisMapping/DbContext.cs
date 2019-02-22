@@ -1,6 +1,8 @@
 ﻿namespace Blueve.ObjectRedisMapping
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using StackExchange.Redis;
 
     /// <summary>
@@ -64,14 +66,7 @@
         public void Save<T>(T entity)
             where T : class
         {
-            var typeMetadata = this.typeRepository.GetOrRegister(typeof(T));
-            if (typeMetadata.ValueType != ObjectValueType.Entity)
-            {
-                throw new InvalidOperationException($"The type {typeMetadata.Name} is not an entity type.");
-            }
-
-            var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, entity);
-            records.AddOrUpdate(this.dbClient);
+            this.DoOperations<T>(entity, r => r.AddOrUpdate(this.dbClient));
         }
 
         /// <inheritdoc/>
@@ -83,7 +78,22 @@
         /// <inheritdoc/>
         public void Remove<T>(T entity) where T : class
         {
-            throw new NotImplementedException();
+            this.DoOperations<T>(entity, r => r.Remove(this.dbClient));
+        }
+
+        private void DoOperations<T>(T entity, Action<IDbOperation> action)
+        {
+            var typeMetadata = this.typeRepository.GetOrRegister(typeof(T));
+            if (typeMetadata.ValueType != ObjectValueType.Entity)
+            {
+                throw new InvalidOperationException($"The type {typeMetadata.Name} is not an entity type.");
+            }
+
+            var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, entity);
+            foreach (var record in records)
+            {
+                action(record);
+            }
         }
     }
 }
