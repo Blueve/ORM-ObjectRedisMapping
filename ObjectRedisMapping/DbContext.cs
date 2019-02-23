@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using StackExchange.Redis;
 
     /// <summary>
@@ -78,10 +79,12 @@
         /// <inheritdoc/>
         public void Remove<T>(T entity) where T : class
         {
-            this.DoOperations<T>(entity, r => r.Remove(this.dbClient));
+            var batch = this.dbClient.CreateBatch();
+            this.DoOperations<T>(entity, r => r.Remove(batch));
+            batch.Execute();
         }
 
-        private void DoOperations<T>(T entity, Action<IDbOperation> action)
+        private void DoOperations<T>(T entity, Func<IDbOperation, Task> action)
         {
             var typeMetadata = this.typeRepository.GetOrRegister(typeof(T));
             if (typeMetadata.ValueType != ObjectValueType.Entity)
@@ -90,10 +93,13 @@
             }
 
             var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, entity);
+            var tasks = new List<Task>();
             foreach (var record in records)
             {
-                action(record);
+                tasks.Add(action(record));
             }
+
+            Task.WaitAll(tasks.ToArray());
         }
     }
 }

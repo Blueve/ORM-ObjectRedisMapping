@@ -421,7 +421,7 @@
 
         public bool KeyDelete(RedisKey key, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return this.keys.Remove(key) && this.stringDict.Remove(key);
         }
 
         public long KeyDelete(RedisKey[] keys, CommandFlags flags = CommandFlags.None)
@@ -431,7 +431,7 @@
 
         public Task<bool> KeyDeleteAsync(RedisKey key, CommandFlags flags = CommandFlags.None)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(this.KeyDelete(key));
         }
 
         public Task<long> KeyDeleteAsync(RedisKey[] keys, CommandFlags flags = CommandFlags.None)
