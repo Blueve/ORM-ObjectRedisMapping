@@ -18,7 +18,6 @@
     {
         private RedisDatabase db;
         private DbRecordBuilder dbRecordBuilder;
-        private EntityKeyGenerator keyGenerator;
         private DynamicProxyStub stub;
         private DynamicProxyGenerator generator;
 
@@ -29,10 +28,9 @@
 
             var typeRepo = new TypeRepository(new TypeMetadataGenerator(false));
 
-            this.keyGenerator = new EntityKeyGenerator();
-            this.dbRecordBuilder = new DbRecordBuilder(typeRepo, this.keyGenerator);
-            this.stub = new DynamicProxyStub(typeRepo, this.db, this.dbRecordBuilder, this.keyGenerator);
-            this.generator = new DynamicProxyGenerator(typeRepo, this.keyGenerator, this.stub, this.db);
+            this.dbRecordBuilder = new DbRecordBuilder(typeRepo);
+            this.stub = new DynamicProxyStub(typeRepo, this.db, this.dbRecordBuilder);
+            this.generator = new DynamicProxyGenerator(typeRepo, this.stub, this.db);
         }
 
         [TestMethod]

@@ -19,7 +19,7 @@
         public void Initialize()
         {
             var typeRepo = new TypeRepository(new TypeMetadataGenerator(false));
-            this.builder = new DbRecordBuilder(typeRepo, new EntityKeyGenerator());
+            this.builder = new DbRecordBuilder(typeRepo);
         }
 
         [TestMethod]

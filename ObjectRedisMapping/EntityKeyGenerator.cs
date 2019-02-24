@@ -5,7 +5,7 @@
     /// <summary>
     /// The entity database key generator.
     /// </summary>
-    internal class EntityKeyGenerator
+    internal static class EntityKeyGenerator
     {
         /// <summary>
         /// Gets the database key of an entity.
@@ -13,7 +13,7 @@
         /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entityKey">The entity key.</param>
         /// <returns>The database key.</returns>
-        public string GetDbKey(EntityMetadata typeMetadata, string entityKey)
+        public static string GetDbKey(EntityMetadata typeMetadata, string entityKey)
         {
             return string.Concat(typeMetadata.Name, entityKey);
         }
@@ -24,9 +24,9 @@
         /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entity">The value of entity.</param>
         /// <returns>The database key.</returns>
-        public string GetDbKey(EntityMetadata typeMetadata, object entity)
+        public static string GetDbKey(EntityMetadata typeMetadata, object entity)
         {
-            return this.GetDbKey(typeMetadata, this.GetEntityKey(typeMetadata, entity));
+            return GetDbKey(typeMetadata, GetEntityKey(typeMetadata, entity));
         }
 
         /// <summary>
@@ -35,7 +35,7 @@
         /// <param name="typeMetadata">The type metadata of entity.</param>
         /// <param name="entity">The value of entity.</param>
         /// <returns>The entity key.</returns>
-        public string GetEntityKey(EntityMetadata typeMetadata, object entity)
+        public static string GetEntityKey(EntityMetadata typeMetadata, object entity)
         {
             var key = typeMetadata.KeyProperty.GetValue(entity);
 

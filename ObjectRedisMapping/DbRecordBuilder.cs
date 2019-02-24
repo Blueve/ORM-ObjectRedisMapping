@@ -17,21 +17,12 @@
         private readonly TypeRepository typeRepo;
 
         /// <summary>
-        /// The entity key generator.
-        /// </summary>
-        private readonly EntityKeyGenerator entityKeyGenerator;
-
-        /// <summary>
         /// Initialize an instance of <see cref="DbRecordBuilder"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
-        /// <param name="entityKeyGenerator">The entity key generator.</param>
-        public DbRecordBuilder(
-            TypeRepository typeRepo,
-            EntityKeyGenerator entityKeyGenerator)
+        public DbRecordBuilder(TypeRepository typeRepo)
         {
             this.typeRepo = typeRepo;
-            this.entityKeyGenerator = entityKeyGenerator;
         }
 
         /// <inheritdoc/>
@@ -72,8 +63,8 @@
                 switch (curTypeMetadata)
                 {
                     case EntityMetadata entityType:
-                        var entityKey = this.entityKeyGenerator.GetDbKey(entityType, curValue);
-                        var entityKeyValue = this.entityKeyGenerator.GetEntityKey(entityType, curValue);
+                        var entityKey = EntityKeyGenerator.GetDbKey(entityType, curValue);
+                        var entityKeyValue = EntityKeyGenerator.GetEntityKey(entityType, curValue);
 
                         // For added entity, just record the reference.
                         if (curName != null)

@@ -20,11 +20,6 @@
         private readonly IDbRecordBuilder dbRecordBuilder;
 
         /// <summary>
-        /// The entity key generator.
-        /// </summary>
-        private readonly EntityKeyGenerator entityKeyGenerator;
-
-        /// <summary>
         /// The database client.
         /// </summary>
         internal readonly IDatabase dbClient;
@@ -35,17 +30,14 @@
         /// <param name="typeRepo">The type repository.</param>
         /// <param name="dbClient">The database client.</param>
         /// <param name="dbRecordBuilder">The database record builder.</param>
-        /// <param name="entityKeyGenerator">The entity key generator.</param>
         internal DynamicProxyStub(
             TypeRepository typeRepo,
             IDatabase dbClient,
-            IDbRecordBuilder dbRecordBuilder,
-            EntityKeyGenerator entityKeyGenerator)
+            IDbRecordBuilder dbRecordBuilder)
         {
             this.typeRepo = typeRepo;
             this.dbClient = dbClient;
             this.dbRecordBuilder = dbRecordBuilder;
-            this.entityKeyGenerator = entityKeyGenerator;
         }
 
         /// <summary>
@@ -143,7 +135,7 @@
             }
 
             var entityKey = this.dbClient.StringGet(dbKey);
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this, this.dbClient);
             return proxyGenerator.GenerateForEntity<T>(entityKey);
         }
 
@@ -157,7 +149,7 @@
             where T : class
         {
             var typeMetadata = this.typeRepo.GetOrRegister(typeof(T)) as EntityMetadata;
-            var entityKey = this.entityKeyGenerator.GetEntityKey(typeMetadata, value);
+            var entityKey = EntityKeyGenerator.GetEntityKey(typeMetadata, value);
 
             if (!(value is IProxy))
             {
@@ -183,7 +175,7 @@
                 return default;
             }
 
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this, this.dbClient);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 
@@ -201,7 +193,7 @@
                 return default;
             }
 
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient, true);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this, this.dbClient, true);
             return proxyGenerator.GenerateForObject<T>(dbKey);
         }
 
@@ -230,7 +222,7 @@
                 return default;
             }
 
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this, this.dbClient);
             return proxyGenerator.GenerateForList<T>(dbKey);
         }
 
@@ -247,7 +239,7 @@
                 return default;
             }
 
-            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this.entityKeyGenerator, this, this.dbClient, true);
+            var proxyGenerator = new DynamicProxyGenerator(this.typeRepo, this, this.dbClient, true);
             return proxyGenerator.GenerateForList<T>(dbKey);
         }
 

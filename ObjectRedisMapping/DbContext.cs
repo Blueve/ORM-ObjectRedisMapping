@@ -73,7 +73,16 @@
         /// <inheritdoc/>
         public void Remove<T>(string key) where T : class
         {
-            throw new NotImplementedException();
+            var entity = this.Find<T>(key);
+            if (entity == null)
+            {
+                return;
+            }
+
+            // TODO: Shell the proxy entity then we can generate full records for it.
+            var batch = this.dbClient.CreateBatch();
+            this.DoOperations<T>(entity, r => r.Remove(batch));
+            batch.Execute();
         }
 
         /// <inheritdoc/>

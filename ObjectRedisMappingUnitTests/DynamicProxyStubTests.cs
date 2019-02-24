@@ -17,7 +17,6 @@
     {
         private RedisDatabase db;
         private DbRecordBuilder dbRecordBuilder;
-        private EntityKeyGenerator keyGenerator;
         private DynamicProxyStub stub;
 
         [TestInitialize]
@@ -27,9 +26,8 @@
 
             var typeRepo = new TypeRepository(new TypeMetadataGenerator(false));
 
-            this.keyGenerator = new EntityKeyGenerator();
-            this.dbRecordBuilder = new DbRecordBuilder(typeRepo, this.keyGenerator);
-            this.stub = new DynamicProxyStub(typeRepo, this.db, this.dbRecordBuilder, this.keyGenerator);
+            this.dbRecordBuilder = new DbRecordBuilder(typeRepo);
+            this.stub = new DynamicProxyStub(typeRepo, this.db, this.dbRecordBuilder);
         }
 
         [TestMethod]

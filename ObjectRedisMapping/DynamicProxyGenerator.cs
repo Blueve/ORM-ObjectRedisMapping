@@ -20,11 +20,6 @@
         private readonly TypeRepository typeRepo;
 
         /// <summary>
-        /// The entity key generator.
-        /// </summary>
-        private readonly EntityKeyGenerator entityKeyGenerator;
-
-        /// <summary>
         /// The dynamic proxy stub.
         /// </summary>
         private readonly DynamicProxyStub dynamicProxyStub;
@@ -43,19 +38,16 @@
         /// Initialize an instance of <see cref="DynamicProxyGenerator"/>.
         /// </summary>
         /// <param name="typeRepo">The type repository.</param>
-        /// <param name="entityKeyGenerator">The entity key generator.</param>
         /// <param name="dynamicProxyStub">The dynamic proxy stub.</param>
         /// <param name="dbClient">The database client.</param>
         /// <param name="isReadonly">True if the proxy from the getter is readonly.</param>
         public DynamicProxyGenerator(
             TypeRepository typeRepo,
-            EntityKeyGenerator entityKeyGenerator,
             DynamicProxyStub dynamicProxyStub,
             IDatabase dbClient,
             bool isReadonly = false)
         {
             this.typeRepo = typeRepo;
-            this.entityKeyGenerator = entityKeyGenerator;
             this.dynamicProxyStub = dynamicProxyStub;
             this.dbClient = dbClient;
             this.Readonly = isReadonly;
@@ -79,7 +71,7 @@
 
             var proxyTypeBuilder = new ProxyTypeBuilder(type);
 
-            var dbKey = this.entityKeyGenerator.GetDbKey(typeMetadata, entityKey);
+            var dbKey = EntityKeyGenerator.GetDbKey(typeMetadata, entityKey);
             if (!this.dbClient.KeyExists(dbKey))
             {
                 return default(T);

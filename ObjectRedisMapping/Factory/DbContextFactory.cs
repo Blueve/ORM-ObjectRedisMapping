@@ -39,11 +39,10 @@
         {
             var typeRepo = this.CreateTypeRepo();
 
-            var entityKeyGenerator = new EntityKeyGenerator();
-            var dbRecordBuilder = new DbRecordBuilder(typeRepo, entityKeyGenerator);
+            var dbRecordBuilder = new DbRecordBuilder(typeRepo);
 
-            var proxyStub = new DynamicProxyStub(typeRepo, database, dbRecordBuilder, entityKeyGenerator);
-            var proxyGenerator = new DynamicProxyGenerator(typeRepo, entityKeyGenerator, proxyStub, database);
+            var proxyStub = new DynamicProxyStub(typeRepo, database, dbRecordBuilder);
+            var proxyGenerator = new DynamicProxyGenerator(typeRepo, proxyStub, database);
 
             return new DbContext(typeRepo, dbRecordBuilder, proxyGenerator, database);
         }
