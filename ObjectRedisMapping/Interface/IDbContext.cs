@@ -33,5 +33,13 @@
         /// <typeparam name="T">The type of entity.</typeparam>
         /// <param name="entity">The proxy of entity or entity.</param>
         void Remove<T>(T entity) where T : class;
+
+        /// <summary>
+        /// Unpack a proxy entity.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entity"></param>
+        /// <returns></returns>
+        T Unpack<T>(T entity) where T : class;
     }
 }

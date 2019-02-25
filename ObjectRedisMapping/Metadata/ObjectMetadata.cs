@@ -78,9 +78,9 @@
         }
 
         /// <inheritdoc/>
-        public override IEnumerable<IDbOperation> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value)
+        public override IEnumerable<IDbOperation> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value, bool generateRefForProxy = true)
         {
-            return dbRecordBuilder.GenerateObjectRecord(prefix, value, this);
+            return dbRecordBuilder.GenerateObjectRecord(prefix, value, this, generateRefForProxy);
         }
     }
 }

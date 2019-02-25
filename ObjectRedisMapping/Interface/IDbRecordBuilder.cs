@@ -31,7 +31,8 @@
         /// <param name="prefix">The prefix.</param>
         /// <param name="obj">The object.</param>
         /// <param name="typeMetadata">The type metadata of the object.</param>
+        /// <param name="generateRefForProxy">Generate reference for entity if this value set to true.</param>
         /// <returns>The records.</returns>
-        IEnumerable<IDbOperation> GenerateObjectRecord(string prefix, object obj, TypeMetadata typeMetadata);
+        IEnumerable<IDbOperation> GenerateObjectRecord(string prefix, object obj, TypeMetadata typeMetadata, bool generateRefForProxy = true);
     }
 }

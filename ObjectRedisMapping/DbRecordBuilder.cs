@@ -40,7 +40,7 @@
         }
 
         /// <inheritdoc/>
-        public IEnumerable<IDbOperation> GenerateObjectRecord(string prefix, object obj, TypeMetadata typeMetadata)
+        public IEnumerable<IDbOperation> GenerateObjectRecord(string prefix, object obj, TypeMetadata typeMetadata, bool generateRefForProxy = true)
         {
             // Traverse the property tree by using DFS.
             // This implemention is for better performance in case some object have too much layers.
@@ -72,7 +72,7 @@
                             yield return new DbStringRecord(curPrefix, entityKeyValue);
                         }
                         
-                        if (!visitedEntities.Contains(entityKey) && !(curValue is IProxy))
+                        if (!visitedEntities.Contains(entityKey) && !(curValue is IProxy && generateRefForProxy))
                         {
                             // For new entity, add it to records.
                             visitedEntities.Add(entityKey);

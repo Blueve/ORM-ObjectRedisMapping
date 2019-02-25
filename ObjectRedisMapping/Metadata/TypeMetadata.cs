@@ -98,8 +98,9 @@
         /// <param name="dbRecordBuilder">The database record builder.</param>
         /// <param name="prefix">The prefix.</param>
         /// <param name="value">The object value.</param>
+        /// <param name="generateRefForProxy">Generate reference for entity if this value set to true.</param>
         /// <returns>A set of records which can be apply to database operation.</returns>
-        public virtual IEnumerable<IDbOperation> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value)
+        public virtual IEnumerable<IDbOperation> GenerateDbRecords<T>(IDbRecordBuilder dbRecordBuilder, string prefix, T value, bool generateRefForProxy = true)
         {
             return dbRecordBuilder.GenerateStringRecord<T>(prefix, value);
         }

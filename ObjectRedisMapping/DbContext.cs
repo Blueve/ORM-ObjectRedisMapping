@@ -93,6 +93,12 @@
             batch.Execute();
         }
 
+        /// <inheritdoc/>
+        public T Unpack<T>(T entity) where T : class
+        {
+            throw new NotImplementedException();
+        }
+
         private void DoOperations<T>(T entity, Func<IDbOperation, Task> action)
         {
             var typeMetadata = this.typeRepository.GetOrRegister(typeof(T));
@@ -101,7 +107,7 @@
                 throw new InvalidOperationException($"The type {typeMetadata.Name} is not an entity type.");
             }
 
-            var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, entity);
+            var records = typeMetadata.GenerateDbRecords<T>(this.dbRecordBuilder, string.Empty, entity, false);
             var tasks = new List<Task>();
             foreach (var record in records)
             {

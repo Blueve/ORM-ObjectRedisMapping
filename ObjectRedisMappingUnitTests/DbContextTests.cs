@@ -104,6 +104,19 @@
         }
 
         [TestMethod]
+        public void TestRemove_PlainEntityKey_Exists()
+        {
+            this.db.StringSet("PlainEntity1", "True");
+            this.db.StringSet("PlainEntity1UserId", "1");
+            this.db.StringSet("PlainEntity1UserName", "Blueve");
+
+            this.dbContext.Remove<PlainEntity>(1.ToString());
+            Assert.IsFalse(this.db.KeyExists("PlainEntity1"));
+            Assert.IsFalse(this.db.KeyExists("PlainEntity1UserId"));
+            Assert.IsFalse(this.db.KeyExists("PlainEntity1UserName"));
+        }
+
+        [TestMethod]
         public void TestRemove_PlainObject()
         {
             try
